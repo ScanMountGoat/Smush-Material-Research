@@ -12,7 +12,7 @@
 
 # Default Textures
 | Name | Description | Param IDs |
-| --- | --- |
+| --- | --- | --- |
 | #replace_cubemap | Used as a cubemap | 5E, 63 |
 | default_Normal | Used as a normal map | 60 |
 | default_White | Used as a col map | 61, 133 |
