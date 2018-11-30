@@ -20,6 +20,9 @@ TODO : PBR lighting
 # Specular Cubemaps
 TODO: PBR lighting
 
+# Gao Bake Maps
+TODO: Used for stages. Probably ambient occlusion.
+
 # Normal Maps
 RG are used for the normal map. The B channel is likely a separate texture. A is possibly another texture.
 

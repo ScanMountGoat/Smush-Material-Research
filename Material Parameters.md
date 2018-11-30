@@ -57,7 +57,7 @@
 | 5C | Col Map |
 | 5D | Col Map |
 | 5E | Irradiance Cubemap |
-| 5F | |
+| 5F | Gao Map. Commonly uses default_White. |
 | 60 | Normal Map |
 | 61 | Emission Map/Eye Col Map |
 | 62 | PRM Map |
