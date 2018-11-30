@@ -21,7 +21,7 @@ TODO : PBR lighting
 TODO: PBR lighting
 
 # Normal Maps
-RG are used for the normal map. The G channel is likely a separate texture. A is possibly another texture.
+RG are used for the normal map. The B channel is likely a separate texture. A is possibly another texture.
 
 # Bake Lit Maps
 TODO: Some form of baked stage lighting.
