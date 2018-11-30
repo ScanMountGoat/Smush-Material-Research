@@ -32,7 +32,7 @@
 | 10A | |
 | 118 | |
 | 123 | |
-| 133 | Col Map |
+| 133 | Col Map: usually `default_White`, `noise_for_warp` for ink mats |
 | 137 | |
 | 13B | |
 | 13C | |
@@ -40,8 +40,8 @@
 | 13E | |
 | 13F | |
 | 142 | |
-| 144 | |
-| 145 | |
+| 144 | XYZW? X can be negative and has angle values (30, -60, or 720). Y and Z are always 0. W is always 300 or 0. Usually (0, 0, 0, 0). |
+| 145 | RGBA? Commonly (0.5, 4, 1, 1). G is the max component. R is the min component. |
 | 146 | UV Sampler? |
 | 147 | UV Sampler? |
 | 148 | |
@@ -56,7 +56,7 @@
 | 156 | |
 | 5C | Col Map |
 | 5D | Col Map |
-| 5E |Irradiance Cubemap |
+| 5E | Irradiance Cubemap |
 | 5F | |
 | 60 | Normal Map |
 | 61 | Emission Map/Eye Col Map |
@@ -84,7 +84,7 @@
 | 78 | |
 | 79 | |
 | 7A | |
-| 98 | |
+| 98 | Usually (0.5, 0, 0, 0), (1, 0, 0, 0), or (0, 0, 0, 0). All values are used, however. |
 | 99 | |
 | 9A | |
 | 9B | |
@@ -92,12 +92,12 @@
 | 9D | |
 | 9E | UV Sampler? |
 | 9F | |
-| A0 | |
+| A0 | RGBA? A is always 0 or 1. |
 | A1 | |
 | A2 | |
-| A3 | |
-| A5 | |
-| A6 | |
+| A3 | RGBA? A is always 1. Very dark or matches skin tone for skin mats (including non human characters). |
+| A5 | RGBA? A is always 0 or 1. Colors are similar to skin tones when used in skin mats (including non human characters). |
+| A6 | RGBA? Component values are usually equal. |
 | A7 | |
 | A8 | |
 | AA | |
