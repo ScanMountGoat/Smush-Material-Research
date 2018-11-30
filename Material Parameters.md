@@ -1,10 +1,10 @@
 # Material Parameters
 | Data Type | Description | Param IDs |
 | --- | --- | --- |
-| 1 |  | C8 D3 C6 CA D0 C4 C1 D2 CB CC C0 D1 |
+| 1 | ??? | C8 D3 C6 CA D0 C4 C1 D2 CB CC C0 D1 |
 | 2 | Boolean | E9 F3 EB EC EA EE ED EF F1 F4 E8 F2 F0 |
 | 5 | Vector 4 | 98 9B 146 A0 A5 A6 145 144 A3 142 9E 9F 156 151 155 13C 147 AA 149 AB 13B 14C 14D 14E 13E 13D 14A A2 9C A1 99 A7 A8 9A 9D 14F 13F 148 |
-| 10 | |  FC FE 100 102 103 101 FD 105 10A FF |
+| 10 | ??? |  FC FE 100 102 103 101 FD 105 10A FF |
 | 11 | Struct?| 118 |
 | 12 | Struct? | 123 |
 | B | Texture | 6A 60 61 62 63 5C 5D 5E 64 67 66 5F 65 133 68 69 |
@@ -24,14 +24,14 @@
 
 | Param ID | Description |
 | --- | --- |
-| 100 | |
-| 101 | |
-| 102 | |
-| 103 | |
-| 105 | |
-| 10A | |
-| 118 | |
-| 123 | |
+| 100 | ??? |
+| 101 | ??? |
+| 102 | ??? |
+| 103 | ??? |
+| 105 | ??? |
+| 10A | ??? |
+| 118 | Struct? |
+| 123 | Struct? |
 | 133 | Col Map: usually `default_White`, `noise_for_warp` for ink mats |
 | 137 | |
 | 13B | |
@@ -44,11 +44,11 @@
 | 145 | RGBA? Commonly (0.5, 4, 1, 1). G is the max component. R is the min component. |
 | 146 | UV Sampler? |
 | 147 | UV Sampler? |
-| 148 | |
-| 149 | |
-| 14A | |
-| 14C | |
-| 14D | |
+| 148 | UV Sampler? Used for materials with 4 col maps (Param IDS: 66, 67, 68, 69). |
+| 149 | UV Sampler? |
+| 14A | RGBA? A is always 0 or 1. |
+| 14C | XYZ values appear to be angle values. W is between 0 and 1 (usually 0.1). |
+| 14D | XYZ appear to be angle values and are 0, 45, 60, or 90. W is between 0 and 1. |
 | 14E | |
 | 14F | |
 | 151 | |
@@ -102,32 +102,32 @@
 | A8 | |
 | AA | |
 | AB | |
-| C0 | |
-| C1 | |
-| C4 | |
-| C6 | |
-| C8 | |
-| CA | |
-| CB | |
-| CC | |
-| D0 | |
-| D1 | |
-| D2 | |
-| D3 | |
-| E8 | |
-| E9 | |
-| EA | |
-| EB | |
-| EC | |
-| ED | |
-| EE | |
-| EF | |
-| F0 | |
-| F1 | |
-| F2 | |
-| F3 | |
-| F4 | |
-| FC | |
-| FD | |
-| FE | |
-| FF | |
+| C0 | ??? |
+| C1 | ??? |
+| C4 | ??? |
+| C6 | ??? |
+| C8 | ??? |
+| CA | ??? |
+| CB | ??? |
+| CC | ??? |
+| D0 | ??? |
+| D1 | ??? |
+| D2 | ??? |
+| D3 | ??? |
+| E8 | Boolean? |
+| E9 | Boolean? |
+| EA | Boolean? |
+| EB | Boolean? |
+| EC | Boolean? |
+| ED | Boolean? |
+| EE | Boolean? |
+| EF | Boolean? |
+| F0 | Boolean? |
+| F1 | Boolean? |
+| F2 | Boolean? |
+| F3 | Boolean? |
+| F4 | Boolean? |
+| FC | ??? |
+| FD | ??? |
+| FE | ??? |
+| FF | ??? |  
