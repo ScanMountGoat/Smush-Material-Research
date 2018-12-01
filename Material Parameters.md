@@ -33,12 +33,12 @@
 | 118 | Struct? |
 | 123 | Struct? |
 | 133 | Col Map: usually `default_White`, `noise_for_warp` for ink mats |
-| 137 | |
-| 13B | |
-| 13C | |
-| 13D | |
-| 13E | |
-| 13F | |
+| 137 | Struct? |
+| 13B | RGBA? |
+| 13C | RGBA? |
+| 13D | RGBA? |
+| 13E | XYZ are between 0 and 1. W is as high as 2400. |
+| 13F | RGBA? |
 | 142 | |
 | 144 | XYZW? X can be negative and has angle values (30, -60, or 720). Y and Z are always 0. W is always 300 or 0. Usually (0, 0, 0, 0). |
 | 145 | RGBA? Commonly (0.5, 4, 1, 1). G is the max component. R is the min component. |
@@ -49,11 +49,11 @@
 | 14A | RGBA? A is always 0 or 1. |
 | 14C | XYZ values appear to be angle values. W is between 0 and 1 (usually 0.1). |
 | 14D | XYZ appear to be angle values and are 0, 45, 60, or 90. W is between 0 and 1. |
-| 14E | |
-| 14F | |
-| 151 | |
-| 155 | |
-| 156 | |
+| 14E | RGBA? |
+| 14F | XYZW? Always (1, 25, 1, 25). |
+| 151 | RGBA? |
+| 155 | RGBA? Only used for a bayo skin mat. |
+| 156 | RGBA? |
 | 5C | Col Map |
 | 5D | Col Map |
 | 5E | Irradiance Cubemap |
@@ -67,7 +67,7 @@
 | 66 | Col Map |
 | 67 | Col Map |
 | 68 | Col Map |
-| 69 | |
+| 69 | Col/Projection Light Map |
 | 6A | Eye Col |
 | 6C | |
 | 6D | |
