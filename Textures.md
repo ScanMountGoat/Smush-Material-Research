@@ -9,6 +9,7 @@ RGB albedo textures. Unlike diffuse, albedo can color specular reflections for m
 | _w_col | Default Eye White |
 | _d_col | Dark Iris (Purple) |
 | _wd_col | Dark Eye White |
+*Note: The _d and _wd textures are possibly unused.*
 
 # PRM Maps
 The main PBR textures. No idea what "prm" means.
@@ -20,20 +21,27 @@ B = ambient occlusion
 A = specular (possibly reflectance at normal)  
 
 # Emi Maps
-Emission maps used for glowing effects such as Samus's lights. The majority of the texture will be black (no emission).
+Emission maps used for glowing effects such as Samus's lights. The majority of the texture will be
+black (no emission).
 
 # Normal Maps
-The RG channels are used for the normal map. The B channel is likely a separate texture. The A channel also appears to be a separate
-texture.  
+The RG channels are used for the normal map. The B channel of the normal map is likely generated.  
+R = X+  
+G = Y+  
+B = ???  
+A = ???
 
 # Irradiance Cubemaps
-TODO : PBR lighting
+Cubemap for PBR diffuse stage lighting. Usually only 16x16. Often uses the default texture
+#replace_cubemap.
 
 # Specular Cubemaps
-TODO: PBR lighting
+Cubemap for PBR specular stage lighting. Usually only 64x64. Often uses the default texture
+#replace_cubemap.
 
 # Gao Bake Maps
-Baked ambient occlusion used for stage models. The default_White texture is often used. Despite storing ambient occlusion data, the maps are RGB.
+Baked ambient occlusion used for stage models. The default_White texture is often used. Despite
+storing ambient occlusion data, the maps are RGB.
 
 # Bake Lit Maps
 Baked stage lighting. These maps are more colorful than Gao maps.
