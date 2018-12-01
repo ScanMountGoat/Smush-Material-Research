@@ -46,5 +46,8 @@ storing ambient occlusion data, the maps are RGB.
 # Bake Lit Maps
 Baked stage lighting. These maps are more colorful than Gao maps.
 
+# Projection Light Maps
+TODO: Used for some stages.
+
 # Color Grading LUT
 TODO: Some form of 2D lut for stage lighting. Most of the lut textures look identical.
