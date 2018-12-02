@@ -25,7 +25,7 @@ Emission maps used for glowing effects such as Samus's lights. The majority of t
 black (no emission).
 
 # Normal Maps
-The RG channels are used for the XY directions normal map. The Z direction of the normal map is
+The RG channels are used for the XY directions of the normal map. The Z direction of the normal map is
 generated. The masking texture is used for blending between materials for ink, metal box, and other material transformations. Cavity maps are similar to ambient occlusion maps but contain finer details.
 
 R = X+  
