@@ -15,8 +15,8 @@ RGB albedo textures. Unlike diffuse, albedo can color specular reflections for m
 The main PBR textures. No idea what "prm" means.
 
 *Note that these descriptions may change once more texture maps are analyzed.*  
-R = Metalness
-G = Glossiness  
+R = Metalness  
+G = Glossiness   
 B = Ambient Occlusion  
 A = Specular (possibly reflectance at normal)  
 
