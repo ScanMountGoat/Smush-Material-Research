@@ -15,21 +15,23 @@ RGB albedo textures. Unlike diffuse, albedo can color specular reflections for m
 The main PBR textures. No idea what "prm" means.
 
 *Note that these descriptions may change once more texture maps are analyzed.*  
-R = metalness  
-G = glossiness  
-B = ambient occlusion  
-A = specular (possibly reflectance at normal)  
+R = Metalness
+G = Glossiness  
+B = Ambient Occlusion  
+A = Specular (possibly reflectance at normal)  
 
 # Emi Maps
 Emission maps used for glowing effects such as Samus's lights. The majority of the texture will be
 black (no emission).
 
 # Normal Maps
-The RG channels are used for the normal map. The B channel of the normal map is likely generated.  
+The RG channels are used for the XY directions normal map. The Z direction of the normal map is
+generated. The masking texture is used for blending between materials for ink, metal box, and other material transformations. Cavity maps are similar to ambient occlusion maps but contain finer details.
+
 R = X+  
 G = Y+  
-B = ???  
-A = ???
+B = Material Mask  
+A = Cavity Map
 
 # Irradiance Cubemaps
 Cubemap for PBR diffuse stage lighting. Usually only 16x16. Often uses the default texture
