@@ -39,7 +39,7 @@
 | 13D | RGBA? |
 | 13E | XYZ are between 0 and 1. W is as high as 2400. |
 | 13F | RGBA? |
-| 142 | |
+| 142 | XYZW? X has large values. YZW are always 0. |
 | 144 | XYZW? X can be negative and has angle values (30, -60, or 720). Y and Z are always 0. W is always 300 or 0. Usually (0, 0, 0, 0). |
 | 145 | RGBA? Commonly (0.5, 4, 1, 1). G is the max component. R is the min component. |
 | 146 | UV Sampler? |
@@ -69,39 +69,39 @@
 | 68 | Col Map |
 | 69 | Col/Projection Light Map |
 | 6A | Eye Col |
-| 6C | |
-| 6D | |
-| 6E | |
-| 6F | |
-| 70 | |
-| 71 | |
-| 72 | |
-| 73 | |
-| 74 | |
-| 75 | |
-| 76 | |
-| 77 | |
-| 78 | |
-| 79 | |
-| 7A | |
+| 6C | Struct? |
+| 6D | Struct? |
+| 6E | Struct? |
+| 6F | Struct? |
+| 70 | Struct? |
+| 71 | Struct? |
+| 72 | Struct? |
+| 73 | Struct? |
+| 74 | Struct? |
+| 75 | Struct? |
+| 76 | Struct? |
+| 77 | Struct? |
+| 78 | Struct? |
+| 79 | Struct? |
+| 7A | Struct? |
 | 98 | Usually (0.5, 0, 0, 0), (1, 0, 0, 0), or (0, 0, 0, 0). All values are used, however. |
-| 99 | |
-| 9A | |
-| 9B | |
-| 9C | |
-| 9D | |
+| 99 | RGBA? |
+| 9A | RGBA? |
+| 9B | RGBA? |
+| 9C | XYZW? Always (0, 1000, 1, 0.2). |
+| 9D | RGBA? Always (1, 1, 1, 1). |
 | 9E | UV Sampler? |
-| 9F | |
+| 9F | RGBA? Always (1, 1, 1, 0). |
 | A0 | RGBA? A is always 0 or 1. |
-| A1 | |
-| A2 | |
+| A1 | RGBA? Always (0.2620026, -0.6427876, -0.7198463, 0). |
+| A2 | RGBA? Always (1, 0.8, 0.6, 0). |
 | A3 | RGBA? A is always 1. Very dark or matches skin tone for skin mats (including non human characters). |
 | A5 | RGBA? A is always 0 or 1. Colors are similar to skin tones when used in skin mats (including non human characters). |
 | A6 | RGBA? Component values are usually equal. |
-| A7 | |
-| A8 | |
-| AA | |
-| AB | |
+| A7 | RGBA? Always (0, 1000, 1, 0.2). |
+| A8 | XYZW? Always (0.017, 35, 43.47, 0). |
+| AA | XYZW? Values are very large and sometimes powers of 2. |
+| AB | RGBA? Usually (1, 1, 1, 1). |
 | C0 | ??? |
 | C1 | ??? |
 | C4 | ??? |
