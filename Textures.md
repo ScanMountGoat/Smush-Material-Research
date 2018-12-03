@@ -12,7 +12,7 @@ RGB albedo textures. Unlike diffuse, albedo can color specular reflections for m
 *Note: The _d and _wd textures are possibly unused.*
 
 # PRM Maps
-The main PBR texture maps are packed into a single texture. Metalness is either 0 (non metal) or 1 (metal). Glosiness adds finer surface details. Ambient occlusion is a form of baked lighting. Specular controls the reflection intensity for non metals.
+The main PBR texture maps are packed into a single texture. Metalness is either 0 (non metal) or 1 (metal). Glossiness adds finer surface details. Ambient occlusion is a form of baked ambient lighting. Specular controls the reflectance at normal for non metals.
 
 R = Metalness  
 G = Glossiness   
