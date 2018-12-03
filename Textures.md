@@ -12,13 +12,15 @@ RGB albedo textures. Unlike diffuse, albedo can color specular reflections for m
 *Note: The _d and _wd textures are possibly unused.*
 
 # PRM Maps
-The main PBR textures. No idea what "prm" means.
+The main PBR texture maps are packed into a single texture. Metalness is either 0 (non metal) or 1 (metal). Glosiness adds finer surface details. Ambient occlusion is a form of baked lighting. Specular controls the reflection intensity for non metals.
 
-*Note that these descriptions may change once more texture maps are analyzed.*  
 R = Metalness  
 G = Glossiness   
 B = Ambient Occlusion  
-A = Specular (possibly reflectance at normal)  
+A = Specular
+
+*For more technical details, see the following paper by Disney, whose principles have become an industry standard for PBR materials. The PRM maps work in a similar manner.*  
+[Principled Shading Paper by Disney](https://disney-animation.s3.amazonaws.com/library/s2012_pbs_disney_brdf_notes_v2.pdf)
 
 # Emi Maps
 Emission maps used for glowing effects such as Samus's lights. The majority of the texture will be
