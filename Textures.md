@@ -1,14 +1,20 @@
 # Col Maps
 RGB albedo textures. Unlike diffuse, albedo can color specular reflections for metallic materials. The alpha channel is used for transparency.
 
-| Eye Texture Name | Usage |
+### Naming Conventions
+Textures in Smash Ultimate are referenced using strings in the materials. The table describes common albedo texture naming conventions.
+
+| Col Texture Name | Usage |
 | --- | --- |
-| _b_col | Default Iris |
-| _l_col | World of Light Enemy Iris (Red) |
-| _g_col | Final Smash Iris (Yellow) |
-| _w_col | Default Eye White |
-| _d_col | Dark Iris (Purple) |
-| _wd_col | Dark Eye White |
+| _b | Default Iris |
+| _l | World of Light Enemy Iris (Red) |
+| _g | Final Smash Iris (Yellow) |
+| _w | Default Eye White |
+| _d | Dark Iris (Purple) |
+| _wd | Dark Eye White |
+| alp_ | Hair Color |
+| def_ | Main Color | 
+
 *Note: The _d and _wd textures are possibly unused.*
 
 # PRM Maps

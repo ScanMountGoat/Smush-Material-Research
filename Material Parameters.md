@@ -54,8 +54,8 @@
 | 151 | RGBA? |
 | 155 | RGBA? Only used for a bayo skin mat. |
 | 156 | RGBA? |
-| 5C | Col Map |
-| 5D | Col Map |
+| 5C | Col Map. The main col texture. Also used for eye white textures. |
+| 5D | Col Map. A secondary col texture. Used for iris textures. |
 | 5E | Irradiance Cubemap |
 | 5F | Gao Map. Commonly uses default_White. |
 | 60 | Normal Map |
