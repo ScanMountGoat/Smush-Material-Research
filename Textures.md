@@ -13,7 +13,7 @@ Textures in Smash Ultimate are referenced using strings in the materials. The ta
 | _d | Dark Iris (Purple) |
 | _wd | Dark Eye White |
 | alp_ | Hair Color |
-| def_ | Main Color | 
+| def_ | Main Color |
 
 *Note: The _d and _wd textures are possibly unused.*
 
@@ -33,8 +33,11 @@ Emission maps used for glowing effects such as Samus's lights. The majority of t
 black (no emission).
 
 # Normal Maps
-The RG channels are used for the XY directions of the normal map. The Z direction of the normal map is
-generated. The masking texture is used for blending between materials for ink, metal box, and other material transformations. Cavity maps are similar to ambient occlusion maps but contain finer details.
+The RG channels are used for the XY directions of the normal map. The Z direction of the normal map
+is generated. The masking texture is used for blending between materials for ink, metal box, and
+other material transformations. Cavity maps are similar to ambient occlusion maps but contain finer
+details. The cavity map is used for specular occlusion, meaning that darker areas on the map will
+have less intense reflections.
 
 R = X+  
 G = Y+  
