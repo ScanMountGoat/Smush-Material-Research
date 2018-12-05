@@ -116,7 +116,7 @@
 | D3 | ??? |
 | E8 | Boolean? |
 | E9 | Boolean? |
-| EA | Boolean? |
+| EA | Boolean? Set to 0 for Olimar's helmet. Usually not present. |
 | EB | Boolean? |
 | EC | Boolean? |
 | ED | Boolean? |
