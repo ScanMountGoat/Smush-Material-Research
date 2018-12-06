@@ -10,12 +10,10 @@ Textures in Smash Ultimate are referenced using strings in the materials. The ta
 | _l | World of Light Enemy Iris (Red) |
 | _g | Final Smash Iris (Yellow) |
 | _w | Default Eye White |
-| _d | Dark Iris (Purple) |
-| _wd | Dark Eye White |
+| _d | World of Light Enemy Dark Iris (Purple) |
+| _wd | World of Light Enemy Dark Eye White |
 | alp_ | Hair Color |
 | def_ | Main Color |
-
-*Note: The _d and _wd textures are possibly unused.*
 
 # PRM Maps
 The main PBR texture maps are packed into a single texture. Metalness is either 0 (non metal) or 1 (metal). Glossiness adds finer surface details. Ambient occlusion is a form of baked ambient lighting. Specular controls the reflectance at normal for non metals.
