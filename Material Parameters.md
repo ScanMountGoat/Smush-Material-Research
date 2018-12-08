@@ -84,7 +84,7 @@
 | 78 | Struct? |
 | 79 | Struct? |
 | 7A | Struct? |
-| 98 | Usually (0.5, 0, 0, 0), (1, 0, 0, 0), or (0, 0, 0, 0). All values are used, however. |
+| 98 | Usually (0.5, 0, 0, 0), (1, 0, 0, 0), or (0, 0, 0, 0). All values are used, however. 0 = texture alpha. 1 = no texture alpha. |
 | 99 | RGBA? |
 | 9A | RGBA? |
 | 9B | RGBA? |
@@ -97,7 +97,7 @@
 | A2 | RGBA? Always (1, 0.8, 0.6, 0). |
 | A3 | RGBA? A is always 1. Very dark or matches skin tone for skin mats (including non human characters). |
 | A5 | RGBA? A is always 0 or 1. Colors are similar to skin tones when used in skin mats (including non human characters). |
-| A6 | RGBA? Component values are usually equal. |
+| A6 | RGBA? Component values are usually equal. Controls some sort of rim lighting effect. |
 | A7 | RGBA? Always (0, 1000, 1, 0.2). |
 | A8 | XYZW? Always (0.017, 35, 43.47, 0). |
 | AA | XYZW? Values are very large and sometimes powers of 2. |
