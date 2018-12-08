@@ -61,4 +61,4 @@ Baked stage lighting. These maps are more colorful than Gao maps.
 TODO: Used for some stages.
 
 # Color Grading LUT
-TODO: Some form of 2D lut for stage lighting. Most of the lut textures look identical.
+A 2D lookup table for color grading. Each stage has a neutral texture. These textures are also used for the various filters for screenshots (sepia, vivid, etc).
