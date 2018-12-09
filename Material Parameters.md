@@ -92,9 +92,9 @@
 | 65 | Lit/Bake Lit Map |
 | 66 | Col Map |
 | 67 | Col Map |
-| 68 | Col Map |
+| 68 | Col Map/Projection Light Map |
 | 69 | Col/Projection Light Map |
-| 6A | Eye Col |
+| 6A | Eye Col/Emisson Map |
 | 133 | Col Map: usually `default_White`, `noise_for_warp` for ink mats |
 
 ### Default Textures
