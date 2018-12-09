@@ -149,12 +149,12 @@
 | Param ID | Description |
 | --- | --- |
 | E8 | Boolean? |
-| E9 | Boolean? |
+| E9 | Boolean? Set to 0 for fountain of dreams water. |
 | EA | Set to 0 for Olimar's helmet. Set to 1 for Incineroar emission mesh. Usually not present. |
 | EB | Boolean? |
 | EC | Boolean? |
 | ED | Boolean? |
-| EE | Boolean? |
+| EE | Boolean? Set to 1 for animal crossing island water. |
 | EF | Boolean? |
 | F0 | Boolean? |
 | F1 | Boolean? |
