@@ -28,10 +28,37 @@
 | 103 | ??? |
 | 105 | ??? |
 | 10A | ??? |
+
+### Struct Type 11
+| Param ID | Description |
+| --- | --- |
 | 118 | Struct? |
+
+### Struct Type 12
+| Param ID | Description |
+| --- | --- |
 | 123 | Struct? |
-| 133 | Col Map: usually `default_White`, `noise_for_warp` for ink mats |
-| 137 | Struct? |
+
+| Param ID | Description |
+| --- | --- |
+| 98 | Usually (0.5, 0, 0, 0), (1, 0, 0, 0), or (0, 0, 0, 0). All values are used, however. 0 = texture alpha. 1 = no texture alpha. |
+| 99 | RGBA? |
+| 9A | RGBA? |
+| 9B | RGBA? |
+| 9C | XYZW? Always (0, 1000, 1, 0.2). |
+| 9D | RGBA? Always (1, 1, 1, 1). |
+| 9E | UV Sampler? |
+| 9F | RGBA? Always (1, 1, 1, 0). |
+| A0 | RGBA? A is always 0 or 1. |
+| A1 | RGBA? Always (0.2620026, -0.6427876, -0.7198463, 0). |
+| A2 | RGBA? Always (1, 0.8, 0.6, 0). |
+| A3 | RGBA? A is always 1. Very dark or matches skin tone for skin mats (including non human characters). |
+| A5 | RGBA? A is always 0 or 1. Colors are similar to skin tones when used in skin mats (including non human characters). |
+| A6 | RGBA? Component values are usually equal. Controls some sort of rim lighting effect. |
+| A7 | RGBA? Always (0, 1000, 1, 0.2). |
+| A8 | XYZW? Always (0.017, 35, 43.47, 0). |
+| AA | XYZW? Values are very large and sometimes powers of 2. |
+| AB | RGBA? Usually (1, 1, 1, 1). |
 | 13B | RGBA? |
 | 13C | RGBA? |
 | 13D | RGBA? |
@@ -53,6 +80,7 @@
 | 155 | RGBA? Only used for a bayo skin mat. |
 | 156 | RGBA? |
 
+
 ### Textures
 *Note that multiple params use col maps. This is mosty likely due to separate UV channels and other factors.*
 
@@ -73,7 +101,9 @@
 | 68 | Col Map |
 | 69 | Col/Projection Light Map |
 | 6A | Eye Col |
+| 133 | Col Map: usually `default_White`, `noise_for_warp` for ink mats |
 
+### Struct Type E
 | Param ID | Description |
 | --- | --- |
 | 6C | Struct? |
@@ -91,24 +121,11 @@
 | 78 | Struct? |
 | 79 | Struct? |
 | 7A | Struct? |
-| 98 | Usually (0.5, 0, 0, 0), (1, 0, 0, 0), or (0, 0, 0, 0). All values are used, however. 0 = texture alpha. 1 = no texture alpha. |
-| 99 | RGBA? |
-| 9A | RGBA? |
-| 9B | RGBA? |
-| 9C | XYZW? Always (0, 1000, 1, 0.2). |
-| 9D | RGBA? Always (1, 1, 1, 1). |
-| 9E | UV Sampler? |
-| 9F | RGBA? Always (1, 1, 1, 0). |
-| A0 | RGBA? A is always 0 or 1. |
-| A1 | RGBA? Always (0.2620026, -0.6427876, -0.7198463, 0). |
-| A2 | RGBA? Always (1, 0.8, 0.6, 0). |
-| A3 | RGBA? A is always 1. Very dark or matches skin tone for skin mats (including non human characters). |
-| A5 | RGBA? A is always 0 or 1. Colors are similar to skin tones when used in skin mats (including non human characters). |
-| A6 | RGBA? Component values are usually equal. Controls some sort of rim lighting effect. |
-| A7 | RGBA? Always (0, 1000, 1, 0.2). |
-| A8 | XYZW? Always (0.017, 35, 43.47, 0). |
-| AA | XYZW? Values are very large and sometimes powers of 2. |
-| AB | RGBA? Usually (1, 1, 1, 1). |
+| 137 | Struct? |
+
+
+| Param ID | Description |
+| --- | --- |
 | C0 | ??? |
 | C1 | ??? |
 | C4 | ??? |
@@ -131,7 +148,7 @@
 | --- | --- |
 | E8 | Boolean? |
 | E9 | Boolean? |
-| EA | Boolean? Set to 0 for Olimar's helmet. Set to 1 for Incineroar emission. Usually not present. |
+| EA | Set to 0 for Olimar's helmet. Set to 1 for Incineroar emission mesh. Usually not present. |
 | EB | Boolean? |
 | EC | Boolean? |
 | ED | Boolean? |
