@@ -20,8 +20,6 @@
 
 
 # Material Param Descriptions
-*Note that multiple params use col maps. This is mosty likely due to separate UV channels and other factors.*
-
 | Param ID | Description |
 | --- | --- |
 | 100 | ??? |
@@ -54,6 +52,12 @@
 | 151 | RGBA? |
 | 155 | RGBA? Only used for a bayo skin mat. |
 | 156 | RGBA? |
+
+### Textures
+*Note that multiple params use col maps. This is mosty likely due to separate UV channels and other factors.*
+
+| Param ID | Description |
+| --- | --- |
 | 5C | Col Map. The main col texture. Also used for eye white textures. |
 | 5D | Col Map. A secondary col texture. Used for iris textures. |
 | 5E | Irradiance Cubemap |
@@ -69,6 +73,9 @@
 | 68 | Col Map |
 | 69 | Col/Projection Light Map |
 | 6A | Eye Col |
+
+| Param ID | Description |
+| --- | --- |
 | 6C | Struct? |
 | 6D | Struct? |
 | 6E | Struct? |
@@ -114,9 +121,17 @@
 | D1 | ??? |
 | D2 | ??? |
 | D3 | ??? |
+| FC | ??? |
+| FD | ??? |
+| FE | ??? |
+| FF | ??? |  
+
+### Boolean Flags
+| Param ID | Description |
+| --- | --- |
 | E8 | Boolean? |
 | E9 | Boolean? |
-| EA | Boolean? Set to 0 for Olimar's helmet. Usually not present. |
+| EA | Boolean? Set to 0 for Olimar's helmet. Set to 1 for Incineroar emission. Usually not present. |
 | EB | Boolean? |
 | EC | Boolean? |
 | ED | Boolean? |
@@ -127,7 +142,3 @@
 | F2 | Boolean? |
 | F3 | Boolean? |
 | F4 | Boolean? |
-| FC | ??? |
-| FD | ??? |
-| FE | ??? |
-| FF | ??? |  
