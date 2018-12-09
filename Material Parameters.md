@@ -10,15 +10,6 @@
 | B | Texture | 6A 60 61 62 63 5C 5D 5E 64 67 66 5F 65 133 68 69 |
 | E | Struct? |  7A 70 71 72 73 6C 6E 6D 74 77 76 6F 75 137 78 79 |
 
-# Default Textures
-| Name | Description | Param IDs |
-| --- | --- | --- |
-| #replace_cubemap | Used as a cubemap | 5E, 63 |
-| default_Normal | Used as a normal map | 60 |
-| default_White | Used as a col map | 61, 133 |
-| default_black | Used as a col map | 61 |
-
-
 # Material Param Descriptions
 | Param ID | Description |
 | --- | --- |
@@ -38,6 +29,9 @@
 | Param ID | Description |
 | --- | --- |
 | 123 | Struct? |
+
+### Float Vector 4
+*Stores an RGBA color or 4 float parameters*.
 
 | Param ID | Description |
 | --- | --- |
@@ -82,7 +76,7 @@
 
 
 ### Textures
-*Note that multiple params use col maps. This is mosty likely due to separate UV channels and other factors.*
+*Note that multiple params use col maps. This is mosty likely due to separate UV channels and texture blending.*
 
 | Param ID | Description |
 | --- | --- |
@@ -102,6 +96,14 @@
 | 69 | Col/Projection Light Map |
 | 6A | Eye Col |
 | 133 | Col Map: usually `default_White`, `noise_for_warp` for ink mats |
+
+### Default Textures
+| Name | Description | Param IDs |
+| --- | --- | --- |
+| #replace_cubemap | Used as a cubemap | 5E, 63 |
+| default_Normal | Used as a normal map | 60 |
+| default_White | Used as a col map | 61, 133 |
+| default_black | Used as a col map | 61 |
 
 ### Struct Type E
 | Param ID | Description |
