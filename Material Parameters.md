@@ -20,15 +20,35 @@
 | 105 | ??? |
 | 10A | ??? |
 
-### Struct Type 11
-| Param ID | Description |
-| --- | --- |
-| 118 | Struct? |
+### Struct Type 11 (Param ID 118)
+Possibly related to alpha blending in some way.  
 
-### Struct Type 12
-| Param ID | Description |
+| Field | Values|
 | --- | --- |
-| 123 | Struct? |
+| Unk1 | 1 |
+| Unk2 | 0 |
+| Unk3 | 0 or 6 |
+| Unk4 | 1 or 0 |
+| Unk5 | 0 |
+| Unk6 | 0 or 6 |
+| Unk7 | 0 |
+| Unk8 | 0 |
+| Unk9 | 0 |
+| Unk10| 0 or 5 |
+| Unk11| 0 |
+| Unk12| 0 |
+
+### Struct Type 12 (Param ID 123)
+| Field | Values|
+| --- | --- |
+| Unk1 | ??? |
+| Unk2 | ??? |
+| Unk3 | ??? |
+| Unk4 | ??? |
+| Unk5 | ??? |
+| Unk6 | ??? |
+| Unk7 | ??? |
+| Unk8 | ??? |
 
 ### Float Vector 4
 *Stores an RGBA color or 4 float parameters*.
