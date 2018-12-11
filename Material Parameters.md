@@ -80,7 +80,7 @@ Possibly related to alpha blending in some way.
 | 13F | RGBA? |
 | 142 | XYZW? X has large values. YZW are always 0. |
 | 144 | XYZW? X can be negative and has angle values (30, -60, or 720). Y and Z are always 0. W is always 300 or 0. Usually (0, 0, 0, 0). |
-| 145 | RGBA? Commonly (0.5, 4, 1, 1). G is the max component. R is the min component. |
+| 145 | RGBA? Commonly (0.5, 4, 1, 1). G is the max component. R is the min component. Used for skin materials. |
 | 146 | UV Sampler? |
 | 147 | UV Sampler? |
 | 148 | UV Sampler? Used for materials with 4 col maps (Param IDS: 66, 67, 68, 69). |
