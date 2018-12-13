@@ -126,25 +126,48 @@ Possibly related to alpha blending in some way.
 | default_black | Used as a col map | 61 |
 
 ### Struct Type E
+Probably some sort of texture information. Each texture parameter has a corresponding parameter of
+type E specified in the same order. The first 6 values are often (0, 0, 0, 1, 1, 1) or
+(1, 1, 1, 1, 1, 1).
+
 | Param ID | Description |
 | --- | --- |
-| 6C | Struct? |
-| 6D | Struct? |
-| 6E | Struct? |
-| 6F | Struct? |
-| 70 | Struct? |
-| 71 | Struct? |
-| 72 | Struct? |
-| 73 | Struct? |
-| 74 | Struct? |
-| 75 | Struct? |
-| 76 | Struct? |
-| 77 | Struct? |
-| 78 | Struct? |
-| 79 | Struct? |
-| 7A | Struct? |
-| 137 | Struct? |
+| 6C | Col Map (5C) |
+| 6D | ??? |
+| 6E | ??? |
+| 6F | Gao Map (6F) |
+| 70 | Nor Map (60) |
+| 71 | Emi Map (61) |
+| 72 | PRM Map (62) |
+| 73 | Specular Cube Map (63) |
+| 74 | ??? |
+| 75 | Bake Lit Map (65) |
+| 76 | ??? |
+| 77 | ??? |
+| 78 | ??? |
+| 79 | ??? |
+| 7A | ??? |
+| 137 | ??? |
 
+| Field | Values|
+| --- | --- |
+| Unk1 | 0, 1 |
+| Unk2 | 0, 1 |
+| Unk3 | 0, 1 |
+| Unk4 | 1 |
+| Unk5 | 1 |
+| Unk6 | 1, 2  |
+| Unk7 | 0 |
+| Unk8 | 0 |
+| Unk9 | 0 |
+| Unk10 | 0  |
+| Unk11 | 0 |
+| Unk12 | 3.40282E+38 |
+| Unk13 | 0 |
+| Unk14 | 2, 4 |
+| Unk15 | 0, 1, 8, 1065353216 |
+
+### Unk Type
 
 | Param ID | Description |
 | --- | --- |
