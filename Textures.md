@@ -18,14 +18,22 @@ albedo texture naming conventions.
 | def_ | Main Color |
 
 # PRM Maps
-The main PBR texture maps are packed into a single texture. Metalness is either 0 (non metal) or 1
-(metal). Glossiness adds finer surface details. Ambient occlusion is a form of baked ambient
-lighting. Specular controls the reflectance at normal for non metals.
+The main PBR texture maps are packed into a single texture. This simplifies the number of textures needed and can better take advantage of compression methods.
+
+Metalness is either 0 (non metal) or 1
+(metal). Values in between 0 and 1 are allowed but not physically correct.
+
+Roughness adds finer surface details. Smooth materials such as metals will have low roughness values.
+
+Ambient occlusion is a form of baked ambient
+lighting.
+
+Specular controls the reflectance at normal for non metals. The texture value is remapped to a range of common values for non metals. Note that this is also how Blender's principled shader works.
 
 | Channel | Usage |
 | --- | --- |
 | R | Metalness  |
-| G | Glossiness   |
+| G | Roughness   |
 | B | Ambient Occlusion |
 | A | Specular Reflectivity |
 
