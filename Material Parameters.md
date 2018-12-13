@@ -71,7 +71,7 @@ Possibly related to alpha blending in some way.
 | A6 | RGBA? Component values are usually equal. Controls some sort of rim lighting effect. |
 | A7 | RGBA? Always (0, 1000, 1, 0.2). |
 | A8 | XYZW? Always (0.017, 35, 43.47, 0). |
-| AA | XYZW? Values are very large and sometimes powers of 2. |
+| AA | Used for sprite sheet animations. X = horizontal sprite count. Y = vertical sprite count. Z = ??? W = ??? |
 | AB | RGBA? Usually (1, 1, 1, 1). |
 | 13B | RGBA? |
 | 13C | RGBA? |
