@@ -192,7 +192,7 @@ type E specified in the same order. The first 6 values are often (0, 0, 0, 1, 1,
 | Param ID | Description |
 | --- | --- |
 | E8 | Boolean? |
-| E9 | Boolean? Set to 0 for fountain of dreams water. |
+| E9 | Boolean? Set to 0 for fountain of dreams water. Seems to enables/disable specular occlusion for fighters. |
 | EA | Set to 0 for Olimar's helmet. Set to 1 for Incineroar emission mesh. Usually not present. |
 | EB | Boolean? |
 | EC | Boolean? |
