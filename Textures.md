@@ -46,8 +46,11 @@ black (no emission). Some materials use emission in place of a col map.
 
 # Normal Maps
 The RG channels are used for the XY directions of the normal map. The Z direction of the normal map
-is generated. The masking texture is used for blending between materials for ink, metal box, and
-other material transformations. Cavity maps are similar to ambient occlusion maps but contain finer
+is generated.
+
+The masking texture is used for blending between materials for ink, metal box, and gold forms (Xerneas).
+
+Cavity maps are similar to ambient occlusion maps but contain finer
 details. The cavity map is used for specular occlusion, meaning that darker areas on the map will
 have less intense reflections.
 
