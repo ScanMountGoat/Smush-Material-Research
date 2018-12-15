@@ -151,9 +151,9 @@ type E specified in the same order. The first 6 values are often (0, 0, 0, 1, 1,
 
 | Field | Values|
 | --- | --- |
-| Unk1 | 0, 1 |
-| Unk2 | 0, 1 |
-| Unk3 | 0, 1 |
+| WrapS | 0 (Repeat), 1 (Clamp?), 2 (Mirrored Repeat) |
+| WrapT | 0 (Repeat), 1 (Clamp?), 2 (Mirrored Repeat) |
+| WrapR? | 0 (Repeat), 1 (Clamp?), 2 (Mirrored Repeat) |
 | Unk4 | 1 |
 | Unk5 | 1 |
 | Unk6 | 1, 2  |
