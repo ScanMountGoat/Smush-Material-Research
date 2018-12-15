@@ -2,14 +2,14 @@
 The position of the vertices.
 
 # Tangent0
-The tangent vector. The bitangent vector is generated.
+The tangent vector used for calculating normal maps and anisotropic specular. The bitangent vector needed for these calculations is generated.
 
 # colorSet
-Vertex colors. RGB values are typically 0 to 128. Alpha valures are typically 0 to 255.
+Vertex color sets. RGBA values are typically 0 to 128, which are remapped to a standard 0.0 to 1.0 range. Ex: 0 = black. 128 = white.
 
 | Attribute | Description |
 | --- | --- |
-| colorSet1 | RGBA? Used for most models, including fighters. |
+| colorSet1 | The model color is multiplied by the vertex color. Commonly stores ambient occlusion or baked lighting data for fighters, stages, etc. |
 | colorSet2 | ??? |
 | colorSet3 | ??? |
 | colorSet2_1 | ??? |
