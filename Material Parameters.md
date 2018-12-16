@@ -4,13 +4,24 @@
 | 1 | Float | C8 D3 C6 CA D0 C4 C1 D2 CB CC C0 D1 |
 | 2 | Boolean | E9 F3 EB EC EA EE ED EF F1 F4 E8 F2 F0 |
 | 5 | Vector 4 | 98 9B 146 A0 A5 A6 145 144 A3 142 9E 9F 156 151 155 13C 147 AA 149 AB 13B 14C 14D 14E 13E 13D 14A A2 9C A1 99 A7 A8 9A 9D 14F 13F 148 |
-| 10 | ??? |  FC FE 100 102 103 101 FD 105 10A FF |
-| 11 | Struct?| 118 |
-| 12 | Struct? | 123 |
+| 10 | Struct |  FC FE 100 102 103 101 FD 105 10A FF |
+| 11 | Struct | 118 |
+| 12 | Struct | 123 |
 | B | Texture | 6A 60 61 62 63 5C 5D 5E 64 67 66 5F 65 133 68 69 |
 | E | Struct? |  7A 70 71 72 73 6C 6E 6D 74 77 76 6F 75 137 78 79 |
 
 # Material Param Descriptions
+### Struct Type 10
+The values are always (1, 1, 0, 0, 0).
+
+| Field | Values|
+| --- | --- |
+| Unk1 | 1 |
+| Unk2 | 1 |
+| Unk3 | 0 |
+| Unk4 | 0 |
+| Unk5 | 0 |
+
 | Param ID | Description |
 | --- | --- |
 | 100 | ??? |
@@ -91,8 +102,8 @@ Possibly related to alpha blending in some way.
 | 14E | RGBA? |
 | 14F | XYZW? Always (1, 25, 1, 25). |
 | 151 | RGBA? |
-| 155 | RGBA? Only used for a bayo skin mat. |
-| 156 | RGBA? |
+| 155 | RGBA? Only used for one of Bayonetta's body anim meshes. |
+| 156 | RGBA? Used for some stages. |
 
 
 ### Textures
