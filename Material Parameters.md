@@ -76,7 +76,7 @@ Possibly related to alpha blending in some way.
 | 13B | RGBA? |
 | 13C | RGBA? |
 | 13D | RGBA? |
-| 13E | XYZ are between 0 and 1. W is as high as 2400. |
+| 13E | RGB controls some sort of fog color. W is as high as 2400. |
 | 13F | RGBA? |
 | 142 | XYZW? X has large values. YZW are always 0. |
 | 144 | XYZW? X can be negative and has angle values (30, -60, or 720). Y and Z are always 0. W is always 300 or 0. Usually (0, 0, 0, 0). |
@@ -87,7 +87,7 @@ Possibly related to alpha blending in some way.
 | 149 | UV Sampler? |
 | 14A | RGBA? A is always 0 or 1. |
 | 14C | XYZ values appear to be angle values. W is between 0 and 1 (usually 0.1). |
-| 14D | XYZ appear to be angle values and are 0, 45, 60, or 90. W is between 0 and 1. |
+| 14D | Used for moving plants on Green Green's, Great Cave Offensive, etc. XYZ appear to be angle values and are 0, 45, 60, or 90. W = intensity? |
 | 14E | RGBA? |
 | 14F | XYZW? Always (1, 25, 1, 25). |
 | 151 | RGBA? |
