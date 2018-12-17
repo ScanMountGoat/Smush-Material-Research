@@ -74,11 +74,11 @@ Possibly related to alpha blending in some way.
 | 9D | RGBA? Always (1, 1, 1, 1). |
 | 9E | UV Sampler? |
 | 9F | RGBA? Always (1, 1, 1, 0). |
-| A0 | RGBA? A is always 0 or 1. |
+| A0 | RGBA? A is always 0 or 1. Used for Mario Galaxy. |
 | A1 | RGBA? Always (0.2620026, -0.6427876, -0.7198463, 0). |
 | A2 | RGBA? Always (1, 0.8, 0.6, 0). |
 | A3 | RGBA? A is always 1. Very dark or matches skin tone for skin mats (including non human characters). |
-| A5 | RGBA? Always (1, 1, 1, 1). |
+| A5 | RGB diffuse color multiplier. May also affect alpha. Usually present and set to (1, 1, 1, 1). |
 | A6 | RGBA? Component values are usually equal. Controls some sort of rim lighting effect. |
 | A7 | RGBA? Always (0, 1000, 1, 0.2). |
 | A8 | XYZW? Always (0.017, 35, 43.47, 0). |
