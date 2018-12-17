@@ -42,7 +42,7 @@ Specular controls the reflectance at normal for non metals. The texture value is
 
 # Emi Maps
 Emission maps used for glowing effects such as Samus's lights. The majority of the texture will be
-black (no emission). Some materials use emission in place of a col map.
+black (no emission). Some materials use emission in place of a col map for flat lighting.
 
 # Normal Maps
 The RG channels are used for the XY directions of the normal map. The Z direction of the normal map
