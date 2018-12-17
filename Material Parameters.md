@@ -156,7 +156,7 @@ type E specified in the same order. The first 6 values are often (0, 0, 0, 1, 1,
 | 76 | ??? |
 | 77 | ??? |
 | 78 | ??? |
-| 79 | ??? |
+| 79 | Projection Map (69) |
 | 7A | ??? |
 | 137 | ??? |
 
