@@ -30,6 +30,10 @@ The values are always (1, 1, 0, 0, 0).
 | 103 | ??? |
 | 105 | ??? |
 | 10A | ??? |
+| FC | ??? |
+| FD | ??? |
+| FE | ??? |
+| FF | ??? |  
 
 ### Struct Type 11 (Param ID 118)
 Possibly related to alpha blending in some way.  
@@ -181,10 +185,10 @@ type E specified in the same order. The first 6 values are often (0, 0, 0, 1, 1,
 ### Float
 | Param ID | Description |
 | --- | --- |
-| C0 | ??? |
+| C0 | Set to 0.997 for some models on pikmin_planet and fox_venom. |
 | C1 | ??? |
 | C4 | ??? |
-| C6 | ??? |
+| C6 | Set to 1 for the pikmin_planet models that use C0. |
 | C8 | Present for most fighters. |
 | CA | Used for anisotropic hair materials. |
 | CB | ??? |
@@ -193,10 +197,6 @@ type E specified in the same order. The first 6 values are often (0, 0, 0, 1, 1,
 | D1 | ??? |
 | D2 | ??? |
 | D3 | ??? |
-| FC | ??? |
-| FD | ??? |
-| FE | ??? |
-| FF | ??? |  
 
 ### Boolean Flags
 | Param ID | Description |
