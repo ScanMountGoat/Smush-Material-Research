@@ -186,7 +186,7 @@ type E specified in the same order. The first 6 values are often (0, 0, 0, 1, 1,
 | Param ID | Description |
 | --- | --- |
 | C0 | Set to 0.997 for some models on pikmin_planet and fox_venom. |
-| C1 | ??? |
+| C1 | Usually set to 0. Set to 0.3 for stc_bg_chikei_set for xeno_gaur. Non zero for kirby_fountain models. |
 | C4 | ??? |
 | C6 | Set to 1 for the pikmin_planet models that use C0. |
 | C8 | Present for most fighters. |
