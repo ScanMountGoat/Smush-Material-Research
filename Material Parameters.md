@@ -142,14 +142,14 @@ Possibly related to alpha blending in some way.
 
 ### Struct Type E
 Probably some sort of texture information. Each texture parameter has a corresponding parameter of
-type E specified in the same order. The first 6 values are often (0, 0, 0, 1, 1, 1) or
-(1, 1, 1, 1, 1, 1).
+type E specified in the same order. The first 6 values are often (0, 0, 0, 1, 1, 1) for 2D textures or
+(1, 1, 1, 1, 1, 1) for cubemaps.
 
 | Param ID | Description |
 | --- | --- |
 | 6C | Col Map (5C) |
 | 6D | Col Map (5D) |
-| 6E | ??? |
+| 6E | Irradiance Cubemap (5E) |
 | 6F | Gao Map (6F) |
 | 70 | Nor Map (60) |
 | 71 | Emi Map (61) |
