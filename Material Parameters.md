@@ -115,12 +115,12 @@ Possibly related to alpha blending in some way.
 
 | Param ID | Description |
 | --- | --- |
-| 5C | Col Map. The main col texture. Also used for eye white textures. |
-| 5D | Col Map. A secondary col texture. Used for iris textures. |
+| 5C | Col Map. The main col texture. |
+| 5D | Col Map. A secondary col texture. |
 | 5E | Irradiance Cubemap |
-| 5F | Gao Map. Commonly uses default_White. |
+| 5F | Gao Map. |
 | 60 | Normal Map |
-| 61 | Emission Map/Eye Col Map |
+| 61 | Emission Map |
 | 62 | PRM Map |
 | 63 | Specular Cubemap |
 | 64 | Col Map |
