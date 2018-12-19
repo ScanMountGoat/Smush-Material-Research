@@ -130,7 +130,7 @@ Possibly related to alpha blending in some way.
 | 68 | Col Map/Projection Light Map |
 | 69 | Col/Projection Light Map |
 | 6A | Emission Map |
-| 133 | Col Map: usually `default_White`, `noise_for_warp` for ink mats |
+| 133 | Ink Normal Map. Only used for stage ink meshes. Usually set to a white texture. |
 
 ### Default Textures
 | Name | Description | Param IDs |
@@ -148,7 +148,7 @@ type E specified in the same order. The first 6 values are often (0, 0, 0, 1, 1,
 | Param ID | Description |
 | --- | --- |
 | 6C | Col Map (5C) |
-| 6D | ??? |
+| 6D | Col Map (5D) |
 | 6E | ??? |
 | 6F | Gao Map (6F) |
 | 70 | Nor Map (60) |
@@ -162,7 +162,7 @@ type E specified in the same order. The first 6 values are often (0, 0, 0, 1, 1,
 | 78 | ??? |
 | 79 | Projection Map (69) |
 | 7A | ??? |
-| 137 | ??? |
+| 137 | Ink Normal Map (133) |
 
 | Field | Values|
 | --- | --- |
