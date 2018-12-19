@@ -16,7 +16,7 @@ Vertex color sets. RGBA values are typically 0 to 128, which are remapped to a s
 | colorSet2_2 | ??? |
 | colorSet2_3 | ??? |
 | colorSet4 | ??? |
-| colorSet5 | ??? |
+| colorSet5 | RGB = ??? Alpha is used for blending between the primary (5C) and secondary (5D) col maps.  |
 | colorSet6 | ??? |
 | colorSet7 | ??? |
 
