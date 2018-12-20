@@ -23,7 +23,7 @@ The values are always (1, 1, 0, 0, 0).
 | Unk5 | 0 |
 
 | Param ID | Name | Description |
-| --- | --- |
+| --- | --- | --- |
 | FC | UVTransform0 | ??? |
 | FD | UVTransform1 | ??? |
 | FE | UVTransform2 | ??? |
@@ -69,7 +69,7 @@ Possibly related to alpha blending in some way.
 *Stores an RGBA color or 4 float parameters*.
 
 | Param ID | Name | Description |
-| --- | --- |
+| --- | --- | --- |
 | 98 |  | Usually (0.5, 0, 0, 0), (1, 0, 0, 0), or (0, 0, 0, 0). All values are used, however. 0 = texture alpha. 1 = no texture alpha. |
 | 99 | CustomVector1 | RGBA? |
 | 9A | CustomVector2 | RGBA? |
@@ -114,7 +114,7 @@ Possibly related to alpha blending in some way.
 *Note that multiple params use col maps. This is mosty likely due to separate UV channels and texture blending.*
 
 | Param ID | Name | Description |
-| --- | --- |
+| --- | --- | --- |
 | 5C | Texture0 | Col Map. The main col texture. |
 | 5D | Texture1 | Col Map. A secondary col texture. |
 | 5E | Texture2 | Irradiance Cubemap |
@@ -150,7 +150,7 @@ type E specified in the same order. The first 6 values are often (0, 0, 0, 1, 1,
 (1, 1, 1, 1, 1, 1) for cubemaps.
 
 | Param ID | Name | Description |
-| --- | --- |
+| --- | --- | --- |
 | 6C | Sampler0 | Col Map (5C) |
 | 6D | Sampler1 | Col Map (5D) |
 | 6E | Sampler2 | Irradiance Cubemap (5E) |
@@ -192,7 +192,7 @@ type E specified in the same order. The first 6 values are often (0, 0, 0, 1, 1,
 
 ### Float
 | Param ID | Name | Description |
-| --- | --- |
+| --- | --- | --- |
 | C0 | CustomFloat0 | Set to 0.997 for some models on pikmin_planet and fox_venom. |
 | C1 | CustomFloat1 | Usually set to 0. Set to 0.3 for stc_bg_chikei_set for xeno_gaur. Non zero for kirby_fountain models. |
 | C4 | CustomFloat4 | ??? |
@@ -207,7 +207,7 @@ type E specified in the same order. The first 6 values are often (0, 0, 0, 1, 1,
 
 ### Boolean Flags
 | Param ID | Name | Description |
-| --- | --- |
+| --- | --- | --- |
 | E8 | CustomBoolean0 | ??? |
 | E9 | CustomBoolean1 | Set to 0 for fountain of dreams water. Seems to enables/disable specular occlusion for fighters. |
 | EA | CustomBoolean2 | Set to 0 for Olimar's helmet. Set to 1 for Incineroar emission mesh. Usually not present. |
