@@ -100,7 +100,7 @@ Possibly related to alpha blending in some way.
 | 147 | UV Sampler? |
 | 148 | UV Sampler? Used for materials with 4 col maps (Param IDS: 66, 67, 68, 69). |
 | 149 | UV Sampler? |
-| 14A | RGBA? A is always 0 or 1. |
+| 14A | RGBA? A is always 0 or 1. Used in conjunction with CB and CC. |
 | 14C | XYZ values appear to be angle values. W is between 0 and 1 (usually 0.1). |
 | 14D | Used for moving plants on Green Greens, Great Cave Offensive, etc. XYZ appear to be angle values and are 0, 45, 60, or 90. W = intensity? |
 | 14E | RGBA? |
@@ -191,9 +191,9 @@ type E specified in the same order. The first 6 values are often (0, 0, 0, 1, 1,
 | C6 | Set to 1 for the pikmin_planet models that use C0. |
 | C8 | Present for most fighters. |
 | CA | Used for anisotropic hair materials. |
-| CB | ??? |
-| CC | ??? |
-| D0 | ??? |
+| CB | Values range from 0 to 20000 and are lower than CC. Used in conjunction with CC and 14A. |
+| CC | Values range from 40 to 100000. |
+| D0 | Set to 5.5 for the ore club eye material. |
 | D1 | Set to 0.5 for the paper mario ship and nintendogs curtain. |
 | D2 | Has very large values. Values can be as high as 3000. |
 | D3 | Used for water and glass materials. Values are 1 or higher. |
