@@ -123,7 +123,7 @@ Possibly related to alpha blending in some way.
 | 61 | Emission Map |
 | 62 | PRM Map |
 | 63 | Specular Cubemap |
-| 64 | Col Map |
+| 64 | Diffuse Cubemap |
 | 65 | Bake Lit Map |
 | 66 | Col Map |
 | 67 | Col Map |
@@ -155,7 +155,7 @@ type E specified in the same order. The first 6 values are often (0, 0, 0, 1, 1,
 | 71 | Emi Map (61) |
 | 72 | PRM Map (62) |
 | 73 | Specular Cube Map (63) |
-| 74 | ??? |
+| 74 | Diffuse Cubemap (74) |
 | 75 | Bake Lit Map (65) |
 | 76 | ??? |
 | 77 | ??? |
