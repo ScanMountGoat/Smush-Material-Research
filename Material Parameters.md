@@ -183,7 +183,7 @@ Textures may share a type due to using a different layer or UV channel.
 | 67 | Texture11 | Col Map |
 | 68 | Texture12 | Col Map/Projection Light Map |
 | 69 | Texture13 | Col/Projection Light Map |
-| 6A | Texture14 | Emission Map |
+| 6A | Texture14 | Emission Map. A secondary emission map. |
 | 6B | Texture15 | ??? |
 | 133 | Texture16 | Ink Normal Map. Only used for stage ink meshes. Usually set to a white texture. |
 | 134 | Texture17 | ??? |
@@ -248,7 +248,7 @@ Each texture parameter has a corresponding sampler parameter. The first 6 values
 | --- | --- | --- |
 | C0 | CustomFloat0 | Set to 0.997 for some models on pikmin_planet and fox_venom. |
 | C1 | CustomFloat1 | Usually set to 0. Set to 0.3 for stc_bg_chikei_set for xeno_gaur. Non zero for kirby_fountain models. |
-| C4 | CustomFloat4 | ??? |
+| C4 | CustomFloat4 | Values are usually 0 to 1. Used for water materials. |
 | C6 | CustomFloat6 | Set to 1 for the pikmin_planet models that use C0. |
 | C8 | CustomFloat8 | Present for most fighters. |
 | CA | CustomFloat10 | Used for anisotropic hair materials. |
