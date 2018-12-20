@@ -70,7 +70,7 @@ Possibly related to alpha blending in some way.
 
 | Param ID | Name | Description |
 | --- | --- | --- |
-| 98 |  | Usually (0.5, 0, 0, 0), (1, 0, 0, 0), or (0, 0, 0, 0). All values are used, however. 0 = texture alpha. 1 = no texture alpha. |
+| 98 | CustomVector0 | Usually (0.5, 0, 0, 0), (1, 0, 0, 0), or (0, 0, 0, 0). All values are used, however. 0 = texture alpha. 1 = no texture alpha. |
 | 99 | CustomVector1 | RGBA? |
 | 9A | CustomVector2 | RGBA? |
 | 9B | CustomVector3 | RGBA? |
@@ -82,10 +82,12 @@ Possibly related to alpha blending in some way.
 | A1 | CustomVector9 | RGBA? Always (0.2620026, -0.6427876, -0.7198463, 0). |
 | A2 | CustomVector10 | RGBA? Always (1, 0.8, 0.6, 0). |
 | A3 | CustomVector11 | RGBA? A is always 1. Very dark or matches skin tone for skin mats (including non human characters). |
+| A4 | CustomVector12 | ??? |
 | A5 | CustomVector13 | RGB diffuse color multiplier. May also affect alpha. Usually present and set to (1, 1, 1, 1). |
 | A6 | CustomVector14 | RGBA? Component values are usually equal. Controls some sort of rim lighting effect. |
 | A7 | CustomVector15 | RGBA? Always (0, 1000, 1, 0.2). |
 | A8 | CustomVector16 | XYZW? Always (0.017, 35, 43.47, 0). |
+| A9 | CustomVector17 | ??? |
 | AA | CustomVector18 | Used for sprite sheet animations. X = horizontal sprite count. Y = vertical sprite count. Z = frames per sprite. W = ??? |
 | AB | CustomVector19 | RGBA? Usually (1, 1, 1, 1). |
 | 13B | CustomVector20 | RGBA? |
@@ -93,7 +95,10 @@ Possibly related to alpha blending in some way.
 | 13D | CustomVector22 | RGBA? |
 | 13E | CustomVector23 | RGB controls some sort of fog color. W is as high as 2400. |
 | 13F | CustomVector24 | RGBA? |
+| 140 | CustomVector25 | ??? |
+| 141 | CustomVector26 | ??? |
 | 142 | CustomVector27 | XYZW? X has large values. YZW are always 0. |
+| 143 | CustomVector28 | ??? |
 | 144 | CustomVector29 | XYZW? X can be negative and has angle values (30, -60, or 720). Y and Z are always 0. W is always 300 or 0. Usually (0, 0, 0, 0). |
 | 145 | CustomVector30 | RGBA? Commonly (0.5, 4, 1, 1). G is the max component. R is the min component. Used for skin materials. |
 | 146 | CustomVector31 | UV Sampler? |
@@ -101,6 +106,7 @@ Possibly related to alpha blending in some way.
 | 148 | CustomVector33 | UV Sampler? Used for materials with 4 col maps (Param IDS: 66, 67, 68, 69). |
 | 149 | CustomVector34 | UV Sampler? |
 | 14A | CustomVector35 | RGBA? A is always 0 or 1. Used in conjunction with CB and CC. |
+| 14B | CustomVector36 | ??? |
 | 14C | CustomVector37 | XYZ values appear to be angle values. W is between 0 and 1 (usually 0.1). |
 | 14D | CustomVector38 | Used for moving plants on Green Greens, Great Cave Offensive, etc. XYZ appear to be angle values and are 0, 45, 60, or 90. W = intensity? |
 | 14E | CustomVector39 | RGBA? |
@@ -108,6 +114,22 @@ Possibly related to alpha blending in some way.
 | 151 | CustomVector42 | RGBA? |
 | 155 | CustomVector46 | RGBA? Only used for one of Bayonetta's body anim meshes. |
 | 156 | CustomVector47 | RGBA? Used for some stages. |
+| 157 | CustomVector48 | ??? |
+| 158 | CustomVector49 | ??? |
+| 159 | CustomVector50 | ??? |
+| 15A | CustomVector51 | ??? |
+| 15B | CustomVector52 | ??? |
+| 15C | CustomVector53 | ??? |
+| 15D | CustomVector54 | ??? |
+| 15E | CustomVector55 | ??? |
+| 15F | CustomVector56 | ??? |
+| 160 | CustomVector57 | ??? |
+| 161 | CustomVector58 | ??? |
+| 162 | CustomVector59 | ??? |
+| 163 | CustomVector60 | ??? |
+| 164 | CustomVector61 | ??? |
+| 165 | CustomVector62 | ??? |
+| 166 | CustomVector63 | ??? |
 
 
 ### Textures
@@ -221,3 +243,10 @@ type E specified in the same order. The first 6 values are often (0, 0, 0, 1, 1,
 | F2 | CustomBoolean10 | ??? |
 | F3 | CustomBoolean11 | ??? |
 | F4 | CustomBoolean12 | ??? |
+| F5 | CustomBoolean13 | ??? |
+| F6 | CustomBoolean14 | ??? |
+| F7 | CustomBoolean15 | ??? |
+| F8 | CustomBoolean16 | ??? |
+| F9 | CustomBoolean17 | ??? |
+| FA | CustomBoolean18 | ??? |
+| FB | CustomBoolean19 | ??? |
