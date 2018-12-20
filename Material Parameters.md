@@ -194,9 +194,9 @@ type E specified in the same order. The first 6 values are often (0, 0, 0, 1, 1,
 | CB | ??? |
 | CC | ??? |
 | D0 | ??? |
-| D1 | ??? |
-| D2 | ??? |
-| D3 | ??? |
+| D1 | Set to 0.5 for the paper mario ship and nintendogs curtain. |
+| D2 | Has very large values. Values can be as high as 3000. |
+| D3 | Used for water and glass materials. Values are 1 or higher. |
 
 ### Boolean Flags
 | Param ID | Description |
