@@ -24,18 +24,18 @@ The values are always (1, 1, 0, 0, 0).
 
 | Param ID | Name | Description |
 | --- | --- |
+| FC | UVTransform0 | ??? |
+| FD | UVTransform1 | ??? |
+| FE | UVTransform2 | ??? |
+| FF | UVTransform3  | ??? |  
 | 100 | UVTransform4 |  ??? |
 | 101 | UVTransform5 |  ??? |
 | 102 | UVTransform6 |  ??? |
 | 103 | UVTransform7 |  ??? |
 | 105 | UVTransform9 |  ??? |
 | 10A | UVTransform14 |  ??? |
-| FC | UVTransform0 | ??? |
-| FD | UVTransform1 | ??? |
-| FE | UVTransform2 | ??? |
-| FF | UVTransform3  | ??? |  
 
-### Struct Type 11 (Param ID 118)
+### BlendState0 (Param ID 118)
 Possibly related to alpha blending in some way.  
 
 | Field | Values|
@@ -71,43 +71,43 @@ Possibly related to alpha blending in some way.
 | Param ID | Name | Description |
 | --- | --- |
 | 98 |  | Usually (0.5, 0, 0, 0), (1, 0, 0, 0), or (0, 0, 0, 0). All values are used, however. 0 = texture alpha. 1 = no texture alpha. |
-| 99 | | RGBA? |
-| 9A | | RGBA? |
-| 9B | | RGBA? |
-| 9C | | XYZW? Always (0, 1000, 1, 0.2). |
-| 9D | | RGBA? Always (1, 1, 1, 1). |
-| 9E | | UV Sampler? |
-| 9F | | RGBA? Always (1, 1, 1, 0). |
-| A0 | | RGBA? A is always 0 or 1. Used for Mario Galaxy. |
-| A1 | | RGBA? Always (0.2620026, -0.6427876, -0.7198463, 0). |
-| A2 | | RGBA? Always (1, 0.8, 0.6, 0). |
-| A3 | | RGBA? A is always 1. Very dark or matches skin tone for skin mats (including non human characters). |
-| A5 | | RGB diffuse color multiplier. May also affect alpha. Usually present and set to (1, 1, 1, 1). |
-| A6 | | RGBA? Component values are usually equal. Controls some sort of rim lighting effect. |
-| A7 | | RGBA? Always (0, 1000, 1, 0.2). |
-| A8 | | XYZW? Always (0.017, 35, 43.47, 0). |
-| AA | | Used for sprite sheet animations. X = horizontal sprite count. Y = vertical sprite count. Z = frames per sprite. W = ??? |
-| AB | | RGBA? Usually (1, 1, 1, 1). |
-| 13B | | RGBA? |
-| 13C | | RGBA? |
-| 13D | | RGBA? |
-| 13E | | RGB controls some sort of fog color. W is as high as 2400. |
-| 13F | | RGBA? |
-| 142 | | XYZW? X has large values. YZW are always 0. |
-| 144 | | XYZW? X can be negative and has angle values (30, -60, or 720). Y and Z are always 0. W is always 300 or 0. Usually (0, 0, 0, 0). |
-| 145 | | RGBA? Commonly (0.5, 4, 1, 1). G is the max component. R is the min component. Used for skin materials. |
-| 146 | | UV Sampler? |
-| 147 | | UV Sampler? |
-| 148 | | UV Sampler? Used for materials with 4 col maps (Param IDS: 66, 67, 68, 69). |
-| 149 | | UV Sampler? |
-| 14A | | RGBA? A is always 0 or 1. Used in conjunction with CB and CC. |
-| 14C | | XYZ values appear to be angle values. W is between 0 and 1 (usually 0.1). |
-| 14D | | Used for moving plants on Green Greens, Great Cave Offensive, etc. XYZ appear to be angle values and are 0, 45, 60, or 90. W = intensity? |
-| 14E | | RGBA? |
-| 14F | | XYZW? Always (1, 25, 1, 25). |
-| 151 | | RGBA? |
-| 155 | | RGBA? Only used for one of Bayonetta's body anim meshes. |
-| 156 | | RGBA? Used for some stages. |
+| 99 | CustomVector1 | RGBA? |
+| 9A | CustomVector2 | RGBA? |
+| 9B | CustomVector3 | RGBA? |
+| 9C | CustomVector4 | XYZW? Always (0, 1000, 1, 0.2). |
+| 9D | CustomVector5 | RGBA? Always (1, 1, 1, 1). |
+| 9E | CustomVector6 | UV Sampler? |
+| 9F | CustomVector7 | RGBA? Always (1, 1, 1, 0). |
+| A0 | CustomVector8 | RGBA? A is always 0 or 1. Used for Mario Galaxy. |
+| A1 | CustomVector9 | RGBA? Always (0.2620026, -0.6427876, -0.7198463, 0). |
+| A2 | CustomVector10 | RGBA? Always (1, 0.8, 0.6, 0). |
+| A3 | CustomVector11 | RGBA? A is always 1. Very dark or matches skin tone for skin mats (including non human characters). |
+| A5 | CustomVector13 | RGB diffuse color multiplier. May also affect alpha. Usually present and set to (1, 1, 1, 1). |
+| A6 | CustomVector14 | RGBA? Component values are usually equal. Controls some sort of rim lighting effect. |
+| A7 | CustomVector15 | RGBA? Always (0, 1000, 1, 0.2). |
+| A8 | CustomVector16 | XYZW? Always (0.017, 35, 43.47, 0). |
+| AA | CustomVector18 | Used for sprite sheet animations. X = horizontal sprite count. Y = vertical sprite count. Z = frames per sprite. W = ??? |
+| AB | CustomVector19 | RGBA? Usually (1, 1, 1, 1). |
+| 13B | CustomVector20 | RGBA? |
+| 13C | CustomVector21 | RGBA? |
+| 13D | CustomVector22 | RGBA? |
+| 13E | CustomVector23 | RGB controls some sort of fog color. W is as high as 2400. |
+| 13F | CustomVector24 | RGBA? |
+| 142 | CustomVector27 | XYZW? X has large values. YZW are always 0. |
+| 144 | CustomVector29 | XYZW? X can be negative and has angle values (30, -60, or 720). Y and Z are always 0. W is always 300 or 0. Usually (0, 0, 0, 0). |
+| 145 | CustomVector30 | RGBA? Commonly (0.5, 4, 1, 1). G is the max component. R is the min component. Used for skin materials. |
+| 146 | CustomVector31 | UV Sampler? |
+| 147 | CustomVector32 | UV Sampler? |
+| 148 | CustomVector33 | UV Sampler? Used for materials with 4 col maps (Param IDS: 66, 67, 68, 69). |
+| 149 | CustomVector34 | UV Sampler? |
+| 14A | CustomVector35 | RGBA? A is always 0 or 1. Used in conjunction with CB and CC. |
+| 14C | CustomVector37 | XYZ values appear to be angle values. W is between 0 and 1 (usually 0.1). |
+| 14D | CustomVector38 | Used for moving plants on Green Greens, Great Cave Offensive, etc. XYZ appear to be angle values and are 0, 45, 60, or 90. W = intensity? |
+| 14E | CustomVector39 | RGBA? |
+| 14F | CustomVector40 | XYZW? Always (1, 25, 1, 25). |
+| 151 | CustomVector42 | RGBA? |
+| 155 | CustomVector46 | RGBA? Only used for one of Bayonetta's body anim meshes. |
+| 156 | CustomVector47 | RGBA? Used for some stages. |
 
 
 ### Textures
@@ -115,22 +115,26 @@ Possibly related to alpha blending in some way.
 
 | Param ID | Name | Description |
 | --- | --- |
-| 5C | | Col Map. The main col texture. |
-| 5D | | Col Map. A secondary col texture. |
-| 5E | | Irradiance Cubemap |
-| 5F | | Gao Map. |
-| 60 | | Normal Map |
-| 61 | | Emission Map |
-| 62 | | PRM Map |
-| 63 | | Specular Cubemap |
-| 64 | | Diffuse Cubemap |
-| 65 | | Bake Lit Map |
-| 66 | | Col Map |
-| 67 | | Col Map |
-| 68 | | Col Map/Projection Light Map |
-| 69 | | Col/Projection Light Map |
-| 6A | | Emission Map |
-| 133 | | Ink Normal Map. Only used for stage ink meshes. Usually set to a white texture. |
+| 5C | Texture0 | Col Map. The main col texture. |
+| 5D | Texture1 | Col Map. A secondary col texture. |
+| 5E | Texture2 | Irradiance Cubemap |
+| 5F | Texture3 | Gao Map. |
+| 60 | Texture4 | Normal Map |
+| 61 | Texture5 | Emission Map |
+| 62 | Texture6 | PRM Map |
+| 63 | Texture7 | Specular Cubemap |
+| 64 | Texture8 | Diffuse Cubemap |
+| 65 | Texture9 | Bake Lit Map |
+| 66 | Texture1 | Col Map |
+| 67 | Texture11 | Col Map |
+| 68 | Texture12 | Col Map/Projection Light Map |
+| 69 | Texture13 | Col/Projection Light Map |
+| 6A | Texture14 | Emission Map |
+| 6B | Texture15 | ??? |
+| 133 | Texture16 | Ink Normal Map. Only used for stage ink meshes. Usually set to a white texture. |
+| 134 | Texture17 | ??? |
+| 135 | Texture18 | ??? |
+| 136 | Texture19 | ??? |
 
 ### Default Textures
 | Name | Description | Param IDs |
@@ -147,22 +151,26 @@ type E specified in the same order. The first 6 values are often (0, 0, 0, 1, 1,
 
 | Param ID | Name | Description |
 | --- | --- |
-| 6C | | Col Map (5C) |
-| 6D | | Col Map (5D) |
-| 6E | | Irradiance Cubemap (5E) |
-| 6F | | Gao Map (6F) |
-| 70 | | Nor Map (60) |
-| 71 | | Emi Map (61) |
-| 72 | | PRM Map (62) |
-| 73 | | Specular Cube Map (63) |
-| 74 | | Diffuse Cubemap (74) |
-| 75 | | Bake Lit Map (65) |
-| 76 | | ??? |
-| 77 | | ??? |
-| 78 | | ??? |
-| 79 | | Projection Map (69) |
-| 7A | | ??? |
-| 137 | | Ink Normal Map (133) |
+| 6C | Sampler0 | Col Map (5C) |
+| 6D | Sampler1 | Col Map (5D) |
+| 6E | Sampler2 | Irradiance Cubemap (5E) |
+| 6F | Sampler3 | Gao Map (6F) |
+| 70 | Sampler4 | Nor Map (60) |
+| 71 | Sampler5 | Emi Map (61) |
+| 72 | Sampler6 | PRM Map (62) |
+| 73 | Sampler7 | Specular Cube Map (63) |
+| 74 | Sampler8 | Diffuse Cubemap (74) |
+| 75 | Sampler9 | Bake Lit Map (65) |
+| 76 | Sampler10 | ??? |
+| 77 | Sampler11 | ??? |
+| 78 | Sampler12 | ??? |
+| 79 | Sampler13 | Projection Map (69) |
+| 7A | Sampler14 | ??? |
+| 7B | Sampler15 | ??? |
+| 137 | Sampler16 | Ink Normal Map (133) |
+| 138 | Sampler17 | ??? |
+| 139 | Sampler18 | ??? |
+| 13A | Sampler19 | ??? |
 
 | Field | Values|
 | --- | --- |
