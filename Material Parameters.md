@@ -1,16 +1,4 @@
-# Material Parameters
-| Data Type | Description | Param IDs |
-| --- | --- | --- |
-| 1 | Float | C8 D3 C6 CA D0 C4 C1 D2 CB CC C0 D1 |
-| 2 | Boolean | E9 F3 EB EC EA EE ED EF F1 F4 E8 F2 F0 |
-| 5 | Vector 4 | 98 9B 146 A0 A5 A6 145 144 A3 142 9E 9F 156 151 155 13C 147 AA 149 AB 13B 14C 14D 14E 13E 13D 14A A2 9C A1 99 A7 A8 9A 9D 14F 13F 148 |
-| 10 | Struct |  FC FE 100 102 103 101 FD 105 10A FF |
-| 11 | Struct | 118 |
-| 12 | Struct | 123 |
-| B | Texture | 6A 60 61 62 63 5C 5D 5E 64 67 66 5F 65 133 68 69 |
-| E | Struct? |  7A 70 71 72 73 6C 6E 6D 74 77 76 6F 75 137 78 79 |
-
-# Material Param Descriptions
+# Material Parameter Descriptions
 ### Struct Type 10
 The values are always (1, 1, 0, 0, 0).
 
@@ -35,8 +23,23 @@ The values are always (1, 1, 0, 0, 0).
 | 105 | UVTransform9 |  ??? |
 | 10A | UVTransform14 |  ??? |
 
-### BlendState0 (Param ID 118)
-Possibly related to alpha blending in some way.  
+### Blending State
+Related to alpha blending in some way.  
+
+| Param ID | Name | Description |
+| ---  | --- | --- |
+| 118 | BlendState0 | Used for most materials. |
+| 119 | BlendState1 | ??? |
+| 11A | BlendState2 | ??? |
+| 11B | BlendState3 | ??? |
+| 11C | BlendState4 | ??? |
+| 11D | BlendState5 | ??? |
+| 11E | BlendState6 | ??? |
+| 11F | BlendState7 | ??? |
+| 120 | BlendState8 | ??? |
+| 121 | BlendState9 | ??? |
+| 122 | BlendState10 | ??? |
+
 
 | Field | Values|
 | --- | --- |
@@ -53,7 +56,21 @@ Possibly related to alpha blending in some way.
 | Unk11| 0 |
 | Unk12| 0 |
 
-### RasterizerState0 (Param ID 123)
+### Rasterizer State
+| Param ID | Name | Description |
+| ---  | --- | --- |
+| 123 | RasterizerState0 | Used for most materials. |
+| 124 | RasterizerState1 | ??? |
+| 125 | RasterizerState2 | ??? |
+| 126 | RasterizerState3 | ??? |
+| 127 | RasterizerState4 | ??? |
+| 128 | RasterizerState5 | ??? |
+| 129 | RasterizerState6 | ??? |
+| 12A | RasterizerState7 | ??? |
+| 12B | RasterizerState8 | ??? |
+| 12C | RasterizerState9 | ??? |
+| 12D | RasterizerState10 | ??? |
+
 | Field | Values|
 | --- | --- |
 | Unk1 | ??? |
