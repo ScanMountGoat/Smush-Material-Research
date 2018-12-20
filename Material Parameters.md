@@ -1,5 +1,5 @@
 # Material Parameter Descriptions
-### UV Transform
+## UV Transforms
 The values are usually (1, 1, 0, 0, 0).
 
 | Param ID | Name | Description |
@@ -38,7 +38,7 @@ The values are usually (1, 1, 0, 0, 0).
 | Unk4 | 0 |
 | Unk5 | 0 |
 
-### Blending State
+## Blending State
 Related to alpha blending in some way.  
 
 | Param ID | Name | Description |
@@ -71,7 +71,7 @@ Related to alpha blending in some way.
 | Unk11| 0 |
 | Unk12| 0 |
 
-### Rasterizer State
+## Rasterizer State
 | Param ID | Name | Description |
 | ---  | --- | --- |
 | 123 | RasterizerState0 | Used for most materials. |
@@ -97,8 +97,8 @@ Related to alpha blending in some way.
 | Unk7 | ??? |
 | Unk8 | ??? |
 
-### Float Vector 4
-*Stores an RGBA color or 4 float parameters*.
+## Float Vector 4
+Stores an RGBA color or 4 float parameters.
 
 | Param ID | Name | Description |
 | --- | --- | --- |
@@ -164,8 +164,8 @@ Related to alpha blending in some way.
 | 166 | CustomVector63 | ??? |
 
 
-### Textures
-*Note that multiple params use col maps. This is mosty likely due to separate UV channels and texture blending.*
+## Textures
+Textures may share a type due to using a different layer or UV channel.
 
 | Param ID | Name | Description |
 | --- | --- | --- |
@@ -198,9 +198,8 @@ Related to alpha blending in some way.
 | default_White | Used as a col map | 61, 133 |
 | default_black | Used as a col map | 61 |
 
-### Samplers
-Probably some sort of texture information. Each texture parameter has a corresponding parameter of
-type E specified in the same order. The first 6 values are often (0, 0, 0, 1, 1, 1) for 2D textures or
+## Samplers
+Each texture parameter has a corresponding sampler parameter. The first 6 values are often (0, 0, 0, 1, 1, 1) for 2D textures or
 (1, 1, 1, 1, 1, 1) for cubemaps.
 
 | Param ID | Name | Description |
@@ -244,7 +243,7 @@ type E specified in the same order. The first 6 values are often (0, 0, 0, 1, 1,
 | Unk14 | 2, 4 |
 | Unk15 | 0, 1, 8, 1065353216 |
 
-### Float
+## Float
 | Param ID | Name | Description |
 | --- | --- | --- |
 | C0 | CustomFloat0 | Set to 0.997 for some models on pikmin_planet and fox_venom. |
@@ -259,7 +258,9 @@ type E specified in the same order. The first 6 values are often (0, 0, 0, 1, 1,
 | D2 | CustomFloat18 | Has very large values. Values can be as high as 3000. |
 | D3 | CustomFloat19 | Used for water and glass materials. Values are 1 or higher. |
 
-### Boolean Flags
+## Boolean Flags
+Flags are separated into individual boolean parameters rather than being combined into a single value.
+
 | Param ID | Name | Description |
 | --- | --- | --- |
 | E8 | CustomBoolean0 | ??? |
