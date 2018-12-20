@@ -1,6 +1,34 @@
 # Material Parameter Descriptions
-### Struct Type 10
-The values are always (1, 1, 0, 0, 0).
+### UV Transform
+The values are usually (1, 1, 0, 0, 0).
+
+| Param ID | Name | Description |
+| --- | --- | --- |
+| FC  | UVTransform0 | ??? |
+| FD  | UVTransform1 | ??? |
+| FE  | UVTransform2 | ??? |
+| FF  | UVTransform3 | ??? |
+| 100 | UVTransform4 | ??? |
+| 101 | UVTransform5 | ??? |
+| 102 | UVTransform6 | ??? |
+| 103 | UVTransform7 | ??? |
+| 104 | UVTransform8 | ??? |
+| 105 | UVTransform9 | ??? |
+| 106 | UVTransform10 | ??? |
+| 107 | UVTransform11 | ??? |
+| 108 | UVTransform12 | ??? |
+| 109 | UVTransform13 | ??? |
+| 10A | UVTransform14 | ??? |
+| 10B | UVTransform15 | ??? |
+| 10C | DiffuseUVTransform1 | ??? |
+| 10D | DiffuseUVTransform2 | ??? |
+| 10E | SpecularUVTransform1 | ??? |
+| 10F | SpecularUVTransform 2| ??? |
+| 110 | NormalUVTransform1 | ??? |
+| 111 | NormalUVTransform2 | ??? |
+| 112 | DiffuseUVTransform | ??? |
+| 113 | SpecularUVTransform | ??? |
+| 114 | NormalUVTransform | ??? |
 
 | Field | Values|
 | --- | --- |
@@ -9,19 +37,6 @@ The values are always (1, 1, 0, 0, 0).
 | Unk3 | 0 |
 | Unk4 | 0 |
 | Unk5 | 0 |
-
-| Param ID | Name | Description |
-| --- | --- | --- |
-| FC | UVTransform0 | ??? |
-| FD | UVTransform1 | ??? |
-| FE | UVTransform2 | ??? |
-| FF | UVTransform3  | ??? |  
-| 100 | UVTransform4 |  ??? |
-| 101 | UVTransform5 |  ??? |
-| 102 | UVTransform6 |  ??? |
-| 103 | UVTransform7 |  ??? |
-| 105 | UVTransform9 |  ??? |
-| 10A | UVTransform14 |  ??? |
 
 ### Blending State
 Related to alpha blending in some way.  
