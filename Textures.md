@@ -1,12 +1,22 @@
-# Col Maps
+# Texture Naming Conventions
+| Texture Name | Texture Type |
+| --- | --- |
+| _col | Base Color Map |
+| _emi | Emissive Map |
+| _gao | Ambient Occlusion Map |
+| _lit or _bake_lit | Bake Lit Map |
+| _prm | PRM Map |
+| _nor | Normal Map |
+
+# Base Color Maps
 RGBA albedo textures. Unlike diffuse, albedo colors specular reflections for metallic materials.
 The alpha channel is used for transparency.
 
-### Naming Conventions
+### Base Color Map Names
 Textures in Smash Ultimate are referenced using strings in the materials. The table describes common
-albedo texture naming conventions.
+texture naming conventions.
 
-| Col Texture Name | Usage |
+| Base Color Texture Name | Usage |
 | --- | --- |
 | _b | Default Iris |
 | _l | World of Light Enemy Iris (Red) |
@@ -44,8 +54,8 @@ of common values for non metals. Note that this is also how Blender's principled
 
 # Emissive Maps
 Emissive maps ared used for glowing effects such as Samus's lights. The majority of the texture will
-be black (no emission). Some materials use emission in place of a col map for flat lighting. This is
-common for retro stages and skyboxes.
+be black (no emission). Some materials use emission in place of a base color map for flat lighting.
+This is common for retro stages and skyboxes.
 
 # Normal Maps
 The RG channels are used for the XY directions of the normal map. The Z direction of the normal map
@@ -73,14 +83,12 @@ Cubemap for PBR diffuse stage lighting. Usually only 16x16. Often uses the defau
 Cubemap for PBR specular stage lighting. Usually only 64x64. Often uses the default texture
 #replace_cubemap.
 
-# Gao Bake Maps
+# Ambient Occlusion Maps
 Baked ambient occlusion used for stage models. The default_White texture is often used, which has no
-effect. These maps use the bake UV coordinates.
+effect. The maps can also store colored lighting information. These maps use the bake1 UVs.
 
 # Bake Lit Maps
-Stores baked ambient lighting and shadows for stages. Like Gao maps, these maps use the bake UV
-coordinates.
-
+Stores baked ambient lighting and shadows for stages. Like Gao maps, these maps use the bake1 UVs.
 # Projection Light Maps
 TODO: Used for some stages. The texture uses some form of projection instead of UVs.
 

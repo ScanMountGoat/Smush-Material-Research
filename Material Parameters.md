@@ -135,7 +135,7 @@ Stores an RGBA color or 4 float parameters.
 | 145 | CustomVector30 | RGBA? Commonly (0.5, 4, 1, 1). G is the max component. R is the min component. Used for skin materials. |
 | 146 | CustomVector31 | UV Sampler? |
 | 147 | CustomVector32 | UV Sampler? |
-| 148 | CustomVector33 | UV Sampler? Used for materials with 4 col maps (Param IDS: 66, 67, 68, 69). |
+| 148 | CustomVector33 | UV Sampler? Used for materials with 4 base color maps (Param IDS: 66, 67, 68, 69). |
 | 149 | CustomVector34 | UV Sampler? |
 | 14A | CustomVector35 | RGBA? A is always 0 or 1. Used in conjunction with CB and CC. |
 | 14B | CustomVector36 | ??? |
@@ -169,20 +169,20 @@ Textures may share a type due to using a different layer or UV channel.
 
 | Param ID | Name | Description |
 | --- | --- | --- |
-| 5C | Texture0 | Col Map (layer 1) |
-| 5D | Texture1 | Col Map (layer 2) |
+| 5C | Texture0 | Base Color Map (layer 1) |
+| 5D | Texture1 | Base Color Map (layer 2) |
 | 5E | Texture2 | Irradiance Cubemap |
-| 5F | Texture3 | Gao Map. |
+| 5F | Texture3 | Ambient Occlusion Map. |
 | 60 | Texture4 | Normal Map |
 | 61 | Texture5 | Emissive Map (layer 1) |
 | 62 | Texture6 | PRM Map |
 | 63 | Texture7 | Specular Cubemap |
 | 64 | Texture8 | Diffuse Cubemap |
 | 65 | Texture9 | Bake Lit Map |
-| 66 | Texture10 | Col Map? |
-| 67 | Texture11 | Col Map? |
-| 68 | Texture12 | Col Map/Projection Light Map? |
-| 69 | Texture13 | Col/Projection Light Map? |
+| 66 | Texture10 | Base Color Map? |
+| 67 | Texture11 | Base Color Map? |
+| 68 | Texture12 | Base Color Map/Projection Light Map? |
+| 69 | Texture13 | Base Color/Projection Light Map? |
 | 6A | Texture14 | Emissive Map (layer 2) |
 | 6B | Texture15 | ??? |
 | 133 | Texture16 | Ink Normal Map. Used for stage ink meshes. Projection texture? |
@@ -195,8 +195,8 @@ Textures may share a type due to using a different layer or UV channel.
 | --- | --- | --- |
 | #replace_cubemap | Used as a cubemap | 5E, 63 |
 | default_Normal | Used as a normal map | 60 |
-| default_White | Used as a col map | 61, 133 |
-| default_black | Used as a col map | 61 |
+| default_White | Used as a base color map | 61, 133 |
+| default_black | Used as a base color map | 61 |
 
 ## Samplers
 Each texture parameter has a corresponding sampler parameter. The first 6 values are often (0, 0, 0, 1, 1, 1) for 2D textures or
@@ -204,10 +204,10 @@ Each texture parameter has a corresponding sampler parameter. The first 6 values
 
 | Param ID | Name | Description |
 | --- | --- | --- |
-| 6C | Sampler0 | Col Map (5C) |
-| 6D | Sampler1 | Col Map (5D) |
+| 6C | Sampler0 | Base Color Map (5C) |
+| 6D | Sampler1 | Base Color Map (5D) |
 | 6E | Sampler2 | Irradiance Cubemap (5E) |
-| 6F | Sampler3 | Gao Map (6F) |
+| 6F | Sampler3 | Ambient Occlusion Map (6F) |
 | 70 | Sampler4 | Nor Map (60) |
 | 71 | Sampler5 | Emi Map (61) |
 | 72 | Sampler6 | PRM Map (62) |
