@@ -88,14 +88,14 @@ Related to alpha blending in some way.
 
 | Field | Values|
 | --- | --- |
-| Unk1 | ??? |
-| Unk2 | ??? |
-| Unk3 | ??? |
-| Unk4 | ??? |
-| Unk5 | ??? |
-| Unk6 | ??? |
-| Unk7 | ??? |
-| Unk8 | ??? |
+| Unk1 | 1 |
+| Unk2 | 0, 2 |
+| Unk3 | 0, -1119040307, 1077936128, 1232348144, 1176256512, 1175232512, 1092616192, 1065353216, 1184645120  |
+| Unk4 | 0 |
+| Unk5 | 0 |
+| Unk6 | 16777217 |
+| Unk7 | 0 |
+| Unk8 | 0, 1599620691 |
 
 ## Float Vector 4
 Stores an RGBA color or 4 float parameters.
