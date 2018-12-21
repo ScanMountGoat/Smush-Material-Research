@@ -227,21 +227,21 @@ Each texture parameter has a corresponding sampler parameter. The first 6 values
 
 | Field | Values|
 | --- | --- |
-| WrapS | 0 (Repeat), 1 (Clamp?), 2 (Mirrored Repeat) |
-| WrapT | 0 (Repeat), 1 (Clamp?), 2 (Mirrored Repeat) |
-| WrapR? | 0 (Repeat), 1 (Clamp?), 2 (Mirrored Repeat) |
-| Unk4 | 1 |
-| Unk5 | 1 |
-| Unk6 | 1, 2  |
+| WrapS? | 0 (Repeat), 1 (Clamp?), 2 (Mirrored Repeat) |
+| WrapT? | 0 (Repeat), 1 (Clamp?), 2 (Mirrored Repeat) |
+| Unk3 | 0, 1 , 2 |
+| Unk4 | 0, 1 , 2 |
+| Unk5 | 0, 1 , 2 |
+| Unk6 | 0, 1 , 2 |
 | Unk7 | 0 |
 | Unk8 | 0 |
 | Unk9 | 0 |
 | Unk10 | 0  |
 | Unk11 | 0 |
-| Unk12 | 3.40282E+38 |
-| Unk13 | 0 |
-| Unk14 | 2, 4 |
-| Unk15 | 0, 1, 8, 1065353216 |
+| Unk12 | 2139095022 |
+| Unk13 | -100, -0.5, -0.8, 0, 0.6, 1, 2  |
+| Unk14 | 2, 4, 8, 16 |
+| Unk15 | 0, 1, 2, 8 |
 
 ## Float
 | Param ID | Name | Description |
