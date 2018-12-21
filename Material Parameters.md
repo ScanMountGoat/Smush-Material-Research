@@ -169,23 +169,23 @@ Textures may share a type due to using a different layer or UV channel.
 
 | Param ID | Name | Description |
 | --- | --- | --- |
-| 5C | Texture0 | Col Map. The main col texture. |
-| 5D | Texture1 | Col Map. A secondary col texture. |
+| 5C | Texture0 | Col Map (layer 1) |
+| 5D | Texture1 | Col Map (layer 2) |
 | 5E | Texture2 | Irradiance Cubemap |
 | 5F | Texture3 | Gao Map. |
 | 60 | Texture4 | Normal Map |
-| 61 | Texture5 | Emission Map |
+| 61 | Texture5 | Emissive Map (layer 1) |
 | 62 | Texture6 | PRM Map |
 | 63 | Texture7 | Specular Cubemap |
 | 64 | Texture8 | Diffuse Cubemap |
 | 65 | Texture9 | Bake Lit Map |
-| 66 | Texture1 | Col Map |
-| 67 | Texture11 | Col Map |
-| 68 | Texture12 | Col Map/Projection Light Map |
-| 69 | Texture13 | Col/Projection Light Map |
-| 6A | Texture14 | Emission Map. A secondary emission map. |
+| 66 | Texture10 | Col Map? |
+| 67 | Texture11 | Col Map? |
+| 68 | Texture12 | Col Map/Projection Light Map? |
+| 69 | Texture13 | Col/Projection Light Map? |
+| 6A | Texture14 | Emissive Map (layer 2) |
 | 6B | Texture15 | ??? |
-| 133 | Texture16 | Ink Normal Map. Only used for stage ink meshes. Usually set to a white texture. |
+| 133 | Texture16 | Ink Normal Map. Used for stage ink meshes. Projection texture? |
 | 134 | Texture17 | ??? |
 | 135 | Texture18 | ??? |
 | 136 | Texture19 | ??? |
