@@ -58,14 +58,14 @@ Related to alpha blending in some way.
 
 | Field | Values|
 | --- | --- |
-| Unk1 | 1 |
+| Unk1 | 0, 1 |
 | Unk2 | 0 |
 | Unk3 | 0, 1, 6 |
 | Unk4 | 0, 1 |
 | Unk5 | 0 |
 | Unk6 | 0, 1, 6 |
-| Unk7 | 0 |
-| Unk8 | 0 |
+| Unk7 | 0, 1 |
+| Unk8 | 0, 1 |
 | Unk9 | 0 |
 | Unk10| 0 or 5 |
 | Unk11| 0 |
