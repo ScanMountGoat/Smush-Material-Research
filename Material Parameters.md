@@ -131,7 +131,7 @@ Stores an RGBA color or 4 float parameters.
 | 141 | CustomVector26 | ??? |
 | 142 | CustomVector27 | XYZW? X is between -100 and 30. YZW are between 0 and 1. |
 | 143 | CustomVector28 | ??? |
-| 144 | CustomVector29 | XYZW? X can be negative and has angle values (30, -60, or 720). Y and Z are always 0. W is always 300 or 0. Usually (0, 0, 0, 0). |
+| 144 | CustomVector29 | Used for rotating models for pilot wings, sky world, etc. X can be negative and has angle values (30, -60, or 720). Y and Z are always 0. W is always 300 or 0. |
 | 145 | CustomVector30 | RGBA? Commonly (0.5, 4, 1, 1). G is the max component. R is the min component. Used for skin materials. |
 | 146 | CustomVector31 | UV Sampler? |
 | 147 | CustomVector32 | UV Sampler? |
