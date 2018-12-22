@@ -143,7 +143,11 @@ Stores an RGBA color or 4 float parameters.
 | 14D | CustomVector38 | Used for moving plants on Green Greens, Great Cave Offensive, etc. XYZ appear to be angle values and are 0, 45, 60, or 90. W = intensity? |
 | 14E | CustomVector39 | RGBA? |
 | 14F | CustomVector40 | XYZW? Always (1, 25, 1, 25). |
+| 150 | CustomVector41 | ??? |
 | 151 | CustomVector42 | RGBA? |
+| 152 | CustomVector43 | Used for Wii Fit Trainer models for wiifit stage. |
+| 153 | CustomVector44 | Used for Wii Fit Trainer models for wiifit stage. |
+| 154 | CustomVector45 | Used for Wii Fit Trainer models for wiifit stage. |
 | 155 | CustomVector46 | RGBA? Only used for one of Bayonetta's body anim meshes. |
 | 156 | CustomVector47 | RGBA? Used for some stages. |
 | 157 | CustomVector48 | ??? |
