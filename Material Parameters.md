@@ -129,7 +129,7 @@ Stores an RGBA color or 4 float parameters.
 | 13F | CustomVector24 | RGBA? |
 | 140 | CustomVector25 | ??? |
 | 141 | CustomVector26 | ??? |
-| 142 | CustomVector27 | XYZW? X has large values. YZW are always 0. |
+| 142 | CustomVector27 | XYZW? X is between -100 and 30. YZW are between 0 and 1. |
 | 143 | CustomVector28 | ??? |
 | 144 | CustomVector29 | XYZW? X can be negative and has angle values (30, -60, or 720). Y and Z are always 0. W is always 300 or 0. Usually (0, 0, 0, 0). |
 | 145 | CustomVector30 | RGBA? Commonly (0.5, 4, 1, 1). G is the max component. R is the min component. Used for skin materials. |
