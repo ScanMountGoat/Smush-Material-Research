@@ -183,9 +183,9 @@ Textures may share a type due to using a different layer or UV channel.
 | 63 | Texture7 | Specular Cubemap |
 | 64 | Texture8 | Diffuse Cubemap |
 | 65 | Texture9 | Bake Lit Map |
-| 66 | Texture10 | Base Color Map? |
-| 67 | Texture11 | Base Color Map? |
-| 68 | Texture12 | Base Color Map/Projection Light Map? |
+| 66 | Texture10 | Diffuse Map (layer 1)  |
+| 67 | Texture11 | Diffuse Map (layer 2) |
+| 68 | Texture12 | Diffuse Map (layer 3) |
 | 69 | Texture13 | Base Color/Projection Light Map? |
 | 6A | Texture14 | Emissive Map (layer 2) |
 | 6B | Texture15 | ??? |
