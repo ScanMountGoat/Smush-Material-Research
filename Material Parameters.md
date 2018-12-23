@@ -60,16 +60,22 @@ Related to alpha blending in some way.
 | --- | --- |
 | Unk1 | 0, 1 |
 | Unk2 | 0 |
-| Unk3 | 0, 1, 6 |
+| BlendFactor1 | 0, 1, 6 |
 | Unk4 | 0, 1 |
 | Unk5 | 0 |
-| Unk6 | 0, 1, 6 |
+| BlendFactor2 | 0, 1, 6 |
 | Unk7 | 0, 1 |
 | Unk8 | 0, 1 |
 | Unk9 | 0 |
 | Unk10| 0 or 5 |
 | Unk11| 0 |
 | Unk12| 0 |
+
+BlendFactor1 and BlendFactor2 are most likely SrcFactor and DstFactor, respectively.  
+0 = default  
+1 = alpha blending  
+6 = additive blending  
+
 
 ## Rasterizer State
 | Param ID | Name | Description |
