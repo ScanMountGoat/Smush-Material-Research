@@ -259,10 +259,17 @@ Each texture parameter has a corresponding sampler parameter. The first 6 values
 | C0 | CustomFloat0 | Set to 0.997 for some models on pikmin_planet and fox_venom. |
 | C1 | CustomFloat1 | Usually set to 0. Set to 0.3 for stc_bg_chikei_set for xeno_gaur. Non zero for kirby_fountain models. |
 | C4 | CustomFloat4 | Values are usually 0 to 1. Used for water materials. |
+| C5 | CustomFloat5 | ??? |
 | C6 | CustomFloat6 | Set to 1 for the pikmin_planet models that use C0. |
+| C7 | CustomFloat7 | ??? |
 | C8 | CustomFloat8 | Present for most fighters. |
+| C9 | CustomFloat9 | ??? |
 | CA | CustomFloat10 | Used for anisotropic hair materials. |
 | CB | CustomFloat11 | Values range from 0 to 20000 and are lower than CC. Used in conjunction with CC and 14A. |
+| CC | CustomFloat12 | Used in conjunction with CB and 14A. |
+| CD | CustomFloat13 | ??? |
+| CE | CustomFloat14 | ??? |
+| CF | CustomFloat15 | ??? |
 | D0 | CustomFloat16 | Set to 5.5 for the ore club eye material. |
 | D1 | CustomFloat17 | Set to 0.5 for the paper mario ship and nintendogs curtain. |
 | D2 | CustomFloat18 | Has very large values. Values can be as high as 3000. |
