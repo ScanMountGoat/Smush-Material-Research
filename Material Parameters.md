@@ -155,7 +155,7 @@ Stores an RGBA color or 4 float parameters.
 | 153 | CustomVector44 | RGBA? Used for Wii Fit Trainer models for wiifit stage. Set to (0.1804, 0.3462, 0.1314, 1). |
 | 154 | CustomVector45 | RGBA? Used for Wii Fit Trainer models for wiifit stage. Set to (0.008, 0.13, 0.02, 1). |
 | 155 | CustomVector46 | RGBA? Only used for one of Bayonetta's body anim meshes. |
-| 156 | CustomVector47 | RGBA? Used for some stages. |
+| 156 | CustomVector47 | Used for some stages. The color channels work the same as PRM maps. |
 | 157 | CustomVector48 | ??? |
 | 158 | CustomVector49 | ??? |
 | 159 | CustomVector50 | ??? |
