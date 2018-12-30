@@ -76,22 +76,23 @@ have less intense reflections.
 | A | Cavity Map|
 
 # Irradiance Cubemaps
-Cubemap for PBR diffuse stage lighting. Usually only 16x16. Often uses the default texture
-#replace_cubemap.
+Cubemap for PBR diffuse stage lighting. Usually only 16x16. Setting the texture to #replace_cubemap
+uses a default stage cubemap.
 
 # Specular Cubemaps
-Cubemap for PBR specular stage lighting. Usually only 64x64. Often uses the default texture
-#replace_cubemap.
+Cubemap for PBR specular stage lighting. Usually only 64x64. Setting the texture to #replace_cubemap
+uses a default stage cubemap.
 
 # Ambient Occlusion Maps
 Baked ambient occlusion used for stage models. The default_White texture is often used, which has no
 effect. The maps can also store colored lighting information. These maps use the bake1 UVs.
 
 # Bake Lit Maps
-Stores baked ambient lighting and shadows for stages. Like Gao maps, these maps use the bake1 UVs.
+Stores baked ambient lighting and shadows for stages. Like Gao maps, these maps use the bake1 UVs.  
+
 # Projection Light Maps
 TODO: Used for some stages. The texture uses some form of projection instead of UVs.
 
 # Color Grading LUT
-A 2D lookup table for color grading. Each stage has a neutral texture. These textures are also used
-for the various filters for screenshots (sepia, vivid, etc).
+A 3D RGB lookup table for color grading. Most stages have a neutral lookup table texture. These
+textures are also used for the various filters for screenshots (sepia, vivid, etc).
