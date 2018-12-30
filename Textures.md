@@ -49,8 +49,9 @@ of common values for non metals. Note that this is also how Blender's principled
 | B | Ambient Occlusion |
 | A | Specular Reflectivity |
 
-*For more technical details, see the following paper by Disney, whose principles have become an industry standard for PBR materials. The PRM maps work in a similar manner.*  
-[Principled Shading Paper by Disney](https://disney-animation.s3.amazonaws.com/library/s2012_pbs_disney_brdf_notes_v2.pdf)
+
+### [Principled Shading Paper by Disney](https://disney-animation.s3.amazonaws.com/library/s2012_pbs_disney_brdf_notes_v2.pdf)
+For more technical details, see the above paper by Disney. Its principles have become an industry standard for PBR materials. The PRM maps work in a similar manner.
 
 # Emissive Maps
 Emissive maps ared used for glowing effects such as Samus's lights. The majority of the texture will
@@ -96,3 +97,6 @@ TODO: Used for some stages. The texture uses some form of projection instead of 
 # Color Grading LUT
 A 3D RGB lookup table for color grading. Most stages have a neutral lookup table texture. These
 textures are also used for the various filters for screenshots (sepia, vivid, etc).
+
+### [Color Grading LUT Examples](https://docs.unrealengine.com/en-us/Engine/Rendering/PostProcessEffects/UsingLUTs)
+Smash Ultimate uses a completely different engine, but the color grading LUT textures are functionally equivalent to the examples in the above link.  
