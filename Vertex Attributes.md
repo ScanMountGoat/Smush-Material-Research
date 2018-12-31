@@ -10,7 +10,7 @@ Vertex color sets. RGBA values are typically 0 to 128, which are remapped to a s
 | Attribute | Description |
 | --- | --- |
 | colorSet1 | The model color is multiplied by the vertex color. Commonly stores ambient occlusion or baked lighting data for fighters, stages, etc. |
-| colorSet2 | ??? |
+| colorSet2 | Some sort of baked ambient lighting. |
 | colorSet3 | ??? |
 | colorSet2_1 | ??? |
 | colorSet2_2 | ??? |
