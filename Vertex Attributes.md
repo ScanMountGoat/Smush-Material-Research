@@ -10,15 +10,15 @@ Vertex color sets. RGBA values are typically 0 to 128, which are remapped to a s
 | Attribute | Description |
 | --- | --- |
 | colorSet1 | The model color is multiplied by the vertex color. Commonly stores ambient occlusion or baked lighting data for fighters, stages, etc. |
-| colorSet2 | Some sort of baked ambient lighting. |
-| colorSet3 | ??? |
-| colorSet2_1 | ??? |
-| colorSet2_2 | ??? |
-| colorSet2_3 | ??? |
-| colorSet4 | ??? |
+| colorSet2 | Some sort of baked ambient lighting for stages. Similar in appearance to bake lit maps. |
+| colorSet2_1 | Similar to colorSet2. These probably refer to additional lights. |
+| colorSet2_2 | Similar to colorSet2. These probably refer to additional lights. |
+| colorSet2_3 | Similar to colorSet2. These probably refer to additional lights. |
+| colorSet3 | Some sort of baked stage lighting. |
+| colorSet4 | RGBA? Set to colored values for mario_galaxy, zelda_tower, etc. |
 | colorSet5 | RGB = ??? Alpha is used for blending between the primary (5C) and secondary (5D) col maps.  |
-| colorSet6 | ??? |
-| colorSet7 | ??? |
+| colorSet6 | Set to red, green, or yellow for some vegetation meshes.  |
+| colorSet7 | RGBA control separate intensity values for some sort of effect. |
 
 # bake1
 bake1 stores UV coordinates for Bake Lit and Gao maps.
