@@ -264,7 +264,7 @@ Each texture parameter has a corresponding sampler parameter. The first 6 values
 | C7 | CustomFloat7 | ??? |
 | C8 | CustomFloat8 | Present for most fighters. |
 | C9 | CustomFloat9 | ??? |
-| CA | CustomFloat10 | Used for anisotropic hair materials. |
+| CA | CustomFloat10 | Controls specular anisotropy. A value of 0 produces isotropic specular. |
 | CB | CustomFloat11 | Values range from 0 to 20000 and are lower than CC. Used in conjunction with CC and 14A. |
 | CC | CustomFloat12 | Used in conjunction with CB and 14A. |
 | CD | CustomFloat13 | ??? |
