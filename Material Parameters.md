@@ -262,7 +262,7 @@ Each texture parameter has a corresponding sampler parameter. The first 6 values
 | C5 | CustomFloat5 | ??? |
 | C6 | CustomFloat6 | Set to 1 for the pikmin_planet models that use C0. |
 | C7 | CustomFloat7 | ??? |
-| C8 | CustomFloat8 | Present for most fighters. |
+| C8 | CustomFloat8 | Controls the specular IOR value. `IOR = 1.0 + CustomFloat8;` |
 | C9 | CustomFloat9 | ??? |
 | CA | CustomFloat10 | Controls specular anisotropy. A value of 0 produces isotropic specular. |
 | CB | CustomFloat11 | Values range from 0 to 20000 and are lower than CC. Used in conjunction with CC and 14A. |
