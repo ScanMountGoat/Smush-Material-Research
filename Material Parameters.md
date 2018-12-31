@@ -214,23 +214,23 @@ Each texture parameter has a corresponding sampler parameter. The first 6 values
 
 | Param ID | Name | Description |
 | --- | --- | --- |
-| 6C | Sampler0 | Base Color Map (5C) |
-| 6D | Sampler1 | Base Color Map (5D) |
-| 6E | Sampler2 | Irradiance Cubemap (5E) |
-| 6F | Sampler3 | Ambient Occlusion Map (6F) |
-| 70 | Sampler4 | Nor Map (60) |
-| 71 | Sampler5 | Emi Map (61) |
-| 72 | Sampler6 | PRM Map (62) |
-| 73 | Sampler7 | Specular Cube Map (63) |
-| 74 | Sampler8 | Diffuse Cubemap (74) |
-| 75 | Sampler9 | Bake Lit Map (65) |
-| 76 | Sampler10 | ??? |
-| 77 | Sampler11 | ??? |
-| 78 | Sampler12 | ??? |
-| 79 | Sampler13 | Projection Map (69) |
+| 6C | Sampler0 | Base Color Map (layer 1)|
+| 6D | Sampler1 | Base Color Map (layer 2)|
+| 6E | Sampler2 | Irradiance Cubemap |
+| 6F | Sampler3 | Ambient Occlusion Map |
+| 70 | Sampler4 | Nor Map |
+| 71 | Sampler5 | Emi Map |
+| 72 | Sampler6 | PRM Map |
+| 73 | Sampler7 | Specular Cube Map |
+| 74 | Sampler8 | Diffuse Cubemap |
+| 75 | Sampler9 | Bake Lit Map |
+| 76 | Sampler10 | Diffuse Map (layer 1) |
+| 77 | Sampler11 | Diffuse Map (layer 2) |
+| 78 | Sampler12 | Diffuse Map (layer 3) |
+| 79 | Sampler13 | Projection Map |
 | 7A | Sampler14 | ??? |
 | 7B | Sampler15 | ??? |
-| 137 | Sampler16 | Ink Normal Map (133) |
+| 137 | Sampler16 | Ink Normal Map |
 | 138 | Sampler17 | ??? |
 | 139 | Sampler18 | ??? |
 | 13A | Sampler19 | ??? |
