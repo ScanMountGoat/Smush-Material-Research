@@ -142,7 +142,7 @@ Stores an RGBA color or 4 float parameters.
 | 146 | CustomVector31 | UV Transform layer 2. |
 | 147 | CustomVector32 | UV Transform layer 3. |
 | 148 | CustomVector33 | UV Transform? Used for materials with 4 base color maps (Param IDS: 66, 67, 68, 69). |
-| 149 | CustomVector34 | UV Transform? |
+| 149 | CustomVector34 | UV Transform? Normal UV transform? |
 | 14A | CustomVector35 | RGBA? A is always 0 or 1. Used in conjunction with CB and CC. |
 | 14B | CustomVector36 | ??? |
 | 14C | CustomVector37 | Used for backlit flags, vegetation, etc. XYZ values appear to be angle values. W is between 0 and 1 (usually 0.1). Used in conjunction with 14E. |
