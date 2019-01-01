@@ -40,6 +40,6 @@ Stores additional UV coordinates. These are used for stage materials with multip
 
 | Attribute | Description |
 | --- | --- |
-| uvSet | ??? |
+| uvSet | Used for the second layer for col maps. |
 | uvSet1 | ??? |
 | uvSet2 | ??? |

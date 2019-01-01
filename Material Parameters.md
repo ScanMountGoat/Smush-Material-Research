@@ -114,7 +114,7 @@ Stores an RGBA color or 4 float parameters.
 | 9B | CustomVector3 | RGBA? |
 | 9C | CustomVector4 | XYZW? Always (0, 1000, 1, 0.2). |
 | 9D | CustomVector5 | RGBA? Always (1, 1, 1, 1). |
-| 9E | CustomVector6 | UV Sampler? |
+| 9E | CustomVector6 | UV Transform? |
 | 9F | CustomVector7 | RGBA? Always (1, 1, 1, 0). |
 | A0 | CustomVector8 | RGBA? A is always 0 or 1. Used for Mario Galaxy. |
 | A1 | CustomVector9 | RGBA? Always (0.2620026, -0.6427876, -0.7198463, 0). |
@@ -139,10 +139,10 @@ Stores an RGBA color or 4 float parameters.
 | 143 | CustomVector28 | ??? |
 | 144 | CustomVector29 | Used for rotating models for pilot wings, sky world, etc. X can be negative and has angle values (30, -60, or 720). Y and Z are always 0. W is always 300 or 0. |
 | 145 | CustomVector30 | RGBA? Commonly (0.5, 4, 1, 1). G is the max component. R is the min component. Used for skin materials. |
-| 146 | CustomVector31 | UV Sampler? |
-| 147 | CustomVector32 | UV Sampler? |
-| 148 | CustomVector33 | UV Sampler? Used for materials with 4 base color maps (Param IDS: 66, 67, 68, 69). |
-| 149 | CustomVector34 | UV Sampler? |
+| 146 | CustomVector31 | UV Transform for second col map layer, which is used for eyes. |
+| 147 | CustomVector32 | UV Transform? |
+| 148 | CustomVector33 | UV Transform? Used for materials with 4 base color maps (Param IDS: 66, 67, 68, 69). |
+| 149 | CustomVector34 | UV Transform? |
 | 14A | CustomVector35 | RGBA? A is always 0 or 1. Used in conjunction with CB and CC. |
 | 14B | CustomVector36 | ??? |
 | 14C | CustomVector37 | Used for backlit flags, vegetation, etc. XYZ values appear to be angle values. W is between 0 and 1 (usually 0.1). Used in conjunction with 14E. |
