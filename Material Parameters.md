@@ -182,7 +182,7 @@ Textures may share a type due to using a different layer or UV channel.
 | 5C | Texture0 | Base Color Map (layer 1) |
 | 5D | Texture1 | Base Color Map (layer 2) |
 | 5E | Texture2 | Irradiance Cubemap |
-| 5F | Texture3 | Ambient Occlusion Map. |
+| 5F | Texture3 | Ambient Occlusion Map |
 | 60 | Texture4 | Normal Map |
 | 61 | Texture5 | Emissive Map (layer 1) |
 | 62 | Texture6 | PRM Map |
@@ -285,8 +285,8 @@ Flags are separated into individual boolean parameters rather than being combine
 | EA | CustomBoolean2 | Set to 0 for Olimar's helmet. Set to 1 for Incineroar emission mesh. Often used for meshes using additive blending. |
 | EB | CustomBoolean3 | Set to true for the wufuisland arch and false for the buildings. |
 | EC | CustomBoolean4 | Used in conjunction with EC. |
-| ED | CustomBoolean5 | Used for stage morph, water, and other meshes with transparency effects. |
-| EE | CustomBoolean6 | Set to 1 for animal crossing island water. |
+| ED | CustomBoolean5 | Used for meshes with scrolling textures. Used for stage morph, water, and other meshes with transparency effects. |
+| EE | CustomBoolean6 | Used for meshes with scrolling textures. Set to 1 for animal crossing island water. |
 | EF | CustomBoolean7 | Used for battlefield waterfalls and other meshes with transparency effects. |
 | F0 | CustomBoolean8 | Set to true for bossstage_final3 and poke_kalos interval wall. |
 | F1 | CustomBoolean9 | Some sort of sprite sheet scale toggle. Used in conjunction with param AA. |
