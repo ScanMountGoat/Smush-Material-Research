@@ -114,7 +114,7 @@ Stores an RGBA color or 4 float parameters.
 | 9B | CustomVector3 | Color multiplier for emission color. Used to brighten/darken emissive maps. |
 | 9C | CustomVector4 | XYZW? Always (0, 1000, 1, 0.2). |
 | 9D | CustomVector5 | RGBA? Always (1, 1, 1, 1). |
-| 9E | CustomVector6 | UV Transform? |
+| 9E | CustomVector6 | UV Transform layer 1. |
 | 9F | CustomVector7 | RGBA? Always (1, 1, 1, 0). |
 | A0 | CustomVector8 | RGBA? A is always 0 or 1. Used for Mario Galaxy. |
 | A1 | CustomVector9 | RGBA? Always (0.2620026, -0.6427876, -0.7198463, 0). |
@@ -139,7 +139,7 @@ Stores an RGBA color or 4 float parameters.
 | 143 | CustomVector28 | ??? |
 | 144 | CustomVector29 | Used for rotating models for pilot wings, sky world, etc. X can be negative and has angle values (30, -60, or 720). Y and Z are always 0. W is always 300 or 0. |
 | 145 | CustomVector30 | RGBA? Commonly (0.5, 4, 1, 1). G is the max component. R is the min component. Used for skin materials. |
-| 146 | CustomVector31 | UV Transform for second col map layer, which is used for eyes. |
+| 146 | CustomVector31 | UV Transform layer 2. |
 | 147 | CustomVector32 | UV Transform? |
 | 148 | CustomVector33 | UV Transform? Used for materials with 4 base color maps (Param IDS: 66, 67, 68, 69). |
 | 149 | CustomVector34 | UV Transform? |
@@ -288,11 +288,11 @@ Flags are separated into individual boolean parameters rather than being combine
 | ED | CustomBoolean5 | Used for stage morph, water, and other meshes with transparency effects. |
 | EE | CustomBoolean6 | Set to 1 for animal crossing island water. |
 | EF | CustomBoolean7 | Used for battlefield waterfalls and other meshes with transparency effects. |
-| F0 | CustomBoolean8 | ??? |
+| F0 | CustomBoolean8 | Set to true for bossstage_final3 and poke_kalos interval wall. |
 | F1 | CustomBoolean9 | Some sort of sprite sheet scale toggle. Used in conjunction with param AA. |
-| F2 | CustomBoolean10 | ??? |
-| F3 | CustomBoolean11 | ??? |
-| F4 | CustomBoolean12 | ??? |
+| F2 | CustomBoolean10 | Set to false for spirits_floor_model\damage for each stage. |
+| F3 | CustomBoolean11 | Set to false for spirits_floor_model meshes. Used for the sun shaft for fe_siege. |
+| F4 | CustomBoolean12 | Set to true for fe_siege arena. False for ink meshes. |
 | F5 | CustomBoolean13 | ??? |
 | F6 | CustomBoolean14 | ??? |
 | F7 | CustomBoolean15 | ??? |
