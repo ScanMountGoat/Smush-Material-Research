@@ -111,7 +111,7 @@ Stores an RGBA color or 4 float parameters.
 | 98 | CustomVector0 | Usually (0.5, 0, 0, 0), (1, 0, 0, 0), or (0, 0, 0, 0). All values are used, however. 0 = texture alpha. 1 = no texture alpha. |
 | 99 | CustomVector1 | RGBA? Set to orange for s65_oniyon for pikmin_planet. |
 | 9A | CustomVector2 | RGBA? Set to yellow for some s65 models for pikmin_planet. |
-| 9B | CustomVector3 | RGBA? Used for meshes with emissive maps. Values are often higher than 1. |
+| 9B | CustomVector3 | Color multiplier for emission color. Used to brighten/darken emissive maps. |
 | 9C | CustomVector4 | XYZW? Always (0, 1000, 1, 0.2). |
 | 9D | CustomVector5 | RGBA? Always (1, 1, 1, 1). |
 | 9E | CustomVector6 | UV Transform? |
