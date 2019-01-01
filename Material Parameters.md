@@ -280,14 +280,14 @@ Flags are separated into individual boolean parameters rather than being combine
 
 | Param ID | Name | Description |
 | --- | --- | --- |
-| E8 | CustomBoolean0 | ??? |
+| E8 | CustomBoolean0 | Always false? Used for pikmin_planet, poke_tengam, and fox_venom. |
 | E9 | CustomBoolean1 | Set to 0 for fountain of dreams water. Seems to enables/disable specular occlusion for fighters. |
-| EA | CustomBoolean2 | Set to 0 for Olimar's helmet. Set to 1 for Incineroar emission mesh. Usually not present. |
-| EB | CustomBoolean3 | ??? |
-| EC | CustomBoolean4 | ??? |
-| ED | CustomBoolean5 | ??? |
+| EA | CustomBoolean2 | Set to 0 for Olimar's helmet. Set to 1 for Incineroar emission mesh. Often used for meshes using additive blending. |
+| EB | CustomBoolean3 | Set to true for the wufuisland arch and false for the buildings. |
+| EC | CustomBoolean4 | Used in conjunction with EC. |
+| ED | CustomBoolean5 | Used for stage morph, water, and other meshes with transparency effects. |
 | EE | CustomBoolean6 | Set to 1 for animal crossing island water. |
-| EF | CustomBoolean7 | ??? |
+| EF | CustomBoolean7 | Used for battlefield waterfalls and other meshes with transparency effects. |
 | F0 | CustomBoolean8 | ??? |
 | F1 | CustomBoolean9 | Some sort of sprite sheet scale toggle. Used in conjunction with param AA. |
 | F2 | CustomBoolean10 | ??? |
