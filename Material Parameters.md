@@ -129,7 +129,7 @@ Stores an RGBA color or 4 float parameters.
 | A8 | CustomVector16 | XYZW? Always (0.017, 35, 43.47, 0). Used for pikmin_planet. |
 | A9 | CustomVector17 | --- Unused --- |
 | AA | CustomVector18 | Used for sprite sheet animations. X = horizontal sprite count. Y = vertical sprite count. Z = frames per sprite. W = ??? |
-| AB | CustomVector19 | RGBA? Usually (1, 1, 1, 1). |
+| AB | CustomVector19 | RGBA? Usually (1, 1, 1, 1). Alpha is always 1. |
 | 13B | CustomVector20 | RGBA? |
 | 13C | CustomVector21 | RGBA? |
 | 13D | CustomVector22 | RGBA? |
@@ -260,18 +260,20 @@ Each texture parameter has a corresponding sampler parameter. The first 6 values
 | --- | --- | --- |
 | C0 | CustomFloat0 | Set to 0.997 for some models on pikmin_planet and fox_venom. |
 | C1 | CustomFloat1 | Usually set to 0. Set to 0.3 for stc_bg_chikei_set for xeno_gaur. Non zero for kirby_fountain models. |
+| C2 | CustomFloat2 | --- Unused --- |
+| C3 | CustomFloat3 | --- Unused --- |
 | C4 | CustomFloat4 | Values are usually 0 to 1. Used for water materials. |
-| C5 | CustomFloat5 | ??? |
+| C5 | CustomFloat5 | --- Unused --- |
 | C6 | CustomFloat6 | Set to 1 for the pikmin_planet models that use C0. |
-| C7 | CustomFloat7 | ??? |
+| C7 | CustomFloat7 | --- Unused --- |
 | C8 | CustomFloat8 | Controls the specular IOR value. `IOR = 1.0 + CustomFloat8;` |
-| C9 | CustomFloat9 | ??? |
+| C9 | CustomFloat9 | --- Unused --- |
 | CA | CustomFloat10 | Controls specular anisotropy. A value of 0 produces isotropic specular. |
 | CB | CustomFloat11 | Values range from 0 to 20000 and are lower than CC. Used in conjunction with CC and 14A. |
-| CC | CustomFloat12 | Used in conjunction with CB and 14A. |
-| CD | CustomFloat13 | ??? |
-| CE | CustomFloat14 | ??? |
-| CF | CustomFloat15 | ??? |
+| CC | CustomFloat12 | Values range from -100 to 100000. Used in conjunction with CB and 14A. |
+| CD | CustomFloat13 | --- Unused --- |
+| CE | CustomFloat14 | --- Unused --- |
+| CF | CustomFloat15 | --- Unused --- |
 | D0 | CustomFloat16 | Set to 5.5 for the ore club eye material. |
 | D1 | CustomFloat17 | Set to 0.5 for the paper mario ship and nintendogs curtain. |
 | D2 | CustomFloat18 | Has very large values. Values can be as high as 3000. |
