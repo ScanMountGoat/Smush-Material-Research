@@ -1,4 +1,6 @@
 # Material Parameter Descriptions
+Material parameters marked as unused aren't present in any of the numatb files. These parameters may still be used in material animations, however.
+
 ## UV Transforms
 The values are usually (1, 1, 0, 0, 0).
 
@@ -109,23 +111,23 @@ Stores an RGBA color or 4 float parameters.
 | Param ID | Name | Description |
 | --- | --- | --- |
 | 98 | CustomVector0 | Usually (0.5, 0, 0, 0), (1, 0, 0, 0), or (0, 0, 0, 0). All values are used, however. 0 = texture alpha. 1 = no texture alpha. |
-| 99 | CustomVector1 | RGBA? Set to orange for s65_oniyon for pikmin_planet. |
-| 9A | CustomVector2 | RGBA? Set to yellow for some s65 models for pikmin_planet. |
-| 9B | CustomVector3 | Color multiplier for emission color. Used to brighten/darken emissive maps. |
+| 99 | CustomVector1 | RGBA? Used for s65_oniyon for pikmin_planet. Set to an orange color. |
+| 9A | CustomVector2 | RGBA? Used for some s65 models for pikmin_planet. Set to yellow. |
+| 9B | CustomVector3 | Color multiplier for emission color. Used to brighten/darken emissive maps. Values are often higher than 1 to increase bloom. |
 | 9C | CustomVector4 | XYZW? Always (0, 1000, 1, 0.2). |
-| 9D | CustomVector5 | RGBA? Always (1, 1, 1, 1). |
+| 9D | CustomVector5 | RGBA? Set to white for s65_oniyon for pikmin_planet.  |
 | 9E | CustomVector6 | UV Transform layer 1. |
-| 9F | CustomVector7 | RGBA? Always (1, 1, 1, 0). |
-| A0 | CustomVector8 | RGBA? A is always 0 or 1. Used for Mario Galaxy. |
-| A1 | CustomVector9 | RGBA? Always (0.2620026, -0.6427876, -0.7198463, 0). |
+| 9F | CustomVector7 | RGBA? Always set to (1, 1, 1, 0). |
+| A0 | CustomVector8 | RGBA? RGB values are usually 0 to 1 but as high as 500. Alpha is 0 to 1. Used for Mario Galaxy. |
+| A1 | CustomVector9 | RGBA? Always (1, 1, 1, 1) or (0.2620026, -0.6427876, -0.7198463, 0). |
 | A2 | CustomVector10 | RGBA? Always (1, 0.8, 0.6, 0). |
 | A3 | CustomVector11 | RGBA? A is always 1. Very dark or matches skin tone for skin mats (including non human characters). |
-| A4 | CustomVector12 | ??? |
+| A4 | CustomVector12 | --- Unused --- |
 | A5 | CustomVector13 | RGB diffuse color multiplier. May also affect alpha. Usually present and set to (1, 1, 1, 1). |
 | A6 | CustomVector14 | RGBA? Component values are usually equal. Controls some sort of rim lighting effect. |
 | A7 | CustomVector15 | RGBA? Always (0, 1000, 1, 0.2). |
-| A8 | CustomVector16 | XYZW? Always (0.017, 35, 43.47, 0). |
-| A9 | CustomVector17 | ??? |
+| A8 | CustomVector16 | XYZW? Always (0.017, 35, 43.47, 0). Used for pikmin_planet. |
+| A9 | CustomVector17 | --- Unused --- |
 | AA | CustomVector18 | Used for sprite sheet animations. X = horizontal sprite count. Y = vertical sprite count. Z = frames per sprite. W = ??? |
 | AB | CustomVector19 | RGBA? Usually (1, 1, 1, 1). |
 | 13B | CustomVector20 | RGBA? |
@@ -194,7 +196,7 @@ Textures may share a type due to using a different layer or UV channel.
 | 68 | Texture12 | Diffuse Map (layer 3) |
 | 69 | Texture13 | Base Color/Projection Light Map? |
 | 6A | Texture14 | Emissive Map (layer 2) |
-| 6B | Texture15 | ??? |
+| 6B | Texture15 | --- Unused --- |
 | 133 | Texture16 | Ink Normal Map. Used for stage ink meshes. Projection texture? |
 | 134 | Texture17 | ??? |
 | 135 | Texture18 | ??? |
@@ -229,7 +231,7 @@ Each texture parameter has a corresponding sampler parameter. The first 6 values
 | 78 | Sampler12 | Diffuse Map (layer 3) |
 | 79 | Sampler13 | Projection Map |
 | 7A | Sampler14 | ??? |
-| 7B | Sampler15 | ??? |
+| 7B | Sampler15 | --- Unused --- |
 | 137 | Sampler16 | Ink Normal Map |
 | 138 | Sampler17 | ??? |
 | 139 | Sampler18 | ??? |
