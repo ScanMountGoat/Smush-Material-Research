@@ -2,25 +2,25 @@
 Material parameters marked as unused aren't present in any of the numatb files. These parameters may still be used in material animations, however.
 
 ## UV Transforms
-The values are always (1, 1, 0, 0, 0).
+Each texture has an associated UV transform parameter. The values are always (1, 1, 0, 0, 0).
 
 | Param ID | Name | Description |
 | --- | --- | --- |
-| FC  | UVTransform0 | ??? |
-| FD  | UVTransform1 | ??? |
-| FE  | UVTransform2 | ??? |
-| FF  | UVTransform3 | ??? |
-| 100 | UVTransform4 | ??? |
-| 101 | UVTransform5 | ??? |
-| 102 | UVTransform6 | ??? |
-| 103 | UVTransform7 | ??? |
-| 104 | UVTransform8 | ??? |
-| 105 | UVTransform9 | ??? |
+| FC  | UVTransform0 | Texture0 transform. |
+| FD  | UVTransform1 | Texture1 transform. |
+| FE  | UVTransform2 | Texture2 transform. |
+| FF  | UVTransform3 | Texture3 transform. |
+| 100 | UVTransform4 | Texture4 transform. |
+| 101 | UVTransform5 | Texture5 transform. |
+| 102 | UVTransform6 | Texture6 transform. |
+| 103 | UVTransform7 | Texture7 transform. |
+| 104 | UVTransform8 | Texture8 transform. |
+| 105 | UVTransform9 | Texture9 transform. |
 | 106 | UVTransform10 | --- Unused --- |
 | 107 | UVTransform11 | --- Unused --- |
 | 108 | UVTransform12 | --- Unused --- |
 | 109 | UVTransform13 | --- Unused --- |
-| 10A | UVTransform14 | ??? |
+| 10A | UVTransform14 | Texture14 transform. |
 | 10B | UVTransform15 | --- Unused --- |
 | 10C | DiffuseUVTransform1 | --- Unused --- |
 | 10D | DiffuseUVTransform2 | --- Unused --- |
