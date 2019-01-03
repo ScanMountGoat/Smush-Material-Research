@@ -2,7 +2,7 @@
 Material parameters marked as unused aren't present in any of the numatb files. These parameters may still be used in material animations, however.
 
 ## UV Transforms
-The values are usually (1, 1, 0, 0, 0).
+The values are always (1, 1, 0, 0, 0).
 
 | Param ID | Name | Description |
 | --- | --- | --- |
@@ -16,21 +16,21 @@ The values are usually (1, 1, 0, 0, 0).
 | 103 | UVTransform7 | ??? |
 | 104 | UVTransform8 | ??? |
 | 105 | UVTransform9 | ??? |
-| 106 | UVTransform10 | ??? |
-| 107 | UVTransform11 | ??? |
-| 108 | UVTransform12 | ??? |
-| 109 | UVTransform13 | ??? |
+| 106 | UVTransform10 | --- Unused --- |
+| 107 | UVTransform11 | --- Unused --- |
+| 108 | UVTransform12 | --- Unused --- |
+| 109 | UVTransform13 | --- Unused --- |
 | 10A | UVTransform14 | ??? |
-| 10B | UVTransform15 | ??? |
-| 10C | DiffuseUVTransform1 | ??? |
-| 10D | DiffuseUVTransform2 | ??? |
-| 10E | SpecularUVTransform1 | ??? |
-| 10F | SpecularUVTransform 2| ??? |
-| 110 | NormalUVTransform1 | ??? |
-| 111 | NormalUVTransform2 | ??? |
-| 112 | DiffuseUVTransform | ??? |
-| 113 | SpecularUVTransform | ??? |
-| 114 | NormalUVTransform | ??? |
+| 10B | UVTransform15 | --- Unused --- |
+| 10C | DiffuseUVTransform1 | --- Unused --- |
+| 10D | DiffuseUVTransform2 | --- Unused --- |
+| 10E | SpecularUVTransform1 | --- Unused --- |
+| 10F | SpecularUVTransform 2| --- Unused --- |
+| 110 | NormalUVTransform1 | --- Unused --- |
+| 111 | NormalUVTransform2 | --- Unused --- |
+| 112 | DiffuseUVTransform | --- Unused --- |
+| 113 | SpecularUVTransform | --- Unused --- |
+| 114 | NormalUVTransform | --- Unused --- |
 
 | Field | Values|
 | --- | --- |
@@ -45,17 +45,17 @@ Related to alpha blending in some way.
 
 | Param ID | Name | Description |
 | ---  | --- | --- |
-| 118 | BlendState0 | Used for most materials. |
-| 119 | BlendState1 | ??? |
-| 11A | BlendState2 | ??? |
-| 11B | BlendState3 | ??? |
-| 11C | BlendState4 | ??? |
-| 11D | BlendState5 | ??? |
-| 11E | BlendState6 | ??? |
-| 11F | BlendState7 | ??? |
-| 120 | BlendState8 | ??? |
-| 121 | BlendState9 | ??? |
-| 122 | BlendState10 | ??? |
+| 118 | BlendState0 | Used for all materials. |
+| 119 | BlendState1 | --- Unused --- |
+| 11A | BlendState2 | --- Unused --- |
+| 11B | BlendState3 | --- Unused --- |
+| 11C | BlendState4 | --- Unused --- |
+| 11D | BlendState5 | --- Unused --- |
+| 11E | BlendState6 | --- Unused --- |
+| 11F | BlendState7 | --- Unused --- |
+| 120 | BlendState8 | --- Unused --- |
+| 121 | BlendState9 | --- Unused --- |
+| 122 | BlendState10 | --- Unused --- |
 
 
 | Field | Values|
@@ -77,7 +77,6 @@ BlendFactor1 and BlendFactor2 are most likely SrcFactor and DstFactor, respectiv
 0 = default  
 1 = alpha blending  
 6 = additive blending  
-
 
 ## Rasterizer State
 | Param ID | Name | Description |
@@ -130,29 +129,29 @@ Stores an RGBA color or 4 float parameters.
 | A9 | CustomVector17 | --- Unused --- |
 | AA | CustomVector18 | Used for sprite sheet animations. X = horizontal sprite count. Y = vertical sprite count. Z = frames per sprite. W = ??? |
 | AB | CustomVector19 | RGBA? Usually (1, 1, 1, 1). Alpha is always 1. |
-| 13B | CustomVector20 | RGBA? |
-| 13C | CustomVector21 | RGBA? |
-| 13D | CustomVector22 | RGBA? |
+| 13B | CustomVector20 | RGBA? RGB values are as high as 10. Alpha is 0 to 1. |
+| 13C | CustomVector21 | RGBA? Values are 0 to 1. |
+| 13D | CustomVector22 | RGBA? RGB values are 0 to 2. Alpha is 0 or 1. |
 | 13E | CustomVector23 | RGB controls some sort of fog color. W is as high as 2400. |
-| 13F | CustomVector24 | RGBA? |
-| 140 | CustomVector25 | ??? |
-| 141 | CustomVector26 | ??? |
+| 13F | CustomVector24 | RGBA? RGB values are 0 to 1. Alpha is 0 or 1. |
+| 140 | CustomVector25 | --- Unused --- |
+| 141 | CustomVector26 | --- Unused --- |
 | 142 | CustomVector27 | XYZW? X is between -100 and 30. YZW are between 0 and 1. |
-| 143 | CustomVector28 | ??? |
+| 143 | CustomVector28 | --- Unused --- |
 | 144 | CustomVector29 | Used for rotating models for pilot wings, sky world, etc. X can be negative and has angle values (30, -60, or 720). Y and Z are always 0. W is always 300 or 0. |
-| 145 | CustomVector30 | RGBA? Commonly (0.5, 4, 1, 1). G is the max component. R is the min component. Used for skin materials. |
+| 145 | CustomVector30 | XYZW? Commonly (0.5, 4, 1, 1). G is the max component. R is the min component. Used for skin materials. |
 | 146 | CustomVector31 | UV Transform layer 2. |
 | 147 | CustomVector32 | UV Transform layer 3. |
 | 148 | CustomVector33 | UV Transform? Used for materials with 4 base color maps (Param IDS: 66, 67, 68, 69). |
 | 149 | CustomVector34 | UV Transform? Normal UV transform? |
 | 14A | CustomVector35 | RGBA? A is always 0 or 1. Used in conjunction with CB and CC. |
-| 14B | CustomVector36 | ??? |
+| 14B | CustomVector36 | --- Unused --- |
 | 14C | CustomVector37 | Used for backlit flags, vegetation, etc. XYZ values appear to be angle values. W is between 0 and 1 (usually 0.1). Used in conjunction with 14E. |
 | 14D | CustomVector38 | Used for moving plants on Green Greens, Great Cave Offensive, etc. XYZ appear to be angle values and are 0, 45, 60, or 90. W = intensity? |
 | 14E | CustomVector39 | RGBA? Used in conjunction with 14C for backlit flags, vegetation, etc. |
 | 14F | CustomVector40 | XYZW? Always (1, 25, 1, 25). |
-| 150 | CustomVector41 | ??? |
-| 151 | CustomVector42 | RGBA? |
+| 150 | CustomVector41 | --- Unused --- |
+| 151 | CustomVector42 | RGBA? RGB values can be negative. Values are 0 to 1. |
 | 152 | CustomVector43 | XYZW? Used for Wii Fit Trainer models for wiifit stage. Set to (0, 63, 0, 0) and (0, 25, 0, 0). |
 | 153 | CustomVector44 | RGBA? Used for Wii Fit Trainer models for wiifit stage. Set to (0.1804, 0.3462, 0.1314, 1). |
 | 154 | CustomVector45 | RGBA? Used for Wii Fit Trainer models for wiifit stage. Set to (0.008, 0.13, 0.02, 1). |
@@ -197,7 +196,7 @@ Textures may share a type due to using a different layer or UV channel.
 | 69 | Texture13 | Base Color/Projection Light Map? |
 | 6A | Texture14 | Emissive Map (layer 2) |
 | 6B | Texture15 | --- Unused --- |
-| 133 | Texture16 | Ink Normal Map. Used for stage ink meshes. Projection texture? |
+| 133 | Texture16 | Ink Normal Map. Used for stage ink meshes. Often uses a default white texture. |
 | 134 | Texture17 | --- Unused --- |
 | 135 | Texture18 | --- Unused --- |
 | 136 | Texture19 | --- Unused --- |
