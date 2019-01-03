@@ -83,16 +83,16 @@ BlendFactor1 and BlendFactor2 are most likely SrcFactor and DstFactor, respectiv
 | Param ID | Name | Description |
 | ---  | --- | --- |
 | 123 | RasterizerState0 | Used for most materials. |
-| 124 | RasterizerState1 | ??? |
-| 125 | RasterizerState2 | ??? |
-| 126 | RasterizerState3 | ??? |
-| 127 | RasterizerState4 | ??? |
-| 128 | RasterizerState5 | ??? |
-| 129 | RasterizerState6 | ??? |
-| 12A | RasterizerState7 | ??? |
-| 12B | RasterizerState8 | ??? |
-| 12C | RasterizerState9 | ??? |
-| 12D | RasterizerState10 | ??? |
+| 124 | RasterizerState1 | --- Unused --- |
+| 125 | RasterizerState2 | --- Unused --- |
+| 126 | RasterizerState3 | --- Unused --- |
+| 127 | RasterizerState4 | --- Unused --- |
+| 128 | RasterizerState5 | --- Unused --- |
+| 129 | RasterizerState6 | --- Unused --- |
+| 12A | RasterizerState7 | --- Unused --- |
+| 12B | RasterizerState8 | --- Unused --- |
+| 12C | RasterizerState9 | --- Unused --- |
+| 12D | RasterizerState10 | --- Unused --- |
 
 | Field | Values|
 | --- | --- |
@@ -158,22 +158,22 @@ Stores an RGBA color or 4 float parameters.
 | 154 | CustomVector45 | RGBA? Used for Wii Fit Trainer models for wiifit stage. Set to (0.008, 0.13, 0.02, 1). |
 | 155 | CustomVector46 | RGBA? Only used for one of Bayonetta's body anim meshes. |
 | 156 | CustomVector47 | Used for some stages. The color channels work the same as PRM maps. |
-| 157 | CustomVector48 | ??? |
-| 158 | CustomVector49 | ??? |
-| 159 | CustomVector50 | ??? |
-| 15A | CustomVector51 | ??? |
-| 15B | CustomVector52 | ??? |
-| 15C | CustomVector53 | ??? |
-| 15D | CustomVector54 | ??? |
-| 15E | CustomVector55 | ??? |
-| 15F | CustomVector56 | ??? |
-| 160 | CustomVector57 | ??? |
-| 161 | CustomVector58 | ??? |
-| 162 | CustomVector59 | ??? |
-| 163 | CustomVector60 | ??? |
-| 164 | CustomVector61 | ??? |
-| 165 | CustomVector62 | ??? |
-| 166 | CustomVector63 | ??? |
+| 157 | CustomVector48 | --- Unused --- |
+| 158 | CustomVector49 | --- Unused --- |
+| 159 | CustomVector50 | --- Unused --- |
+| 15A | CustomVector51 | --- Unused --- |
+| 15B | CustomVector52 | --- Unused --- |
+| 15C | CustomVector53 | --- Unused --- |
+| 15D | CustomVector54 | --- Unused --- |
+| 15E | CustomVector55 | --- Unused --- |
+| 15F | CustomVector56 | --- Unused --- |
+| 160 | CustomVector57 | --- Unused --- |
+| 161 | CustomVector58 | --- Unused --- |
+| 162 | CustomVector59 | --- Unused --- |
+| 163 | CustomVector60 | --- Unused --- |
+| 164 | CustomVector61 | --- Unused --- |
+| 165 | CustomVector62 | --- Unused --- |
+| 166 | CustomVector63 | --- Unused --- |
 
 
 ## Textures
@@ -198,9 +198,9 @@ Textures may share a type due to using a different layer or UV channel.
 | 6A | Texture14 | Emissive Map (layer 2) |
 | 6B | Texture15 | --- Unused --- |
 | 133 | Texture16 | Ink Normal Map. Used for stage ink meshes. Projection texture? |
-| 134 | Texture17 | ??? |
-| 135 | Texture18 | ??? |
-| 136 | Texture19 | ??? |
+| 134 | Texture17 | --- Unused --- |
+| 135 | Texture18 | --- Unused --- |
+| 136 | Texture19 | --- Unused --- |
 
 ### Default Textures
 | Name | Description | Param IDs |
@@ -230,12 +230,12 @@ Each texture parameter has a corresponding sampler parameter. The first 6 values
 | 77 | Sampler11 | Diffuse Map (layer 2) |
 | 78 | Sampler12 | Diffuse Map (layer 3) |
 | 79 | Sampler13 | Projection Map |
-| 7A | Sampler14 | ??? |
+| 7A | Sampler14 | Emissive Map (layer 2) |
 | 7B | Sampler15 | --- Unused --- |
 | 137 | Sampler16 | Ink Normal Map |
-| 138 | Sampler17 | ??? |
-| 139 | Sampler18 | ??? |
-| 13A | Sampler19 | ??? |
+| 138 | Sampler17 | --- Unused --- |
+| 139 | Sampler18 | --- Unused --- |
+| 13A | Sampler19 | --- Unused --- |
 
 | Field | Values|
 | --- | --- |
@@ -297,10 +297,10 @@ Flags are separated into individual boolean parameters rather than being combine
 | F2 | CustomBoolean10 | Set to false for spirits_floor_model\damage for each stage. |
 | F3 | CustomBoolean11 | Set to false for spirits_floor_model meshes. Used for the sun shaft for fe_siege. |
 | F4 | CustomBoolean12 | Set to true for fe_siege arena. False for ink meshes. |
-| F5 | CustomBoolean13 | ??? |
-| F6 | CustomBoolean14 | ??? |
-| F7 | CustomBoolean15 | ??? |
-| F8 | CustomBoolean16 | ??? |
-| F9 | CustomBoolean17 | ??? |
-| FA | CustomBoolean18 | ??? |
-| FB | CustomBoolean19 | ??? |
+| F5 | CustomBoolean13 | --- Unused --- |
+| F6 | CustomBoolean14 | --- Unused --- |
+| F7 | CustomBoolean15 | --- Unused --- |
+| F8 | CustomBoolean16 | --- Unused --- |
+| F9 | CustomBoolean17 | --- Unused --- |
+| FA | CustomBoolean18 | --- Unused --- |
+| FB | CustomBoolean19 | --- Unused --- |
