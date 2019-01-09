@@ -81,7 +81,7 @@ BlendFactor1 and BlendFactor2 are most likely SrcFactor and DstFactor, respectiv
 ## Rasterizer State
 | Param ID | Name | Description |
 | ---  | --- | --- |
-| 123 | RasterizerState0 | Used for most materials. |
+| 123 | RasterizerState0 | Used for all materials. |
 | 124 | RasterizerState1 | --- Unused --- |
 | 125 | RasterizerState2 | --- Unused --- |
 | 126 | RasterizerState3 | --- Unused --- |
@@ -95,8 +95,8 @@ BlendFactor1 and BlendFactor2 are most likely SrcFactor and DstFactor, respectiv
 
 | Field | Values|
 | --- | --- |
-| Unk1 | 1 |
-| Unk2 | 0, 2 |
+| Polygon Fill | 0 (Line), 1 (Solid) |
+| Cull Mode | 0 (Back), 1 (Front), 2 (Both) |
 | Unk3 | -1000, -100, -0.7, -0.05, 0, 1, 3, 10, 300, 400, 600, 700, 800, 1000, 5250, 9000, 10000, 20000, 999999 |
 | Unk4 | -1000, -100, 0, 100 |
 | Unk5 | -100, 0 |
