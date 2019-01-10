@@ -95,8 +95,8 @@ BlendFactor1 and BlendFactor2 are most likely SrcFactor and DstFactor, respectiv
 
 | Field | Values|
 | --- | --- |
-| Polygon Fill | 0 (Line), 1 (Solid) |
-| Cull Mode | 0 (Back), 1 (Front), 2 (Both) |
+| Polygon Fill | 0 = Line, 1 = Solid |
+| Cull Mode | 0 = Back, 1 = Front, 2 = Both |
 | Unk3 | -1000, -100, -0.7, -0.05, 0, 1, 3, 10, 300, 400, 600, 700, 800, 1000, 5250, 9000, 10000, 20000, 999999 |
 | Unk4 | -1000, -100, 0, 100 |
 | Unk5 | -100, 0 |
@@ -238,9 +238,9 @@ Each texture parameter has a corresponding sampler parameter. The first 6 values
 
 | Field | Values|
 | --- | --- |
-| WrapS? | 0 (Repeat), 1 (Clamp?), 2 (Mirrored Repeat) |
-| WrapT? | 0 (Repeat), 1 (Clamp?), 2 (Mirrored Repeat) |
-| Unk3 | 0, 1 , 2 |
+| WrapS? | 0 = Repeat, 1 = ???, 2 = Mirrored Repeat, 3 = ??? |
+| WrapT? | 0 = Repeat, 1 = ???, 2 = Mirrored Repeat, 3 = ??? |
+| Unk3 | 0, 1, 2, 3 |
 | Unk4 | 0, 1 , 2 |
 | Unk5 | 0, 1 , 2 |
 | Unk6 | 0, 1 , 2 |
