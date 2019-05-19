@@ -120,7 +120,7 @@ Stores an RGBA color or 4 float parameters.
 | A0 | CustomVector8 | RGBA? RGB values are usually 0 to 1 but as high as 500. Alpha is 0 to 1. Used for Mario Galaxy. |
 | A1 | CustomVector9 | RGBA? Always (1, 1, 1, 1) or (0.2620026, -0.6427876, -0.7198463, 0). |
 | A2 | CustomVector10 | RGBA? Always (1, 0.8, 0.6, 0). |
-| A3 | CustomVector11 | RGBA? A is always 1. Very dark or matches skin tone for skin mats (including non human characters). |
+| A3 | CustomVector11 | Fakes subsurface scattering by adding to the model color. RGB = offset color, A = ??? |
 | A4 | CustomVector12 | --- Unused --- |
 | A5 | CustomVector13 | RGB diffuse color multiplier. May also affect alpha. Usually present and set to (1, 1, 1, 1). |
 | A6 | CustomVector14 | RGBA? Component values are usually equal. Controls some sort of rim lighting effect. |
@@ -139,7 +139,7 @@ Stores an RGBA color or 4 float parameters.
 | 142 | CustomVector27 | XYZW? X is between -100 and 30. YZW are between 0 and 1. |
 | 143 | CustomVector28 | --- Unused --- |
 | 144 | CustomVector29 | Used for rotating models for pilot wings, sky world, etc. X can be negative and has angle values (30, -60, or 720). Y and Z are always 0. W is always 300 or 0. |
-| 145 | CustomVector30 | XYZW? Commonly (0.5, 4, 1, 1). G is the max component. R is the min component. Used for skin materials. |
+| 145 | CustomVector30 | Controls specular shading for skin materials. X = specular power (lower values are softer), YZW = ??? |
 | 146 | CustomVector31 | UV Transform layer 2. |
 | 147 | CustomVector32 | UV Transform layer 3. |
 | 148 | CustomVector33 | UV Transform? Used for materials with 4 base color maps (Param IDS: 66, 67, 68, 69). |
