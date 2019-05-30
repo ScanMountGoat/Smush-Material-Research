@@ -261,7 +261,7 @@ Each texture parameter has a corresponding sampler parameter. The first 6 values
 | C1 | CustomFloat1 | Usually set to 0. Set to 0.3 for stc_bg_chikei_set for xeno_gaur. Non zero for kirby_fountain models. |
 | C2 | CustomFloat2 | --- Unused --- |
 | C3 | CustomFloat3 | --- Unused --- |
-| C4 | CustomFloat4 | Values are usually 0 to 1. Used for water materials. |
+| C4 | CustomFloat4 | Values are usually 0 to 1. Used for water materials. Probably has a similar effect to a du dv map. |
 | C5 | CustomFloat5 | --- Unused --- |
 | C6 | CustomFloat6 | Set to 1 for the pikmin_planet models that use C0. |
 | C7 | CustomFloat7 | --- Unused --- |
