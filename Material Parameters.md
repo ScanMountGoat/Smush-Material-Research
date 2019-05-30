@@ -276,7 +276,7 @@ Each texture parameter has a corresponding sampler parameter. The first 6 values
 | D0 | CustomFloat16 | Set to 5.5 for the ore club eye material. |
 | D1 | CustomFloat17 | Set to 0.5 for the paper mario ship and nintendogs curtain. |
 | D2 | CustomFloat18 | Has very large values. Values can be as high as 3000. |
-| D3 | CustomFloat19 | Used for water and glass materials. Values are 1 or higher. |
+| D3 | CustomFloat19 | Used for water and glass materials. Probably some sort of IOR value. Values are 0 or higher. |
 
 ## Boolean Flags
 Flags are separated into individual boolean parameters rather than being combined into a single value.
