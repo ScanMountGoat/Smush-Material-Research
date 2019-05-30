@@ -113,7 +113,7 @@ Stores an RGBA color or 4 float parameters.
 | 99 | CustomVector1 | RGBA? Used for s65_oniyon for pikmin_planet. Set to an orange color. |
 | 9A | CustomVector2 | RGBA? Used for some s65 models for pikmin_planet. Set to yellow. |
 | 9B | CustomVector3 | Color multiplier for emission color. Used to brighten/darken emissive maps. Values are often higher than 1 to increase bloom. |
-| 9C | CustomVector4 | XYZW? Always (0, 1000, 1, 0.2). |
+| 9C | CustomVector4 | RGBA? Set to white for arwinbeam_set for fox_venom. |
 | 9D | CustomVector5 | RGBA? Set to white for s65_oniyon for pikmin_planet.  |
 | 9E | CustomVector6 | UV Transform layer 1. |
 | 9F | CustomVector7 | RGBA? Always set to (1, 1, 1, 0). |
