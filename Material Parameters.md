@@ -75,8 +75,8 @@ Related to alpha blending in some way.
 
 BlendFactor1 and BlendFactor2 are most likely SrcFactor and DstFactor, respectively.  
 0 = default  
-1 = alpha blending  
-6 = additive blending  
+1 = additive blending  
+6 = alpha blending  
 
 ## Rasterizer State
 | Param ID | Name | Description |
