@@ -89,7 +89,16 @@ Baked ambient occlusion used for stage models. The default_White texture is ofte
 effect. The maps can also store colored lighting information. These maps use the bake1 UVs.
 
 # Bake Lit Maps
-Stores baked ambient lighting and shadows for stages. Like Gao maps, these maps use the bake1 UVs.  
+Stores baked ambient lighting and shadows for stages. Like Gao maps, these maps use the bake1 UVs.
+The RGB values are used for ambient diffuse lighting. The alpha channel stores baked shadows that
+mask the stage's direct lighting.
+
+| Channel | Usage |
+| --- | --- |
+| R | Ambient R  |
+| G | Ambient G  |
+| B | Ambient B |
+| A | Baked Shadows |
 
 # Projection Light Maps
 TODO: Used for some stages. The texture uses some form of projection instead of UVs.
@@ -99,4 +108,5 @@ A 3D RGB lookup table for color grading. Most stages have a neutral lookup table
 textures are also used for the various filters for screenshots (sepia, vivid, etc).
 
 ### [Color Grading LUT Examples](https://docs.unrealengine.com/en-us/Engine/Rendering/PostProcessEffects/UsingLUTs)
-Smash Ultimate uses a completely different engine, but the color grading LUT textures are functionally equivalent to the examples in the above link.  
+Smash Ultimate uses a completely different engine, but the color grading LUT textures are
+functionally equivalent to the examples in the above link.  
