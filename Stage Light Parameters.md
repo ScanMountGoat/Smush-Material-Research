@@ -4,8 +4,8 @@ The stage light nuanmb files use the same material parameter names as model mate
 ## Float Vector 4
 | Name | Description |
 | --- | --- |
-| CustomVector0 | RGB? Used for stage and chr lights. |
-| CustomVector1 | RGB? RGB values are 0 to 1. |
+| CustomVector0 | RGB? Used for stage and character light colors. |
+| CustomVector1 | RGB? Controls some sort of fog color. RGB values are 0 to 1. |
 | CustomVector2 | RGB? RGB values can be negative. |
 | CustomVector3 | XYZW? Values are usually 0 to 1. Values can be negative. |
 | CustomVector4 | RGB? RGB can be higher than 1. |
@@ -28,8 +28,8 @@ The stage light nuanmb files use the same material parameter names as model mate
 # Float
 | Name | Description |
 | --- | --- |
-| CustomFloat0 | ??? Values are 0 to 40. |
-| CustomFloat1 | ??? Values are 0 to 1. |
+| CustomFloat0 | Controls direct lighting strength. Values are 0 to 40. |
+| CustomFloat1 | Affects bloom. Values are 0 to 1. |
 | CustomFloat2 | ??? Values are always 0. |
 | CustomFloat3 | ??? Values are always 2. |
 | CustomFloat4 | ??? Values are always 8. |
