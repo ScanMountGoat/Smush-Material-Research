@@ -17,7 +17,7 @@ The stage light nuanmb files use the same material parameter names as model mate
 | CustomVector10 | XYZW? X is very small. YZ appear to be angle values. W is always 1. |
 | CustomVector11 | XYZW? Z is very large. |
 | CustomVector12 | XYZW? XY are very large. ZW are small. XY can be negative. |
-| CustomVector13 | XYZW? XY are very large. Y is always larger than X. Z is to 1. X and W can be negative. |
+| CustomVector13 | XYZW? XY are very large. Y is always larger than X. Z is 0 to 1. X and W can be negative. |
 | CustomVector14 | XYZW? Always set to (1, 1, 0, 0). |
 | CustomVector15 | XYZW? XYZ are always 1. W is 0 to 5. |
 | CustomVector16 | XYZW? Similar values to CustomVector18. |
