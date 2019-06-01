@@ -20,11 +20,11 @@ Vertex color sets. RGBA values are typically 0 to 128, which are remapped to a s
 
 | Attribute | Description |
 | --- | --- |
-| colorSet3 | Some sort of baked stage lighting. |
+| colorSet3 | RGB = ??? A = ??? Some sort of baked stage lighting. |
 | colorSet4 | RGBA? Set to colored values for mario_galaxy, zelda_tower, etc. |
 | colorSet5 | RGB = ??? Alpha is used for blending between the primary (5C) and secondary (5D) col maps.  |
-| colorSet6 | Set to red, green, or yellow for some vegetation meshes.  |
-| colorSet7 | RGBA control separate intensity values for some sort of effect. |
+| colorSet6 | Used for some vegetation meshes. Red is often white. Blue and green are gradients.  |
+| colorSet7 | RGBA control separate intensity values for some sort of effect. May affect fog color. |
 
 # bake1
 bake1 stores UV coordinates for Bake Lit and Gao maps.
