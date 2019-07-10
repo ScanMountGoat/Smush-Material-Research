@@ -2,6 +2,9 @@
 The markdown files contain information on researched values for materials and can be viewed directly
 in the browser. Please submit an issue or pull request for any incorrect or missing information.
 
-The material value dump contains all unique values for material params present in a dump of all
-numatb files from the version 1.0 data.arc file. All values for booleans are included to aid in
-identifying boolean params.
+| File | Description |
+| --- | --- |
+| Unique Material Values Dump | Unique values or all boolean values for material params with associated paths. |
+| Stage Attribute Dump | A dump of all vertex attributes used for stage models. |
+| Stage Light Nuanmb Dump | Stage lighting data from animation files. |
+| Numatb Xml Dump | All numatb files converted to a more readable xml format. |
