@@ -8,3 +8,4 @@ in the browser. Please submit an issue or pull request for any incorrect or miss
 | Stage Attribute Dump | A dump of all vertex attributes used for stage models. |
 | Stage Light Nuanmb Dump | Stage lighting data from animation files. |
 | Numatb Xml Dump | All numatb files converted to a more readable xml format. |
+| Material Labels by Name | Lists all material labels used for a particular material name. |
