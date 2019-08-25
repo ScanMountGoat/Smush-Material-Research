@@ -250,9 +250,8 @@ Each texture parameter has a corresponding sampler parameter. The first 6 values
 | Unk10 | 0  |
 | Unk11 | 0 |
 | Unk12 | 2139095022 |
-| Unk13 | -100, -0.5, -0.8, 0, 0.6, 1, 2  |
+| Unk13 | -1000000, -0.5, -0.8, 0, 0.6, 1, 2  |
 | Unk14 | 2, 4, 8, 16 |
-| Unk15 | 0, 1, 2, 8 |
 
 ## Float
 | Param ID | Name | Description |
