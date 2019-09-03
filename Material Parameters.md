@@ -210,8 +210,7 @@ Textures may share a type due to using a different layer or UV channel.
 | default_black | Used as a base color map | 61 |
 
 ## Samplers
-Each texture parameter has a corresponding sampler parameter. The first 6 values are often (0, 0, 0, 1, 1, 1) for 2D textures or
-(1, 1, 1, 1, 1, 1) for cubemaps.
+Each texture parameter has a corresponding sampler parameter. The border color for texture filtering is black.
 
 | Param ID | Name | Description |
 | --- | --- | --- |
@@ -238,11 +237,11 @@ Each texture parameter has a corresponding sampler parameter. The first 6 values
 
 | Field | Values|
 | --- | --- |
-| WrapS? | 0 = Repeat, 1 = ???, 2 = Mirrored Repeat, 3 = ??? |
-| WrapT? | 0 = Repeat, 1 = ???, 2 = Mirrored Repeat, 3 = ??? |
-| Unk3 | 0, 1, 2, 3 |
+| Wrap S | 0 = Repeat, 1 = Clamp To Edge, 2 = Mirrored Repeat, 3 = Clamp to Border |
+| Wrap T | 0 = Repeat, 1 = Clamp To Edge, 2 = Mirrored Repeat, 3 = Clamp to Border |
+| Wrap R | 0 = Repeat, 1 = Clamp To Edge, 2 = Mirrored Repeat, 3 = Clamp to Border |
 | Unk4 | 0, 1 , 2 |
-| Unk5 | 0, 1 , 2 |
+| Mag Filter | 0 = Nearest, 1 = Linear , 2 = Linear? |
 | Unk6 | 0, 1 , 2 |
 | Unk7 | 0 |
 | Unk8 | 0 |
