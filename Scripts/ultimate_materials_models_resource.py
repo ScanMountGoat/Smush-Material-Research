@@ -36,7 +36,7 @@ def create_nodes(mat, material_node):
     ultimate_shader_node.location = (-250,0)
 
     # TODO: Don't hard code the image directory.
-    image_root_directory = 'C:\\Users\\Jonathan\\Downloads\\Lucina Blender Texture Test'
+    image_root_directory = ''
     
     # Initialize the node group inputs
     for param_node in material_node:
@@ -87,7 +87,7 @@ def create_materials_from_xml(context, filepath, use_some_setting):
         # For the addon, these can be relative paths.
         print('Appending node groups...')
         section = '\\NodeTree\\'
-        blend_file = 'C:\\Users\\Jonathan\\Downloads\\Lucina Blender Texture Test\\node group.blend'
+        blend_file = ''
         bpy.ops.wm.append(filepath=blend_file + section + 'SmashUltimateMaterial', filename='SmashUltimateShader', directory=blend_file + section)
 
     print('Creating materials from %s...' % (filepath))
