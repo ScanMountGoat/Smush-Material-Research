@@ -117,7 +117,7 @@ Stores an RGBA color or 4 float parameters.
 | 9D | CustomVector5 | RGBA? Set to white for s65_oniyon for pikmin_planet.  |
 | 9E | CustomVector6 | UV Transform layer 1. |
 | 9F | CustomVector7 | RGBA? Always set to (1, 1, 1, 0). |
-| A0 | CustomVector8 | RGBA? RGB values are usually 0 to 1 but as high as 500. Alpha is 0 to 1. Used for Mario Galaxy. |
+| A0 | CustomVector8 | RGB color multiplier for the final color after diffuse, specular, etc. |
 | A1 | CustomVector9 | RGBA? Always (1, 1, 1, 1) or (0.2620026, -0.6427876, -0.7198463, 0). |
 | A2 | CustomVector10 | RGBA? Always (1, 0.8, 0.6, 0). |
 | A3 | CustomVector11 | Fakes subsurface scattering by adding to the model color. RGB = offset color, A = ??? |
@@ -139,7 +139,7 @@ Stores an RGBA color or 4 float parameters.
 | 142 | CustomVector27 | XYZW? X is between -100 and 30. YZW are between 0 and 1. |
 | 143 | CustomVector28 | --- Unused --- |
 | 144 | CustomVector29 | Used for rotating models for pilot wings, sky world, etc. X can be negative and has angle values (30, -60, or 720). Y and Z are always 0. W is always 300 or 0. |
-| 145 | CustomVector30 | Controls specular shading for skin materials. X = specular power (lower values are softer), YZW = ??? |
+| 145 | CustomVector30 | Controls shading for skin materials. X = specular exponent?, YZW = ??? |
 | 146 | CustomVector31 | UV Transform layer 2. |
 | 147 | CustomVector32 | UV Transform layer 3. |
 | 148 | CustomVector33 | UV Transform? Used for materials with 4 base color maps (Param IDS: 66, 67, 68, 69). |
