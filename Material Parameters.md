@@ -146,8 +146,8 @@ Stores an RGBA color or 4 float parameters.
 | 149 | CustomVector34 | UV Transform? Normal UV transform? |
 | 14A | CustomVector35 | RGBA? A is always 0 or 1. Used in conjunction with CB and CC. |
 | 14B | CustomVector36 | --- Unused --- |
-| 14C | CustomVector37 | Used for backlit flags, vegetation, etc. XYZ values appear to be angle values. W is between 0 and 1 (usually 0.1). Used in conjunction with 14E. |
-| 14D | CustomVector38 | Used for moving plants on Green Greens, Great Cave Offensive, etc. XYZ appear to be angle values and are 0, 45, 60, or 90. W = intensity? |
+| 14C | CustomVector37 | Some sort of rotation/warp effect used for grass. XYZ = ??? W = intensity |
+| 14D | CustomVector38 | Related to 14C. XYZ= ??? W = intensity? |
 | 14E | CustomVector39 | RGBA? Used in conjunction with 14C for backlit flags, vegetation, etc. |
 | 14F | CustomVector40 | XYZW? Always (1, 25, 1, 25). |
 | 150 | CustomVector41 | --- Unused --- |
