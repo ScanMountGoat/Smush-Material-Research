@@ -263,7 +263,7 @@ Each texture parameter has a corresponding sampler parameter. The border color f
 | C5 | CustomFloat5 | --- Unused --- |
 | C6 | CustomFloat6 | Set to 1 for the pikmin_planet models that use C0. |
 | C7 | CustomFloat7 | --- Unused --- |
-| C8 | CustomFloat8 | Controls the specular IOR value. `IOR = 1.0 + CustomFloat8;` |
+| C8 | CustomFloat8 | Controls albedo color tint intensity used for the specular pass. The effect is similar to the tint used for the principled shader. |
 | C9 | CustomFloat9 | --- Unused --- |
 | CA | CustomFloat10 | Controls specular anisotropy. A value of 0 produces isotropic specular. |
 | CB | CustomFloat11 | Values range from 0 to 20000 and are lower than CC. Used in conjunction with CC and 14A. |
