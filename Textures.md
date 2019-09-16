@@ -65,9 +65,7 @@ is generated.
 The blend map is used for blending between materials for ink, metal box, and gold forms
 (Xerneas).
 
-Cavity maps are similar to ambient occlusion maps but contain finer
-details. The cavity map is used for specular occlusion, meaning that darker areas on the map will
-have less intense reflections.
+Cavity maps are similar to ambient occlusion maps but only contain finer details in recessed areas.  
 
 | Channel | Usage |
 | --- | --- |
