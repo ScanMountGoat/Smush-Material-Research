@@ -176,7 +176,7 @@ Stores an RGBA color or 4 float parameters.
 
 
 ## Textures
-Textures may share a type due to using a different layer or UV channel.
+*note: The uv channel used for each texture type is still largely speculation.*
 
 | Param ID | Name | Description |
 | --- | --- | --- |
