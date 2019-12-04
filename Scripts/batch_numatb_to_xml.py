@@ -1,6 +1,7 @@
 import os
 import sys
 import glob
+import subprocess
 
 if __name__ == '__main__':
     if len(sys.argv) < 4:
@@ -12,7 +13,6 @@ if __name__ == '__main__':
     source_folder = os.path.abspath(sys.argv[2])
     destination_folder = os.path.abspath(sys.argv[3])
 
-    # r=root, d=directories, f = files
     for root, directories, files in os.walk(source_folder):
         for f in files:
             if '.numatb' in f:
@@ -20,6 +20,6 @@ if __name__ == '__main__':
 
                 # Ex: /a/b/c.numatb -> a_b_c.xml
                 output_path = abs_path.replace(source_folder, "").replace(os.path.sep, "_").replace(".numatb",".xml")[1:]
-
-                print(f'{abs_path} {output_path}')
-                # TODO: Execute the matlab exe using the given paths.
+               
+                # Execute the matlab exe using the given paths.
+                subprocess.Popen([xml_exe, abs_path, output_path])
