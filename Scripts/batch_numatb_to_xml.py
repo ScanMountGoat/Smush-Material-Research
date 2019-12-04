@@ -1,12 +1,10 @@
 import os
 import sys
-import glob
 import subprocess
 
 if __name__ == '__main__':
     if len(sys.argv) < 4:
-        print('Usage:')
-        print(f'\t{sys.argv[0]} <MatLab.exe> <source folder> <destination folder>')
+        print(f'Usage: {sys.argv[0]} <MatLab.exe> <source folder> <destination folder>')
         exit(1)
 
     xml_exe = os.path.abspath(sys.argv[1])
