@@ -12,8 +12,11 @@ def parse_xml(file_text, values_by_param):
                 values_by_param[param_name] = []
 
             # Convert nested value nodes to a comma delimited format for easier parsing later.
-            # Some materials have missing texture names for some reason, so check for null.
             values = [node.text for node in param_node[0]]
+            if len(values) == 0:
+                values = [param_node[0].text]
+
+            # Some materials have missing texture names for some reason, so check for null.
             if not None in values:
                 values_text = ','.join(values)
                 values_by_param[param_name].append(values_text)
