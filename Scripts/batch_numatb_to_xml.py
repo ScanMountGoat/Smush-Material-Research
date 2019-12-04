@@ -19,7 +19,8 @@ if __name__ == '__main__':
                 abs_path = os.path.join(root, f)
 
                 # Ex: /a/b/c.numatb -> a_b_c.xml
-                output_path = abs_path.replace(source_folder, "").replace(os.path.sep, "_").replace(".numatb",".xml")[1:]
+                output_filename = abs_path.replace(source_folder, "").replace(os.path.sep, "_").replace(".numatb",".xml")[1:]
+                output_path = os.path.join(destination_folder, output_filename)
                
                 # Execute the matlab exe using the given paths.
                 subprocess.Popen([xml_exe, abs_path, output_path])
