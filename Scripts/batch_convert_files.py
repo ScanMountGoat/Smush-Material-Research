@@ -25,5 +25,5 @@ if __name__ == '__main__':
                 output_filename = abs_path.replace(source_folder, "").replace(os.path.sep, "_").replace(input_extension,output_extension)[1:]
                 output_path = os.path.join(destination_folder, output_filename)
                
-                # Execute the matlab exe using the given paths.
+                # Execute the converter exe using the given paths.
                 subprocess.Popen([xml_exe, abs_path, output_path])
