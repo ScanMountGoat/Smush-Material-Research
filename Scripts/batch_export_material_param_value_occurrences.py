@@ -24,6 +24,8 @@ if __name__ == '__main__':
 
     source_folder = os.path.abspath(sys.argv[1])
     destination_folder = os.path.abspath(sys.argv[2])
+    if not os.path.exists(destination_folder):
+        os.makedirs(destination_folder)
 
     count_by_value_by_param = {}
 
