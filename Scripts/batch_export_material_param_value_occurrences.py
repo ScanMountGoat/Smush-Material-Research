@@ -38,9 +38,23 @@ if __name__ == '__main__':
 
     # Write value occurrences in descending order for each param to file.
     for param_name in count_by_value_by_param:
-        destination_file = os.path.join(destination_folder, param_name + '_value_occurences.txt')
+        destination_file = os.path.join(destination_folder, param_name + '_value_occurences.csv')
         with open(destination_file, 'w') as file:
+            # Write CSV header
+            if 'Vector' in param_name:
+                file.write('X,Y,Z,W,Occurrences\n')
+            elif 'UvTransform' in param_name:
+                file.write('Unk1,Unk2,Unk3,Unk4,Unk5,Occurrences\n')
+            elif 'BlendState' in param_name:
+                file.write('Unk1,Unk2,Unk3,Unk4,Unk5,Unk6,Unk7,Unk8,Unk9,Unk10,Unk11,Unk12,Occurrences\n')
+            elif 'RasterizerState' in param_name:
+                file.write('Unk1,Unk2,Unk3,Unk4,Unk5,Unk6,Unk7,Unk8,Occurrences\n')
+            elif 'Sampler' in param_name:
+                file.write('Unk1,Unk2,Unk3,Unk4,Unk5,Unk6,Unk7,Unk8,Unk9,Unk10,Unk11,Unk12,Unk13,Unk14,Occurrences\n')
+            else:
+                file.write('Value,Occurrences\n')
+
             dict = count_by_value_by_param[param_name]
             for value in sorted(dict, key=dict.get, reverse=True):
-                file.write(f'{value} {count_by_value_by_param[param_name][value]}\n')
+                file.write(f'{value},{count_by_value_by_param[param_name][value]}\n')
 
