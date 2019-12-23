@@ -36,7 +36,7 @@ if __name__ == '__main__':
     for root, directories, file_paths in os.walk(source_folder):
         for path in file_paths:
             if '.xml' in path:
-                abs_path = os.path.join(source_folder, path)
+                abs_path = os.path.join(root, path)
                 with open(abs_path, 'r') as file:
                     data = file.read().encode('utf-16-be')
                     parse_xml(data, values_by_param)

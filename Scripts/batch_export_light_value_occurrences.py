@@ -46,7 +46,7 @@ if __name__ == '__main__':
     for root, directories, file_paths in os.walk(source_folder):
         for path in file_paths:
             if '.json' in path:
-                abs_path = os.path.join(source_folder, path)
+                abs_path = os.path.join(root, path)
                 parse_json(abs_path, count_by_value_by_param)
 
     # Write value occurrences in descending order for each param to file.
