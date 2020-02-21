@@ -120,7 +120,7 @@ Stores an RGBA color or 4 float parameters.
 | A0 | CustomVector8 | RGB color multiplier for the final color after diffuse, specular, etc. |
 | A1 | CustomVector9 | RGBA? Always (1, 1, 1, 1) or (0.2620026, -0.6427876, -0.7198463, 0). |
 | A2 | CustomVector10 | RGBA? Always (1, 0.8, 0.6, 0). |
-| A3 | CustomVector11 | Fakes subsurface scattering by adding to the model color. RGB = offset color, A = ??? |
+| A3 | CustomVector11 | Fakes subsurface scattering by adding to the model color. RGB = offset color |
 | A4 | CustomVector12 | --- Unused --- |
 | A5 | CustomVector13 | RGB diffuse color multiplier. May also affect alpha. Usually present and set to (1, 1, 1, 1). |
 | A6 | CustomVector14 | Specular edge tint. Higher blend values increase the intensity of the effect. RGB = color, A = blend intensity. |
