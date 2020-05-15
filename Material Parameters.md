@@ -62,10 +62,10 @@ Related to alpha blending in some way.
 | --- | --- |
 | Unk1 | 0, 1 |
 | Unk2 | 0 |
-| BlendFactor1 | 0, 1, 6 |
+| BlendFactor1 | 0 = None, 1 = Additive, 6 = Alpha Blending |
 | Unk4 | 0, 1 |
 | Unk5 | 0 |
-| BlendFactor2 | 0, 1, 6 |
+| BlendFactor2 | 0 = None, 1 = Additive, 6 = Alpha Blending |
 | Unk7 | 0, 1 |
 | Unk8 | 0, 1 |
 | Unk9 | 0 |
@@ -73,10 +73,7 @@ Related to alpha blending in some way.
 | Unk11| 0 |
 | Unk12| 0 |
 
-BlendFactor1 and BlendFactor2 are most likely SrcFactor and DstFactor, respectively.  
-0 = default  
-1 = additive blending  
-6 = alpha blending  
+Unk7 and Unk8 determine if an order-independent transparency effect is used. This is common for hair meshes.  
 
 ## Rasterizer State
 | Param ID | Name | Description |
