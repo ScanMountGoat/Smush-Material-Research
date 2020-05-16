@@ -60,7 +60,7 @@ Related to alpha blending in some way.
 
 | Field | Values|
 | --- | --- |
-| Unk1 | 0, 1 |
+| SrcFactor | 0 = Zero, 1 = One |
 | Unk2 | 0 |
 | BlendFactor1 | 0 = None, 1 = Additive, 6 = Alpha Blending |
 | Unk4 | 0, 1 |
@@ -73,6 +73,7 @@ Related to alpha blending in some way.
 | Unk11| 0 |
 | Unk12| 0 |
 
+BlendFactor1 and BlendFactor2 both seem to affect the DstFactor because premultiplied alpha is used.
 Unk7 and Unk8 determine if an order-independent transparency effect is used. This is common for hair meshes.  
 
 ## Rasterizer State
