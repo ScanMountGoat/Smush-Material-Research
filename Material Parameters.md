@@ -62,10 +62,10 @@ Related to alpha blending in some way.
 | --- | --- |
 | SrcFactor | 0 = Zero, 1 = One |
 | Unk2 | 0 |
-| BlendFactor1 | 0 = None, 1 = Additive, 6 = Alpha Blending |
+| BlendFactor1 | 0 = Zero, 1 = One, 2 = Source Alpha, 6 = One Minus Source Alpha |
 | Unk4 | 0, 1 |
 | Unk5 | 0 |
-| BlendFactor2 | 0 = None, 1 = Additive, 6 = Alpha Blending |
+| BlendFactor2 | 0 = Zero, 1 = One, 2 = Source Alpha, 6 = One Minus Source Alpha |
 | Unk7 | 0, 1 |
 | Unk8 | 0, 1 |
 | Unk9 | 0 |
