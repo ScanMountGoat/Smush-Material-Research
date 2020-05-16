@@ -237,8 +237,8 @@ Each texture parameter has a corresponding sampler parameter. The border color f
 | Wrap S | 0 = Repeat, 1 = Clamp To Edge, 2 = Mirrored Repeat, 3 = Clamp to Border |
 | Wrap T | 0 = Repeat, 1 = Clamp To Edge, 2 = Mirrored Repeat, 3 = Clamp to Border |
 | Wrap R | 0 = Repeat, 1 = Clamp To Edge, 2 = Mirrored Repeat, 3 = Clamp to Border |
-| Unk4 | 0, 1 , 2 |
-| Mag Filter | 0 = Nearest, 1 = Linear , 2 = Linear? |
+| Min Filter | 0 = Nearest, 1 = Linear , 2 = Linear |
+| Mag Filter | 0 = Nearest, 1 = Linear , 2 = Linear |
 | Unk6 | 0, 1 , 2 |
 | Unk7 | 0 |
 | Unk8 | 0 |
