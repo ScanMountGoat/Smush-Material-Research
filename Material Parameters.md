@@ -118,7 +118,7 @@ Stores an RGBA color or 4 float parameters.
 | A0 | CustomVector8 | RGB color multiplier for the final color after diffuse, specular, etc. |
 | A1 | CustomVector9 | RGBA? Always (1, 1, 1, 1) or (0.2620026, -0.6427876, -0.7198463, 0). |
 | A2 | CustomVector10 | RGBA? Always (1, 0.8, 0.6, 0). |
-| A3 | CustomVector11 | Fakes subsurface scattering by adding to the model color. RGB = offset color |
+| A3 | CustomVector11 | Adds to the specular shading. Used with CustomVector30 to fake subsurface scattering. RGB = offset color |
 | A4 | CustomVector12 | --- Unused --- |
 | A5 | CustomVector13 | RGB diffuse color multiplier. May also affect alpha. Usually present and set to (1, 1, 1, 1). |
 | A6 | CustomVector14 | Specular edge tint. Higher blend values increase the intensity of the effect. RGB = color, A = blend intensity. |
@@ -137,7 +137,7 @@ Stores an RGBA color or 4 float parameters.
 | 142 | CustomVector27 | XYZW? X is between -100 and 30. YZW are between 0 and 1. |
 | 143 | CustomVector28 | --- Unused --- |
 | 144 | CustomVector29 | Used for rotating models for pilot wings, sky world, etc. X can be negative and has angle values (30, -60, or 720). Y and Z are always 0. W is always 300 or 0. |
-| 145 | CustomVector30 | Controls shading for skin materials. X = specular exponent?, YZW = ??? |
+| 145 | CustomVector30 | Controls shading for skin materials. The blend color is CustomVector11. X = blend intensity, YZW = ??? |
 | 146 | CustomVector31 | UV Transform layer 2. |
 | 147 | CustomVector32 | UV Transform layer 3. |
 | 148 | CustomVector33 | UV Transform? Used for materials with 4 base color maps (Param IDS: 66, 67, 68, 69). |
