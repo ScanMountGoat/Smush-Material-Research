@@ -31,16 +31,15 @@ texture naming conventions.
 The main PBR texture maps are packed into a single texture. This simplifies the number of textures
 needed and can better take advantage of compression methods.
 
-Metalness is either 0 (non metal) or 1
-(metal). Values in between 0 and 1 are allowed but not physically correct.
+Metalness is usually either 0 (not metallic) or 1 (metallic). Metals have their specular colored by albedo and no diffuse contribution. 
+Skin materials have a metalness of 1, but they have special diffuse shading and use metalness to mask the fake subsurface scattering effect instead.
 
-Roughness adds finer surface details. Smooth materials such as metals will have low roughness values.
+Roughness affects the roughness of specular reflections. Smooth materials such as metals will have low roughness values.
 
-Ambient occlusion is a form of baked ambient
-lighting.
+Ambient occlusion is a form of baked ambient lighting. The ambient occlusion map affects specular and ambient diffuse lighting.
 
 Specular controls the reflectance at normal for non metals. The texture value is remapped to a range
-of common values for non metals. Note that this is also how Blender's principled shader works.
+of common values for non metals. A value of 1 results in a reflectance at normal of 0.2.
 
 | Channel | Usage |
 | --- | --- |
@@ -51,7 +50,9 @@ of common values for non metals. Note that this is also how Blender's principled
 
 
 ### [Principled Shading Paper by Disney](https://disney-animation.s3.amazonaws.com/library/s2012_pbs_disney_brdf_notes_v2.pdf)
-For more technical details, see the above paper by Disney. Its principles have become an industry standard for PBR materials. The PRM maps work in a similar manner.
+For more technical details, see the above paper by Disney. Its principles have become an industry standard for PBR materials. 
+The PRM maps work in a similar manner. The range of specular values will need to be adjusted to match other shaders. 
+The other channels should work properly without modification.
 
 # Emissive Maps
 Emissive maps ared used for glowing effects such as Samus's lights. The majority of the texture will
@@ -63,31 +64,31 @@ The RG channels are used for the XY directions of the normal map. The Z directio
 is generated.
 
 The blend map is used for blending between materials for ink, metal box, and gold forms
-(Xerneas).
+(Xerneas) based on an animated threshold value.
 
-Cavity maps are similar to ambient occlusion maps but only contain finer details in recessed areas.  
+Cavity maps are similar to ambient occlusion maps but only occlude the specular shading. These maps are usually set to a default value of white.
 
 | Channel | Usage |
 | --- | --- |
 | R | Normal X+  |
 | G | Normal Y+  |
-| B | Blend Map  |
-| A | Cavity Map|
+| B | Transition Blend |
+| A | Cavity |
 
-# Irradiance Cubemaps
-Cubemap for PBR diffuse stage lighting. Usually only 16x16. Setting the texture to #replace_cubemap
-uses a default stage cubemap.
+# Irradiance Cube mMaps
+Cube map for PBR diffuse stage lighting. Usually only 16x16. Setting the texture to #replace_cubemap
+uses a default stage cube map.
 
-# Specular Cubemaps
-Cubemap for PBR specular stage lighting. Usually only 64x64. Setting the texture to #replace_cubemap
-uses a default stage cubemap.
+# Specular Cube Maps
+Cube map for PBR specular stage lighting. Usually only 64x64. Setting the texture to #replace_cubemap
+uses a default stage cube map.
 
 # Ambient Occlusion Maps
-Baked ambient occlusion used for stage models. The default_White texture is often used, which has no
+Baked ambient occlusion used for stage models. Fighters use the PRM texture instead. The default_White texture is often used, which has no
 effect. The maps can also store colored lighting information. These maps use the bake1 UVs.
 
 # Bake Lit Maps
-Stores baked ambient lighting and shadows for stages. Like Gao maps, these maps use the bake1 UVs.
+Stores baked ambient lighting and shadows for stages. Like ambient occlusion maps, these maps use the bake1 UVs.
 The RGB values are used for ambient diffuse lighting. The alpha channel stores baked shadows that
 mask the stage's direct lighting.
 
@@ -99,7 +100,7 @@ mask the stage's direct lighting.
 | A | Baked Shadows |
 
 # Projection Light Maps
-TODO: Used for some stages. The texture uses some form of projection instead of UVs.
+TODO: Used for some stages. 
 
 # Color Grading LUT
 A 3D RGB lookup table for color grading. Most stages have a neutral lookup table texture. These
