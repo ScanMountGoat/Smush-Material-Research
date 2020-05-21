@@ -16,21 +16,21 @@ Each texture has an associated UV transform parameter. The values are always (1,
 | 103 | UVTransform7 | Texture7 transform. |
 | 104 | UVTransform8 | Texture8 transform. |
 | 105 | UVTransform9 | Texture9 transform. |
-| 106 | UVTransform10 | --- Unused --- |
-| 107 | UVTransform11 | --- Unused --- |
-| 108 | UVTransform12 | --- Unused --- |
-| 109 | UVTransform13 | --- Unused --- |
+| 106 | UVTransform10 | *Unused* |
+| 107 | UVTransform11 | *Unused* |
+| 108 | UVTransform12 | *Unused* |
+| 109 | UVTransform13 | *Unused* |
 | 10A | UVTransform14 | Texture14 transform. |
-| 10B | UVTransform15 | --- Unused --- |
-| 10C | DiffuseUVTransform1 | --- Unused --- |
-| 10D | DiffuseUVTransform2 | --- Unused --- |
-| 10E | SpecularUVTransform1 | --- Unused --- |
-| 10F | SpecularUVTransform 2| --- Unused --- |
-| 110 | NormalUVTransform1 | --- Unused --- |
-| 111 | NormalUVTransform2 | --- Unused --- |
-| 112 | DiffuseUVTransform | --- Unused --- |
-| 113 | SpecularUVTransform | --- Unused --- |
-| 114 | NormalUVTransform | --- Unused --- |
+| 10B | UVTransform15 | *Unused* |
+| 10C | DiffuseUVTransform1 | *Unused* |
+| 10D | DiffuseUVTransform2 | *Unused* |
+| 10E | SpecularUVTransform1 | *Unused* |
+| 10F | SpecularUVTransform 2| *Unused* |
+| 110 | NormalUVTransform1 | *Unused* |
+| 111 | NormalUVTransform2 | *Unused* |
+| 112 | DiffuseUVTransform | *Unused* |
+| 113 | SpecularUVTransform | *Unused* |
+| 114 | NormalUVTransform | *Unused* |
 
 | Field | Values|
 | --- | --- |
@@ -46,16 +46,16 @@ Related to alpha blending in some way.
 | Param ID | Name | Description |
 | ---  | --- | --- |
 | 118 | BlendState0 | Used for all materials. |
-| 119 | BlendState1 | --- Unused --- |
-| 11A | BlendState2 | --- Unused --- |
-| 11B | BlendState3 | --- Unused --- |
-| 11C | BlendState4 | --- Unused --- |
-| 11D | BlendState5 | --- Unused --- |
-| 11E | BlendState6 | --- Unused --- |
-| 11F | BlendState7 | --- Unused --- |
-| 120 | BlendState8 | --- Unused --- |
-| 121 | BlendState9 | --- Unused --- |
-| 122 | BlendState10 | --- Unused --- |
+| 119 | BlendState1 | *Unused* |
+| 11A | BlendState2 | *Unused* |
+| 11B | BlendState3 | *Unused* |
+| 11C | BlendState4 | *Unused* |
+| 11D | BlendState5 | *Unused* |
+| 11E | BlendState6 | *Unused* |
+| 11F | BlendState7 | *Unused* |
+| 120 | BlendState8 | *Unused* |
+| 121 | BlendState9 | *Unused* |
+| 122 | BlendState10 | *Unused* |
 
 
 | Field | Values|
@@ -80,16 +80,16 @@ Unk7 and Unk8 determine if an order-independent transparency effect is used. Thi
 | Param ID | Name | Description |
 | ---  | --- | --- |
 | 123 | RasterizerState0 | Used for all materials. |
-| 124 | RasterizerState1 | --- Unused --- |
-| 125 | RasterizerState2 | --- Unused --- |
-| 126 | RasterizerState3 | --- Unused --- |
-| 127 | RasterizerState4 | --- Unused --- |
-| 128 | RasterizerState5 | --- Unused --- |
-| 129 | RasterizerState6 | --- Unused --- |
-| 12A | RasterizerState7 | --- Unused --- |
-| 12B | RasterizerState8 | --- Unused --- |
-| 12C | RasterizerState9 | --- Unused --- |
-| 12D | RasterizerState10 | --- Unused --- |
+| 124 | RasterizerState1 | *Unused* |
+| 125 | RasterizerState2 | *Unused* |
+| 126 | RasterizerState3 | *Unused* |
+| 127 | RasterizerState4 | *Unused* |
+| 128 | RasterizerState5 | *Unused* |
+| 129 | RasterizerState6 | *Unused* |
+| 12A | RasterizerState7 | *Unused* |
+| 12B | RasterizerState8 | *Unused* |
+| 12C | RasterizerState9 | *Unused* |
+| 12D | RasterizerState10 | *Unused* |
 
 | Field | Values|
 | --- | --- |
@@ -118,13 +118,13 @@ Stores an RGBA color or 4 float parameters.
 | A0 | CustomVector8 | RGB color multiplier for the final color after diffuse, specular, etc. |
 | A1 | CustomVector9 | RGBA? Always (1, 1, 1, 1) or (0.2620026, -0.6427876, -0.7198463, 0). |
 | A2 | CustomVector10 | RGBA? Always (1, 0.8, 0.6, 0). |
-| A3 | CustomVector11 | Adds to the specular shading. Used with CustomVector30 to fake subsurface scattering. RGB = offset color |
-| A4 | CustomVector12 | --- Unused --- |
+| A3 | CustomVector11 | Used with CustomVector30 to fake subsurface scattering. RGB = SSS color |
+| A4 | CustomVector12 | *Unused* |
 | A5 | CustomVector13 | RGB diffuse color multiplier. May also affect alpha. Usually present and set to (1, 1, 1, 1). |
 | A6 | CustomVector14 | Specular edge tint. Higher blend values increase the intensity of the effect. RGB = color, A = blend intensity. |
 | A7 | CustomVector15 | RGBA? Always (0, 1000, 1, 0.2). |
 | A8 | CustomVector16 | XYZW? Always (0.017, 35, 43.47, 0). Used for pikmin_planet. |
-| A9 | CustomVector17 | --- Unused --- |
+| A9 | CustomVector17 | *Unused* |
 | AA | CustomVector18 | Used for sprite sheet animations. X = horizontal sprite count. Y = vertical sprite count. Z = frames per sprite. W = ??? |
 | AB | CustomVector19 | RGBA? Usually (1, 1, 1, 1). Alpha is always 1. |
 | 13B | CustomVector20 | RGBA? RGB values are as high as 10. Alpha is 0 to 1. |
@@ -132,45 +132,45 @@ Stores an RGBA color or 4 float parameters.
 | 13D | CustomVector22 | RGBA? RGB values are 0 to 2. Alpha is 0 or 1. |
 | 13E | CustomVector23 | RGB controls some sort of fog color. W is as high as 2400. |
 | 13F | CustomVector24 | RGBA? RGB values are 0 to 1. Alpha is 0 or 1. |
-| 140 | CustomVector25 | --- Unused --- |
-| 141 | CustomVector26 | --- Unused --- |
+| 140 | CustomVector25 | *Unused* |
+| 141 | CustomVector26 | *Unused* |
 | 142 | CustomVector27 | XYZW? X is between -100 and 30. YZW are between 0 and 1. |
-| 143 | CustomVector28 | --- Unused --- |
+| 143 | CustomVector28 | *Unused* |
 | 144 | CustomVector29 | Used for rotating models for pilot wings, sky world, etc. X can be negative and has angle values (30, -60, or 720). Y and Z are always 0. W is always 300 or 0. |
-| 145 | CustomVector30 | Controls shading for skin materials. The blend color is CustomVector11. X = blend intensity, YZW = ??? |
+| 145 | CustomVector30 | Fake SSS using CustomVector11. X = blend intensity, Y = smooth factor (higher is sharper), ZW = Unused |
 | 146 | CustomVector31 | UV Transform layer 2. |
 | 147 | CustomVector32 | UV Transform layer 3. |
 | 148 | CustomVector33 | UV Transform? Used for materials with 4 base color maps (Param IDS: 66, 67, 68, 69). |
 | 149 | CustomVector34 | UV Transform? Normal UV transform? |
 | 14A | CustomVector35 | RGBA? A is always 0 or 1. Used in conjunction with CB and CC. |
-| 14B | CustomVector36 | --- Unused --- |
+| 14B | CustomVector36 | *Unused* |
 | 14C | CustomVector37 | Some sort of rotation/warp effect used for grass. XYZ = ??? W = intensity |
 | 14D | CustomVector38 | Related to 14C. XYZ= ??? W = intensity? |
 | 14E | CustomVector39 | RGBA? Used in conjunction with 14C for backlit flags, vegetation, etc. |
 | 14F | CustomVector40 | XYZW? Always (1, 25, 1, 25). |
-| 150 | CustomVector41 | --- Unused --- |
+| 150 | CustomVector41 | *Unused* |
 | 151 | CustomVector42 | Affects specular shading. Values are 0 to 1. X = ??? Y = ??? Z = edge tint??? W = intensity??? |
 | 152 | CustomVector43 | XYZW? Used for Wii Fit Trainer models for wiifit stage. Set to (0, 63, 0, 0) and (0, 25, 0, 0). |
 | 153 | CustomVector44 | RGBA? Used for Wii Fit Trainer models for wiifit stage. Set to (0.1804, 0.3462, 0.1314, 1). |
 | 154 | CustomVector45 | RGBA? Used for Wii Fit Trainer models for wiifit stage. Set to (0.008, 0.13, 0.02, 1). |
 | 155 | CustomVector46 | RGBA? Only used for one of Bayonetta's body anim meshes. |
 | 156 | CustomVector47 | Used for some stages. The color channels work the same as PRM maps. |
-| 157 | CustomVector48 | --- Unused --- |
-| 158 | CustomVector49 | --- Unused --- |
-| 159 | CustomVector50 | --- Unused --- |
-| 15A | CustomVector51 | --- Unused --- |
-| 15B | CustomVector52 | --- Unused --- |
-| 15C | CustomVector53 | --- Unused --- |
-| 15D | CustomVector54 | --- Unused --- |
-| 15E | CustomVector55 | --- Unused --- |
-| 15F | CustomVector56 | --- Unused --- |
-| 160 | CustomVector57 | --- Unused --- |
-| 161 | CustomVector58 | --- Unused --- |
-| 162 | CustomVector59 | --- Unused --- |
-| 163 | CustomVector60 | --- Unused --- |
-| 164 | CustomVector61 | --- Unused --- |
-| 165 | CustomVector62 | --- Unused --- |
-| 166 | CustomVector63 | --- Unused --- |
+| 157 | CustomVector48 | *Unused* |
+| 158 | CustomVector49 | *Unused* |
+| 159 | CustomVector50 | *Unused* |
+| 15A | CustomVector51 | *Unused* |
+| 15B | CustomVector52 | *Unused* |
+| 15C | CustomVector53 | *Unused* |
+| 15D | CustomVector54 | *Unused* |
+| 15E | CustomVector55 | *Unused* |
+| 15F | CustomVector56 | *Unused* |
+| 160 | CustomVector57 | *Unused* |
+| 161 | CustomVector58 | *Unused* |
+| 162 | CustomVector59 | *Unused* |
+| 163 | CustomVector60 | *Unused* |
+| 164 | CustomVector61 | *Unused* |
+| 165 | CustomVector62 | *Unused* |
+| 166 | CustomVector63 | *Unused* |
 
 
 ## Textures
@@ -193,11 +193,11 @@ Stores an RGBA color or 4 float parameters.
 | 68 | Texture12 | Diffuse Map (layer 3) |
 | 69 | Texture13 | Base Color/Projection Light Map? |
 | 6A | Texture14 | Emissive Map (layer 2) |
-| 6B | Texture15 | --- Unused --- |
+| 6B | Texture15 | *Unused* |
 | 133 | Texture16 | Ink Normal Map. Used for stage ink meshes. Often uses a default white texture. |
-| 134 | Texture17 | --- Unused --- |
-| 135 | Texture18 | --- Unused --- |
-| 136 | Texture19 | --- Unused --- |
+| 134 | Texture17 | *Unused* |
+| 135 | Texture18 | *Unused* |
+| 136 | Texture19 | *Unused* |
 
 ### Default Textures
 | Name | Description | Param IDs |
@@ -227,11 +227,11 @@ Each texture parameter has a corresponding sampler parameter. The border color f
 | 78 | Sampler12 | Diffuse Map (layer 3) |
 | 79 | Sampler13 | Projection Map |
 | 7A | Sampler14 | Emissive Map (layer 2) |
-| 7B | Sampler15 | --- Unused --- |
+| 7B | Sampler15 | *Unused* |
 | 137 | Sampler16 | Ink Normal Map |
-| 138 | Sampler17 | --- Unused --- |
-| 139 | Sampler18 | --- Unused --- |
-| 13A | Sampler19 | --- Unused --- |
+| 138 | Sampler17 | *Unused* |
+| 139 | Sampler18 | *Unused* |
+| 13A | Sampler19 | *Unused* |
 
 | Field | Values|
 | --- | --- |
@@ -255,20 +255,20 @@ Each texture parameter has a corresponding sampler parameter. The border color f
 | --- | --- | --- |
 | C0 | CustomFloat0 | Set to 0.997 for some models on pikmin_planet and fox_venom. |
 | C1 | CustomFloat1 | Usually set to 0. Set to 0.3 for stc_bg_chikei_set for xeno_gaur. Non zero for kirby_fountain models. |
-| C2 | CustomFloat2 | --- Unused --- |
-| C3 | CustomFloat3 | --- Unused --- |
+| C2 | CustomFloat2 | *Unused* |
+| C3 | CustomFloat3 | *Unused* |
 | C4 | CustomFloat4 | Values are usually 0 to 1. Used for water materials. Probably has a similar effect to a du dv map. |
-| C5 | CustomFloat5 | --- Unused --- |
+| C5 | CustomFloat5 | *Unused* |
 | C6 | CustomFloat6 | Set to 1 for the pikmin_planet models that use C0. |
-| C7 | CustomFloat7 | --- Unused --- |
+| C7 | CustomFloat7 | *Unused* |
 | C8 | CustomFloat8 | Controls albedo color tint intensity used for the specular pass. The effect is similar to the tint used for the principled shader. |
-| C9 | CustomFloat9 | --- Unused --- |
+| C9 | CustomFloat9 | *Unused* |
 | CA | CustomFloat10 | Controls specular anisotropy. A value of 0 produces isotropic specular. |
 | CB | CustomFloat11 | Values range from 0 to 20000 and are lower than CC. Used in conjunction with CC and 14A. |
 | CC | CustomFloat12 | Values range from -100 to 100000. Used in conjunction with CB and 14A. |
-| CD | CustomFloat13 | --- Unused --- |
-| CE | CustomFloat14 | --- Unused --- |
-| CF | CustomFloat15 | --- Unused --- |
+| CD | CustomFloat13 | *Unused* |
+| CE | CustomFloat14 | *Unused* |
+| CF | CustomFloat15 | *Unused* |
 | D0 | CustomFloat16 | Set to 5.5 for the ore club eye material. |
 | D1 | CustomFloat17 | Set to 0.5 for the paper mario ship and nintendogs curtain. |
 | D2 | CustomFloat18 | Has very large values. Values can be as high as 3000. |
@@ -292,10 +292,10 @@ Flags are separated into individual boolean parameters rather than being combine
 | F2 | CustomBoolean10 | Set to false for spirits_floor_model\damage for each stage. |
 | F3 | CustomBoolean11 | Set to false for spirits_floor_model meshes. Used for the sun shaft for fe_siege. |
 | F4 | CustomBoolean12 | Set to true for fe_siege arena. False for ink meshes. |
-| F5 | CustomBoolean13 | --- Unused --- |
-| F6 | CustomBoolean14 | --- Unused --- |
-| F7 | CustomBoolean15 | --- Unused --- |
-| F8 | CustomBoolean16 | --- Unused --- |
-| F9 | CustomBoolean17 | --- Unused --- |
-| FA | CustomBoolean18 | --- Unused --- |
-| FB | CustomBoolean19 | --- Unused --- |
+| F5 | CustomBoolean13 | *Unused* |
+| F6 | CustomBoolean14 | *Unused* |
+| F7 | CustomBoolean15 | *Unused* |
+| F8 | CustomBoolean16 | *Unused* |
+| F9 | CustomBoolean17 | *Unused* |
+| FA | CustomBoolean18 | *Unused* |
+| FB | CustomBoolean19 | *Unused* |
