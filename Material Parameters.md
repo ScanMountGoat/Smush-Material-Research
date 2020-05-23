@@ -107,7 +107,7 @@ Stores an RGBA color or 4 float parameters.
 
 | Param ID | Name | Description |
 | --- | --- | --- |
-| 98 | CustomVector0 | Usually (0.5, 0, 0, 0), (1, 0, 0, 0), or (0, 0, 0, 0). All values are used, however. 0 = texture alpha. 1 = no texture alpha. |
+| 98 | CustomVector0 | Affects alpha testing. X = min texture alpha, YZW = ??? |
 | 99 | CustomVector1 | RGBA? Used for s65_oniyon for pikmin_planet. Set to an orange color. |
 | 9A | CustomVector2 | RGBA? Used for some s65 models for pikmin_planet. Set to yellow. |
 | 9B | CustomVector3 | Color multiplier for emission color. Used to brighten/darken emissive maps. Values are often higher than 1 to increase bloom. |
@@ -125,7 +125,7 @@ Stores an RGBA color or 4 float parameters.
 | A7 | CustomVector15 | RGBA? Always (0, 1000, 1, 0.2). |
 | A8 | CustomVector16 | XYZW? Always (0.017, 35, 43.47, 0). Used for pikmin_planet. |
 | A9 | CustomVector17 | *Unused* |
-| AA | CustomVector18 | Used for sprite sheet animations. X = horizontal sprite count. Y = vertical sprite count. Z = frames per sprite. W = ??? |
+| AA | CustomVector18 | Used for sprite sheet animations. X * Y = W if the sprite sheet is full. X = column count, Y = row count, Z = frames per sprite, W = sprite count |
 | AB | CustomVector19 | RGBA? Usually (1, 1, 1, 1). Alpha is always 1. |
 | 13B | CustomVector20 | RGBA? RGB values are as high as 10. Alpha is 0 to 1. |
 | 13C | CustomVector21 | RGBA? Values are 0 to 1. |
