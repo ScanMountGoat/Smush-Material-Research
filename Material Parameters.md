@@ -254,7 +254,7 @@ Each texture parameter has a corresponding sampler parameter. The border color f
 | Param ID | Name | Description |
 | --- | --- | --- |
 | C0 | CustomFloat0 | Set to 0.997 for some models on pikmin_planet and fox_venom. |
-| C1 | CustomFloat1 | Usually set to 0. Set to 0.3 for stc_bg_chikei_set for xeno_gaur. Non zero for kirby_fountain models. |
+| C1 | CustomFloat1 | Ambient occlusion map intensity ([Texture3](https://github.com/ScanMountGoat/Smush-Material-Research/blob/master/Textures.md#ambient-occlusion-maps)). A value of 0 has full effect. Values higher than 0 increase the intensity of the darkening effect. |
 | C2 | CustomFloat2 | *Unused* |
 | C3 | CustomFloat3 | *Unused* |
 | C4 | CustomFloat4 | Values are usually 0 to 1. Used for water materials. Probably has a similar effect to a du dv map. |
@@ -263,7 +263,7 @@ Each texture parameter has a corresponding sampler parameter. The border color f
 | C7 | CustomFloat7 | *Unused* |
 | C8 | CustomFloat8 | Controls albedo color tint intensity used for the specular pass. The effect is similar to the tint used for the principled shader. |
 | C9 | CustomFloat9 | *Unused* |
-| CA | CustomFloat10 | Controls specular anisotropy. A value of 0 produces isotropic specular. |
+| CA | CustomFloat10 | Specular anisotropy. A value of 0 produces isotropic specular. |
 | CB | CustomFloat11 | Values range from 0 to 20000 and are lower than CC. Used in conjunction with CC and 14A. |
 | CC | CustomFloat12 | Values range from -100 to 100000. Used in conjunction with CB and 14A. |
 | CD | CustomFloat13 | *Unused* |
