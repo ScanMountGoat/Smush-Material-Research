@@ -8,7 +8,7 @@
 | _prm | PRM Map |
 | _nor | Normal Map |
 
-# Base Color Maps
+# Base Color Maps (Texture0,Texture1)
 RGBA albedo textures. Unlike diffuse, albedo colors specular reflections for metallic materials.
 The alpha channel is used for transparency.
 
@@ -27,7 +27,7 @@ texture naming conventions.
 | alp_ | Hair Color |
 | def_ | Main Color |
 
-# PRM Maps
+# PRM Maps (Texture6)
 The main PBR texture maps are packed into a single texture. This simplifies the number of textures
 needed and can better take advantage of compression methods.
 
@@ -54,12 +54,12 @@ For more technical details, see the above paper by Disney. Its principles have b
 The PRM maps work in a similar manner. The range of specular values will need to be adjusted to match other shaders. 
 The other channels should work properly without modification.
 
-# Emissive Maps
+# Emissive Maps (Texture5,Texture14)
 Emissive maps ared used for glowing effects such as Samus's lights. The majority of the texture will
 be black (no emission). Some materials use emission in place of a base color map for flat lighting.
 This is common for retro stages and skyboxes.
 
-# Normal Maps
+# Normal Maps (Texture4)
 The RG channels are used for the XY directions of the normal map. The Z direction of the normal map
 is generated.
 
@@ -75,21 +75,20 @@ Cavity maps are similar to ambient occlusion maps but only occlude the specular 
 | B | Transition Blend |
 | A | Cavity |
 
-# Irradiance Cube mMaps
+# Irradiance Cube Maps (Texture2)
 Cube map for PBR diffuse stage lighting. Usually only 16x16. Setting the texture to #replace_cubemap
 uses a default stage cube map.
 
-# Specular Cube Maps
+# Specular Cube Maps (Texture7)
 Cube map for PBR specular stage lighting. Usually only 64x64. Setting the texture to #replace_cubemap
-uses a default stage cube map.
+uses the stage specific cube map from the `stage_name\render\` folder.
 
-# Ambient Occlusion Maps
+# Ambient Occlusion Maps (Texture3)
 Baked ambient occlusion used for stage models. Fighters use the PRM texture instead. The default_White texture is often used, which has no
 effect. The maps can also store colored lighting information. These maps use the bake1 UVs.
 
-# Bake Lit Maps
-Stores baked ambient lighting and shadows for stages. Like ambient occlusion maps, these maps use the bake1 UVs.
-The RGB values are used for ambient diffuse lighting. The alpha channel stores baked shadows that
+# Baked Lighting Maps (Texture9)
+Stores baked ambient lighting and shadows for stages. Like ambient occlusion maps, these maps use the bake1 UVs. The RGB values are used for ambient diffuse lighting. The alpha channel stores baked shadows that
 mask the stage's direct lighting.
 
 | Channel | Usage |
@@ -99,7 +98,7 @@ mask the stage's direct lighting.
 | B | Ambient B |
 | A | Baked Shadows |
 
-# Projection Light Maps
+# Projection Light Maps (Texture13)
 TODO: Used for some stages. 
 
 # Color Grading LUT

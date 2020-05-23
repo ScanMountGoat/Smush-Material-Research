@@ -180,13 +180,13 @@ Stores an RGBA color or 4 float parameters.
 | --- | --- | --- |
 | 5C | Texture0 | Base Color Map (layer 1) |
 | 5D | Texture1 | Base Color Map (layer 2) |
-| 5E | Texture2 | Irradiance Cubemap |
+| 5E | Texture2 | Irradiance Cube Map |
 | 5F | Texture3 | Ambient Occlusion Map |
 | 60 | Texture4 | Normal Map |
 | 61 | Texture5 | Emissive Map (layer 1) |
 | 62 | Texture6 | PRM Map |
-| 63 | Texture7 | Specular Cubemap |
-| 64 | Texture8 | Diffuse Cubemap |
+| 63 | Texture7 | Specular Cube Map |
+| 64 | Texture8 | Diffuse Cube Map |
 | 65 | Texture9 | Bake Lit Map |
 | 66 | Texture10 | Diffuse Map (layer 1)  |
 | 67 | Texture11 | Diffuse Map (layer 2) |
