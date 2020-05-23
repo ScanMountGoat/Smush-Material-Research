@@ -255,7 +255,7 @@ Each texture parameter has a corresponding sampler parameter. The border color f
 | C1 | CustomFloat1 | Ambient occlusion map intensity ([Texture3](https://github.com/ScanMountGoat/Smush-Material-Research/blob/master/Textures.md#ambient-occlusion-maps-texture3)). A value of 0 has full effect. Values higher than 0 increase the intensity of the darkening effect. |
 | C2 | CustomFloat2 | *Unused* |
 | C3 | CustomFloat3 | *Unused* |
-| C4 | CustomFloat4 | Values are usually 0 to 1. Used for water materials. Probably has a similar effect to a du dv map. |
+| C4 | CustomFloat4 | Controls the intensity of a UV distortion effect using the normal map. Used for water materials. |
 | C5 | CustomFloat5 | *Unused* |
 | C6 | CustomFloat6 | Set to 1 for the pikmin_planet models that use C0. |
 | C7 | CustomFloat7 | *Unused* |
