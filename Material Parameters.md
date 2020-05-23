@@ -149,7 +149,7 @@ Stores an RGBA color or 4 float parameters.
 | 14E | CustomVector39 | RGBA? Used in conjunction with 14C for backlit flags, vegetation, etc. |
 | 14F | CustomVector40 | XYZW? Always (1, 25, 1, 25). |
 | 150 | CustomVector41 | *Unused* |
-| 151 | CustomVector42 | Affects specular shading. Values are 0 to 1. X = ??? Y = ??? Z = edge tint??? W = intensity??? |
+| 151 | CustomVector42 | Controls the rim lighting by smoothing between Z and W. XY = *Unused*, Z = smooth start, W = smooth end |
 | 152 | CustomVector43 | XYZW? Used for Wii Fit Trainer models for wiifit stage. Set to (0, 63, 0, 0) and (0, 25, 0, 0). |
 | 153 | CustomVector44 | RGBA? Used for Wii Fit Trainer models for wiifit stage. Set to (0.1804, 0.3462, 0.1314, 1). |
 | 154 | CustomVector45 | RGBA? Used for Wii Fit Trainer models for wiifit stage. Set to (0.008, 0.13, 0.02, 1). |
@@ -174,30 +174,28 @@ Stores an RGBA color or 4 float parameters.
 
 
 ## Textures
-*note: The uv channel used for each texture type is still largely speculation.*
-
-| Param ID | Name | Description |
-| --- | --- | --- |
-| 5C | Texture0 | Base Color Map (layer 1) |
-| 5D | Texture1 | Base Color Map (layer 2) |
-| 5E | Texture2 | Irradiance Cube Map |
-| 5F | Texture3 | Ambient Occlusion Map |
-| 60 | Texture4 | Normal Map |
-| 61 | Texture5 | Emissive Map (layer 1) |
-| 62 | Texture6 | PRM Map |
-| 63 | Texture7 | Specular Cube Map |
-| 64 | Texture8 | Diffuse Cube Map |
-| 65 | Texture9 | Bake Lit Map |
-| 66 | Texture10 | Diffuse Map (layer 1)  |
-| 67 | Texture11 | Diffuse Map (layer 2) |
-| 68 | Texture12 | Diffuse Map (layer 3) |
-| 69 | Texture13 | Base Color/Projection Light Map? |
-| 6A | Texture14 | Emissive Map (layer 2) |
-| 6B | Texture15 | *Unused* |
-| 133 | Texture16 | Ink Normal Map. Used for stage ink meshes. Often uses a default white texture. |
-| 134 | Texture17 | *Unused* |
-| 135 | Texture18 | *Unused* |
-| 136 | Texture19 | *Unused* |
+| Param ID | Name | UV Attribute | Description |
+| --- | --- | --- | --- |
+| 5C | Texture0 | map1 | Base Color Map (layer 1) |
+| 5D | Texture1 | uvSet | Base Color Map (layer 2) |
+| 5E | Texture2 | *Cube Map* | Irradiance Cube Map |
+| 5F | Texture3 | bake1 | Ambient Occlusion Map |
+| 60 | Texture4 | map1 | Normal Map |
+| 61 | Texture5 | map1 | Emissive Map (layer 1) |
+| 62 | Texture6 | map1 | PRM Map |
+| 63 | Texture7 | *Cube Map* | Specular Cube Map |
+| 64 | Texture8 | *Cube Map* | Diffuse Cube Map |
+| 65 | Texture9 | bake1 | Bake Lit Map |
+| 66 | Texture10 | map1 |  Diffuse Map (layer 1)  |
+| 67 | Texture11 | uvSet |  Diffuse Map (layer 2) |
+| 68 | Texture12 | ??? |  Diffuse Map (layer 3) |
+| 69 | Texture13 | ??? |  Base Color/Projection Light Map? |
+| 6A | Texture14 | uvSet |  Emissive Map (layer 2) |
+| 6B | Texture15 | *Unused* |  *Unused* |
+| 133 | Texture16 | ??? | Ink Normal Map. Used for stage ink meshes. Often uses a default white texture. |
+| 134 | Texture17 | *Unused* | *Unused* |
+| 135 | Texture18 | *Unused* | *Unused* |
+| 136 | Texture19 | *Unused* | *Unused* |
 
 ### Default Textures
 | Name | Description | Param IDs |
