@@ -278,17 +278,17 @@ Flags are separated into individual boolean parameters rather than being combine
 | Param ID | Name | Description |
 | --- | --- | --- |
 | E8 | CustomBoolean0 | Always false? Used for pikmin_planet, poke_tengam, and fox_venom. |
-| E9 | CustomBoolean1 | PRM specular override. 1 = PRM alpha, False = 0.16 |
+| E9 | CustomBoolean1 | PRM specular override. True = PRM alpha, False = 0.16 |
 | EA | CustomBoolean2 | Set to 0 for Olimar's helmet. Set to 1 for Incineroar emission mesh. Often used for meshes using additive blending. |
-| EB | CustomBoolean3 | Set to true for the wufuisland arch and false for the buildings. |
-| EC | CustomBoolean4 | Used in conjunction with EC. |
+| EB | CustomBoolean3 | Enables/disables the specular light contribution. True = enabled, False = disabled. |
+| EC | CustomBoolean4 | Enables/disables the specular cube map contribution. True = enabled, False = disabled. |
 | ED | CustomBoolean5 | Used for meshes with scrolling textures. Used for stage morph, water, and other meshes with transparency effects. |
 | EE | CustomBoolean6 | Used for meshes with scrolling textures. Set to 1 for animal crossing island water. |
 | EF | CustomBoolean7 | Used for battlefield waterfalls and other meshes with transparency effects. |
 | F0 | CustomBoolean8 | Set to true for bossstage_final3 and poke_kalos interval wall. |
 | F1 | CustomBoolean9 | Some sort of sprite sheet scale toggle. Used in conjunction with param AA. |
 | F2 | CustomBoolean10 | Set to false for spirits_floor_model\damage for each stage. |
-| F3 | CustomBoolean11 | Set to false for spirits_floor_model meshes. Used for the sun shaft for fe_siege. |
+| F3 | CustomBoolean11 | Affects texture blending of emission textures. Set to false for spirits_floor_model meshes. Used for the sun shaft for fe_siege. |
 | F4 | CustomBoolean12 | Set to true for fe_siege arena. False for ink meshes. |
 | F5 | CustomBoolean13 | *Unused* |
 | F6 | CustomBoolean14 | *Unused* |
