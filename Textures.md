@@ -36,7 +36,7 @@ Skin materials have a metalness of 1, but they have special diffuse shading and 
 
 Roughness affects the roughness of specular reflections. Smooth materials such as metals will have low roughness values.
 
-Ambient occlusion is a form of baked ambient lighting. The ambient occlusion map affects specular and ambient diffuse lighting.
+Ambient occlusion is a form of baked ambient lighting. The ambient occlusion map affects specular, ambient diffuse, and rim lighting.
 
 Specular controls the reflectance at normal for non metals. The texture value is remapped to a range
 of common values for non metals. A value of 1 results in a reflectance at normal of 0.2.
@@ -66,7 +66,7 @@ is generated.
 The blend map is used for blending between materials for ink, metal box, and gold forms
 (Xerneas) based on an animated threshold value.
 
-Cavity maps are similar to ambient occlusion maps but only occlude the specular shading. These maps are usually set to a default value of white.
+Cavity maps are similar to ambient occlusion maps but only occlude the specular and rim lighting. These maps are usually set to a default value of white.
 
 | Channel | Usage |
 | --- | --- |

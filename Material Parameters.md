@@ -121,7 +121,7 @@ Stores an RGBA color or 4 float parameters.
 | A3 | CustomVector11 | Used with CustomVector30 to fake subsurface scattering. RGB = SSS color |
 | A4 | CustomVector12 | *Unused* |
 | A5 | CustomVector13 | RGB diffuse color multiplier. May also affect alpha. Usually present and set to (1, 1, 1, 1). |
-| A6 | CustomVector14 | Specular edge tint. Higher blend values increase the intensity of the effect. RGB = color, A = blend intensity. |
+| A6 | CustomVector14 | Controls the rim lighting effect. RGB = color multiplier, A = intensity. |
 | A7 | CustomVector15 | RGBA? Always (0, 1000, 1, 0.2). |
 | A8 | CustomVector16 | XYZW? Always (0.017, 35, 43.47, 0). Used for pikmin_planet. |
 | A9 | CustomVector17 | *Unused* |
