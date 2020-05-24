@@ -278,7 +278,7 @@ Flags are separated into individual boolean parameters rather than being combine
 | Param ID | Name | Description |
 | --- | --- | --- |
 | E8 | CustomBoolean0 | Always false? Used for pikmin_planet, poke_tengam, and fox_venom. |
-| E9 | CustomBoolean1 | Set to 0 for fountain of dreams water. Set to 0 for some meshes for wii fit trainer. |
+| E9 | CustomBoolean1 | PRM specular override. 1 = PRM alpha, False = 0.16 |
 | EA | CustomBoolean2 | Set to 0 for Olimar's helmet. Set to 1 for Incineroar emission mesh. Often used for meshes using additive blending. |
 | EB | CustomBoolean3 | Set to true for the wufuisland arch and false for the buildings. |
 | EC | CustomBoolean4 | Used in conjunction with EC. |
