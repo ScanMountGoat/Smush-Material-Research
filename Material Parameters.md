@@ -238,7 +238,7 @@ Each texture parameter has a corresponding sampler parameter. The border color f
 | Wrap R | 0 = Repeat, 1 = Clamp To Edge, 2 = Mirrored Repeat, 3 = Clamp to Border |
 | Min Filter | 0 = Nearest, 1 = Linear , 2 = Linear |
 | Mag Filter | 0 = Nearest, 1 = Linear , 2 = Linear |
-| Unk6 | 0, 1 , 2 |
+| Unk6 | 0 = No Anisotropic Filtering + ???, 1 = No Anisotropic Filtering + ???, 2 = Anisotropic Filtering |
 | Unk7 | 0 |
 | Unk8 | 0 |
 | Unk9 | 0 |
@@ -246,7 +246,7 @@ Each texture parameter has a corresponding sampler parameter. The border color f
 | Unk11 | 0 |
 | Unk12 | 2139095022 |
 | Unk13 | -1000000, -0.5, -0.8, 0, 0.6, 1, 2  |
-| Unk14 | 2, 4, 8, 16 |
+| Anisotropy Max Samples | 0 = 1x, 2 = 2x, 4 = 4x, 8 = 16x, 16 = 128x |
 
 ## Float
 | Param ID | Name | Description |
