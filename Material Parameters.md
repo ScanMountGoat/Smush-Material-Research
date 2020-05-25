@@ -189,7 +189,7 @@ Stores an RGBA color or 4 float parameters.
 | 66 | Texture10 | map1 |  Diffuse Map (layer 1)  |
 | 67 | Texture11 | uvSet |  Diffuse Map (layer 2) |
 | 68 | Texture12 | ??? |  Diffuse Map (layer 3) |
-| 69 | Texture13 | ??? |  Base Color/Projection Light Map? |
+| 69 | Texture13 | *Projection Coords* |  Projection Light Map |
 | 6A | Texture14 | uvSet |  Emissive Map (layer 2) |
 | 6B | Texture15 | *Unused* |  *Unused* |
 | 133 | Texture16 | ??? | Ink Normal Map. Used for stage ink meshes. Often uses a default white texture. |
