@@ -4,7 +4,7 @@ The stage light nuanmb files use the same material parameter names as model mate
 ## Float Vector 4
 | Name | Description |
 | --- | --- |
-| CustomVector0 | RGB? Used for stage and character light colors. |
+| CustomVector0 | RGB color multiplier for lights. Multiplied by CustomFloat0. |
 | CustomVector1 | RGB? Controls some sort of fog color. RGB values are 0 to 1. |
 | CustomVector2 | RGB? Affects the color of the sun on zelda_tower. RGB values can be negative. |
 | CustomVector3 | XYZW? Values are usually 0 to 1. Values can be negative. |
@@ -28,7 +28,7 @@ The stage light nuanmb files use the same material parameter names as model mate
 # Float
 | Name | Description |
 | --- | --- |
-| CustomFloat0 | Controls direct lighting strength. Values are 0 to 40. |
+| CustomFloat0 | Direct lighting strength. Multiplied by CustomVector0. |
 | CustomFloat1 | Affects the intensity of the sun on zelda_tower. Values are 0 to 1. |
 | CustomFloat2 | ??? Values are always 0. |
 | CustomFloat3 | ??? Values are always 2. |
