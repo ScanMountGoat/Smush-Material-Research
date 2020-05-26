@@ -94,8 +94,8 @@ Unk7 and Unk8 determine if an order-independent transparency effect is used. Thi
 | Field | Values|
 | --- | --- |
 | Polygon Fill | 0 = Line, 1 = Solid |
-| Cull Mode | 0 = Back, 1 = Front, 2 = Both |
-| Unk3 | -1000, -100, -0.7, -0.05, 0, 1, 3, 10, 300, 400, 600, 700, 800, 1000, 5250, 9000, 10000, 20000, 999999 |
+| Cull Mode | 0 = Back, 1 = Front, 2 = Front and Back |
+| Depth Bias | Floating point depth offset. Values can be negative. |
 | Unk4 | -1000, -100, 0, 100 |
 | Unk5 | -100, 0 |
 | Unk6 | 16777217 |
@@ -236,8 +236,8 @@ Each texture parameter has a corresponding sampler parameter. The border color f
 | Wrap S | 0 = Repeat, 1 = Clamp To Edge, 2 = Mirrored Repeat, 3 = Clamp to Border |
 | Wrap T | 0 = Repeat, 1 = Clamp To Edge, 2 = Mirrored Repeat, 3 = Clamp to Border |
 | Wrap R | 0 = Repeat, 1 = Clamp To Edge, 2 = Mirrored Repeat, 3 = Clamp to Border |
-| Min Filter | 0 = Nearest, 1 = Linear , 2 = Linear |
-| Mag Filter | 0 = Nearest, 1 = Linear , 2 = Linear |
+| Min Filter | 0 = Nearest, 1 = Linear Mipmap Linear + ???, 2 = Linear Mipmap Linear + ??? |
+| Mag Filter | 0 = Nearest, 1 = Linear + ???, 2 = Linear + ??? |
 | Unk6 | 0 = No Anisotropic Filtering + ???, 1 = No Anisotropic Filtering + ???, 2 = Anisotropic Filtering |
 | Unk7 | 0 |
 | Unk8 | 0 |
@@ -246,7 +246,7 @@ Each texture parameter has a corresponding sampler parameter. The border color f
 | Unk11 | 0 |
 | Unk12 | 2139095022 |
 | LOD Bias | Values are floating point and clamped between -MAX_LOD and +MAX_LOD.  |
-| Anisotropy Max Samples | 0 = 1x, 2 = 2x, 4 = 4x, 8 = 16x, 16 = 128x |
+| Max Anisotropy | 0 = 1x, 2 = 2x, 4 = 4x, 8 = 16x, 16 = 128x |
 
 ## Float
 | Param ID | Name | Description |
