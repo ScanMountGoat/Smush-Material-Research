@@ -8,11 +8,11 @@ The stage light nuanmb files use the same material parameter names as model mate
 | CustomVector1 | RGB? Controls some sort of fog color. RGB values are 0 to 1. |
 | CustomVector2 | RGB? Affects the color of the sun on zelda_tower. RGB values can be negative. |
 | CustomVector3 | XYZW? Values are usually 0 to 1. Values can be negative. |
-| CustomVector4 | Mixes the final color with the blend color. RGB = blend color, A = blend intensity. |
+| CustomVector4 | Mixes the final color with the blend color. RGB = blend color, A = blend factor. |
 | CustomVector5 | Specular cube map color multiplier (Texture7). |
 | CustomVector6 | RGBA? Affects shadow color. Alpha values are 0 or very small. |
 | CustomVector7 | RGB? RGB values are 0 to 6. |
-| CustomVector8 | RGB = rim light color, W = intensity? |
+| CustomVector8 | Specular edge tint. RGB = color, W = blend amount |
 | CustomVector9 | RGB? |
 | CustomVector10 | XYZW? Related to fog. X is very small. YZ appear to be angle values. W is always 1. |
 | CustomVector11 | XYZW? Related to fog. Z is very large. |
