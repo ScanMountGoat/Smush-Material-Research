@@ -144,9 +144,9 @@ Stores an RGBA color or 4 float parameters.
 | 149 | CustomVector34 | UV Transform? Normal UV transform? |
 | 14A | CustomVector35 | RGBA? A is always 0 or 1. Used in conjunction with CB and CC. |
 | 14B | CustomVector36 | *Unused* |
-| 14C | CustomVector37 | Some sort of rotation/warp effect used for grass. XYZ = ??? W = intensity |
-| 14D | CustomVector38 | Related to 14C. XYZ= ??? W = intensity? |
-| 14E | CustomVector39 | RGBA? Used in conjunction with 14C for backlit flags, vegetation, etc. |
+| 14C | CustomVector37 | Some sort of rotation/warp effect used for vegetation. XYZW = ??? |
+| 14D | CustomVector38 | Some sort of rotation/warp effect used for vegetation. XYZW = ??? |
+| 14E | CustomVector39 | Some sort of rotation/warp effect used for vegetation. XYZW = ??? |
 | 14F | CustomVector40 | XYZW? Always (1, 25, 1, 25). |
 | 150 | CustomVector41 | *Unused* |
 | 151 | CustomVector42 | Controls the rim lighting by smoothing between Z and W. XY = *Unused*, Z = smooth start, W = smooth end |
@@ -269,7 +269,7 @@ Each texture parameter has a corresponding sampler parameter. The border color f
 | CF | CustomFloat15 | *Unused* |
 | D0 | CustomFloat16 | Set to 5.5 for the ore club eye material. |
 | D1 | CustomFloat17 | Set to 0.5 for the paper mario ship and nintendogs curtain. |
-| D2 | CustomFloat18 | Has very large values. Values can be as high as 3000. |
+| D2 | CustomFloat18 | Used with CustomVector37,38,39 for some sort of rotation/warp effect for vegetation. |
 | D3 | CustomFloat19 | Used for water and glass materials. Probably some sort of IOR value. Values are 0 or higher. |
 
 ## Boolean Flags
