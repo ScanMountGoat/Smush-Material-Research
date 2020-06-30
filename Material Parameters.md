@@ -149,7 +149,7 @@ Stores an RGBA color or 4 float parameters.
 | 14E | CustomVector39 | Some sort of rotation/warp effect used for vegetation. XYZW = ??? |
 | 14F | CustomVector40 | XYZW? Always (1, 25, 1, 25). |
 | 150 | CustomVector41 | *Unused* |
-| 151 | CustomVector42 | Controls the rim lighting by smoothing between Z and W. XY = *Unused*, Z = smooth start, W = smooth end |
+| 151 | CustomVector42 | Controls some sort of rim lighting by smoothing between Z and W. XY = *Unused*, Z = smooth start, W = smooth end |
 | 152 | CustomVector43 | XYZW? Used for Wii Fit Trainer models for wiifit stage. Set to (0, 63, 0, 0) and (0, 25, 0, 0). |
 | 153 | CustomVector44 | RGBA? Used for Wii Fit Trainer models for wiifit stage. Set to (0.1804, 0.3462, 0.1314, 1). |
 | 154 | CustomVector45 | RGBA? Used for Wii Fit Trainer models for wiifit stage. Set to (0.008, 0.13, 0.02, 1). |
