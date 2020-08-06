@@ -245,7 +245,7 @@ Each texture parameter has a corresponding sampler parameter. The border color f
 | Unk10 | 0  |
 | Unk11 | 0 |
 | Unk12 | 2139095022 |
-| LOD Bias | Values are floating point and clamped between -MAX_LOD and +MAX_LOD.  |
+| LOD Bias | Values are floating point and clamped between `-MAX_LOD` and `+MAX_LOD` where `MAX_LOD = Mipmap Count`  |
 | Max Anisotropy | 0 = 1x, 2 = 2x, 4 = 4x, 8 = 16x, 16 = 128x |
 
 ## Float
