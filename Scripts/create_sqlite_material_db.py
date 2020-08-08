@@ -432,7 +432,7 @@ create_texture_table = """CREATE TABLE "Texture" (
 	"ID"	INTEGER NOT NULL UNIQUE,
 	"ParamID"	INTEGER NOT NULL,
 	"MaterialID"	INTEGER NOT NULL,
-	"Value"	TEXT NOT NULL,
+	"Value"	TEXT,
 	FOREIGN KEY("ParamID") REFERENCES "CustomParam"("ID"),
 	FOREIGN KEY("MaterialID") REFERENCES "CustomParam"("ID"),
 	PRIMARY KEY("ID" AUTOINCREMENT)
@@ -535,7 +535,7 @@ def parse_xml(file_text, cursor, matl_id):
             elif 'Float' in param_name:
                 custom_float_records.append((param_id, material_id, param_node[0].text))
             elif 'Texture' in param_name:
-                texture_records.append((param_id, material_id, param_node[0].text))
+                texture_records.append((param_id, material_id, param_node[0][0].text))
             elif 'Sampler' in param_name:
                 record = (param_id, material_id, values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7], values[8], values[9], values[10], values[11], values[12], values[13])
                 sampler_records.append(record)
