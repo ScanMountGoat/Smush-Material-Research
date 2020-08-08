@@ -1,9 +1,10 @@
 import os
 import sys
-import xml.etree.ElementTree as ET
+import xml.etree.cElementTree as ET
 import csv
 import sqlite3
 import time
+
 
 param_id_by_param_name = {
     "Diffuse": 0,
@@ -504,23 +505,16 @@ insert_textures = 'INSERT INTO Texture(ParamID, MaterialID, Value) VALUES(?,?,?)
 insert_samplers = 'INSERT INTO Sampler(ParamID, MaterialID, Value1, Value2, Value3, Value4, Value5, Value6, Value7, Value8, Value9, Value10, Value11, Value12, Value13, Value14) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
 insert_rasterizer_states = 'INSERT INTO RasterizerState(ParamID, MaterialID, Value1, Value2, Value3, Value4, Value5, Value6, Value7, Value8) VALUES(?,?,?,?,?,?,?,?,?,?)'
 insert_blend_states = 'INSERT INTO BlendState(ParamID, MaterialID, Value1, Value2, Value3, Value4, Value5, Value6, Value7, Value8, Value9, Value10, Value11, Value12) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+insert_materials = 'INSERT INTO Material(MatlID, MaterialLabel, ShaderLabel) VALUES(?,?,?)'
 
-def parse_xml(file_text, cursor, matl_id):
-    custom_boolean_records = []
-    custom_float_records = []
-    custom_vector_records = []
-    texture_records = []
-    rasterizer_state_records = []
-    sampler_records = []
-    blend_state_records = []
 
-    # Create records by parsing the XML.
+def add_records_from_xml(cursor, matl_id, file_text, bool_records, float_records, vector_records, texture_records, rasterizer_records, sampler_records, blend_state_records):
     root = ET.fromstring(file_text)
     for material_node in root:
         shader_label = material_node.attrib['name']
         material_label = material_node.attrib['label']
 
-        cursor.execute('INSERT INTO Material(MatlID, MaterialLabel, ShaderLabel) VALUES(?,?,?)', (matl_id, material_label, shader_label))
+        cursor.execute(insert_materials, (matl_id, material_label, shader_label))
         material_id = cursor.lastrowid
 
         for param_node in material_node:
@@ -529,11 +523,11 @@ def parse_xml(file_text, cursor, matl_id):
             values = [node.text for node in param_node[0]]
 
             if 'Vector' in param_name:
-                custom_vector_records.append((param_id, material_id, values[0], values[1], values[2], values[3]))
+                vector_records.append((param_id, material_id, values[0], values[1], values[2], values[3]))
             elif 'Boolean' in param_name:
-                custom_boolean_records.append((param_id, material_id, param_node[0].text))
+                bool_records.append((param_id, material_id, param_node[0].text))
             elif 'Float' in param_name:
-                custom_float_records.append((param_id, material_id, param_node[0].text))
+                float_records.append((param_id, material_id, param_node[0].text))
             elif 'Texture' in param_name:
                 texture_records.append((param_id, material_id, param_node[0][0].text))
             elif 'Sampler' in param_name:
@@ -544,15 +538,28 @@ def parse_xml(file_text, cursor, matl_id):
                 blend_state_records.append(record)
             elif 'RasterizerState' in param_name:
                 record = (param_id, material_id, values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7])
-                rasterizer_state_records.append(record)
+                rasterizer_records.append(record)
+
+
+def parse_xml(file_text, cursor, matl_id):
+    bool_records = []
+    float_records = []
+    vector_records = []
+    texture_records = []
+    rasterizer_records = []
+    sampler_records = []
+    blend_state_records = []
+
+    # Create records by parsing the XML.
+    add_records_from_xml(cursor, matl_id, file_text, bool_records, float_records, vector_records, texture_records, rasterizer_records, sampler_records, blend_state_records)
 
     # Insert all records into database.
-    cursor.executemany(insert_custom_booleans, custom_boolean_records)
-    cursor.executemany(insert_custom_floats, custom_float_records)
-    cursor.executemany(insert_custom_vectors, custom_vector_records)
+    cursor.executemany(insert_custom_booleans, bool_records)
+    cursor.executemany(insert_custom_floats, float_records)
+    cursor.executemany(insert_custom_vectors, vector_records)
     cursor.executemany(insert_textures, texture_records)
     cursor.executemany(insert_samplers, sampler_records)
-    cursor.executemany(insert_rasterizer_states, rasterizer_state_records)
+    cursor.executemany(insert_rasterizer_states, rasterizer_records)
     cursor.executemany(insert_blend_states, blend_state_records)
 
 
@@ -571,50 +578,58 @@ def process_xml_file(cursor, root, file):
         file_text = xml_file.read().encode('utf-16-be')
         parse_xml(file_text, cursor, matl_id)
 
+def create_database_tables(cursor):
+    cursor.execute(create_matl_table)
+    cursor.execute(create_material_table)
+    cursor.execute(create_param_table)
+    cursor.execute(create_vector_table)
+    cursor.execute(create_float_table)
+    cursor.execute(create_boolean_table)
+    cursor.execute(create_texture_table)
+    cursor.execute(create_blendstate_table)
+    cursor.execute(create_rasterizerstate_table)
+    cursor.execute(create_sampler_table)
 
-def create_material_database(source_folder, db_file):
+    # Use param ID as an enum with IDs starting at 0.
+    cursor.executemany('INSERT INTO CustomParam(ID,Name) VALUES(?,?)', [(pair[1], pair[0]) for pair in param_id_by_param_name.items()])
+
+
+def fill_database_from_xml_files(cursor, source_folder):
+    # Process all the xml files and fill the tables.
+    for root, _, files in os.walk(source_folder):
+        for file in files:
+            if '.xml' not in file:
+                continue
+            
+            process_xml_file(cursor, root, file)             
+
+
+def create_indices(cursor):
+    # Add indexes to improve query performance.
+    create_index(cursor, 'Matl', 'FileName')
+    create_index(cursor, 'Material', 'MatlID')
+    create_index(cursor, 'Material', 'ShaderLabel')
+    create_index(cursor, 'Texture', 'MaterialID')
+    create_index(cursor, 'Texture', 'ParamID')
+    create_index(cursor, 'CustomBooleanParam', 'MaterialID')
+    create_index(cursor, 'CustomBooleanParam', 'ParamID')
+    create_index(cursor, 'CustomFloatParam', 'MaterialID')
+    create_index(cursor, 'CustomFloatParam', 'ParamID')
+    create_index(cursor, 'CustomVectorParam', 'MaterialID')
+    create_index(cursor, 'CustomVectorParam', 'ParamID')
+    create_index(cursor, 'Sampler', 'MaterialID')
+    create_index(cursor, 'Sampler', 'ParamID')
+    create_index(cursor, 'RasterizerState', 'MaterialID')
+    create_index(cursor, 'BlendState', 'MaterialID')
+
+def create_material_database(xml_source_folder, db_file):
     with sqlite3.connect(db_file) as con:
         cursor = con.cursor()
-      
-        # Create database tables.
-        cursor.execute(create_matl_table)
-        cursor.execute(create_material_table)
-        cursor.execute(create_param_table)
-        cursor.execute(create_vector_table)
-        cursor.execute(create_float_table)
-        cursor.execute(create_boolean_table)
-        cursor.execute(create_texture_table)
-        cursor.execute(create_blendstate_table)
-        cursor.execute(create_rasterizerstate_table)
-        cursor.execute(create_sampler_table)
 
-        # Use param ID as an enum with IDs starting at 0.
-        cursor.executemany('INSERT INTO CustomParam(ID,Name) VALUES(?,?)', [(pair[1], pair[0]) for pair in param_id_by_param_name.items()])
+        create_database_tables(cursor)
+        fill_database_from_xml_files(cursor, xml_source_folder)
+        create_indices(cursor)
 
-        # Process all the xml files and fill the tables.
-        for root, directories, files in os.walk(source_folder):
-            for file in files:
-                if '.xml' not in file:
-                    continue
-                
-                process_xml_file(cursor, root, file)
-
-        # Add indexes to improve query performance.
-        create_index(cursor, 'Matl', 'FileName')
-        create_index(cursor, 'Material', 'MatlID')
-        create_index(cursor, 'Material', 'ShaderLabel')
-        create_index(cursor, 'Texture', 'MaterialID')
-        create_index(cursor, 'Texture', 'ParamID')
-        create_index(cursor, 'CustomBooleanParam', 'MaterialID')
-        create_index(cursor, 'CustomBooleanParam', 'ParamID')
-        create_index(cursor, 'CustomFloatParam', 'MaterialID')
-        create_index(cursor, 'CustomFloatParam', 'ParamID')
-        create_index(cursor, 'CustomVectorParam', 'MaterialID')
-        create_index(cursor, 'CustomVectorParam', 'ParamID')
-        create_index(cursor, 'Sampler', 'MaterialID')
-        create_index(cursor, 'Sampler', 'ParamID')
-        create_index(cursor, 'RasterizerState', 'MaterialID')
-        create_index(cursor, 'BlendState', 'MaterialID')
 
 if __name__ == '__main__':
     # TODO: Handle the case where the file already exists.
