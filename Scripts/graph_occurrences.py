@@ -18,6 +18,8 @@ if len(sys.argv) < 2:
     print(f'Usage: {sys.argv[0]} <value_occurrences.csv>')
     exit(1)
     
+# TODO: Add an option for SQLite
+# The top n can be replaced with connecton.FetchMany(n)
 df = pd.read_csv(sys.argv[1])
 
 # Only graph the ten most common values from most to least common.
