@@ -10,7 +10,7 @@ The stage light nuanmb files use the same material parameter names as model mate
 | CustomVector3 | XYZW? Values are usually 0 to 1. Values can be negative. |
 | CustomVector4 | Mixes the final color with the blend color. RGB = blend color, A = blend factor. |
 | CustomVector5 | Specular cube map color multiplier (Texture7). |
-| CustomVector6 | RGBA? Affects shadow color. Alpha values are 0 or very small. |
+| CustomVector6 | RGB = shadow color, A = ??? |
 | CustomVector7 | RGB? RGB values are 0 to 6. |
 | CustomVector8 | Specular edge tint. RGB = color, W = blend amount |
 | CustomVector9 | RGB? |
