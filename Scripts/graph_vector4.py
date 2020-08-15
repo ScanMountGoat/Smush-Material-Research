@@ -73,8 +73,8 @@ if __name__ == '__main__':
         values = get_values_csv(csv_file)
     else:
         print('Usage:')
-        print(f'\t{sys.argv[0]} <Smush Materials SQLite DB> <CustomVector Param>')
-        print(f'\t{sys.argv[0]} <Value Occurrences.csv>')
+        print(f'\tpython {sys.argv[0]} <Smush Materials SQLite DB> <CustomVector Param>')
+        print(f'\tpython {sys.argv[0]} <Value Occurrences.csv>')
         exit(1)
 
     graph_values(param_name, values)
