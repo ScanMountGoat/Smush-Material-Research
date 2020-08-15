@@ -26,6 +26,14 @@ INNER JOIN CustomParam
 	ON CustomFloatParam.ParamID = CustomParam.ID
 ORDER BY Shader"""
 
+select_textures_sql = """SELECT DISTINCT SUBSTR(Material.ShaderLabel, 1, 24) as Shader, CustomParam.Name as ParamName
+FROM Texture
+INNER JOIN Material
+	ON Texture.MaterialID = Material.ID
+INNER JOIN CustomParam
+	ON Texture.ParamID = CustomParam.ID
+ORDER BY Shader"""
+
 select_attributes_sql = """SELECT DISTINCT SUBSTR(ShaderLabel, 1, 24) as Shader, MeshAttribute
 FROM ShaderMeshAttribute
 ORDER BY Shader"""
@@ -41,9 +49,10 @@ def get_values(con):
     float_params = con.execute(select_float_params_sql).fetchall()
     vector_params = con.execute(select_vector_params_sql).fetchall()
     attributes = con.execute(select_attributes_sql).fetchall()
+    texture_params = con.execute(select_textures_sql).fetchall()
     tags = con.execute(select_tags_sql).fetchall()
 
-    return bool_params, float_params, vector_params, attributes, tags
+    return bool_params, float_params, vector_params, texture_params, attributes, tags
 
 
 def write_records(file, records, index=1):
@@ -67,7 +76,7 @@ if __name__ == '__main__':
 
     # It's faster to read the data all at once from SQLite and then sort in python.
     with sqlite3.connect(db_file) as con:
-        bool_params, float_params, vector_params, attributes, tags = get_values(con)
+        bool_params, float_params, vector_params, texture_params, attributes, tags = get_values(con)
         for shader in get_shaders(con):
             output_path = os.path.join(destination_folder,f'{shader}_info.txt')
             with open(output_path,"w") as file:
@@ -75,6 +84,10 @@ if __name__ == '__main__':
                 write_records(file, [record for record in bool_params if record[0] == shader])
                 write_records(file, [record for record in float_params if record[0] == shader])
                 write_records(file, [record for record in vector_params if record[0] == shader])
+                file.write('\n')
+
+                file.write('Textures:\n')
+                write_records(file, [record for record in texture_params if record[0] == shader])
                 file.write('\n')
 
                 file.write('Mesh Attributes:\n')
