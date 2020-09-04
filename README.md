@@ -4,5 +4,5 @@ The markdown files contain information on researched values for materials and ca
 in the browser. Please submit an issue or pull request for any incorrect or missing information.
 
 # Useful Links
-[SSBHLib](https://github.com/Ploaj/SSBHLib) - Contains libraries and programs for editing, viewing, and exporting various rendering related file types.
+[SSBHLib](https://github.com/Ploaj/SSBHLib) - Contains libraries and programs for editing, viewing, and exporting various rendering related file types.  
 [SSBU-TOOLS](https://github.com/Sammi-Husky/SSBU-TOOLS) - Contains the XMBDec.py script that can be used to convert XMB files to and from XML
