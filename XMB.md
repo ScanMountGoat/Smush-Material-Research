@@ -1,36 +1,72 @@
 # model.xmb
-| Node | Property | Description / Values |
-| --- | --- | --- |
-| model | type | Determines what model type the model.xmb file is for. <br> effect = ??? <br> effect_main = ??? (Smash 4 leftover?) (fighter/pikachu/model/dengeki/c00/) <br> effect_near = ??? (Smash 4 leftover?) (fighter/pikachu/model/kaminari/c00/) <br> fighter = ??? <br> stage = ???
-| version | number | Identifies the XMB file format version. Changing it has no effect. <br> 2 = Little-endian |
-| shadow | caster | Determines what type of shadow casting the model will use. <br> 0 = None <br> 1 = Opaque <br> 2 = Alpha tested <br> 3 = Shadow only; opaque <br> 4 = Shadow only; alpha tested |
-| lightset | number | Determines which light set to use from the lighting file. Light set type may be determined by the model type.
-| draw_range | number | ???
-| drawing_order | number | ??? <br> Values range from 0-255
-| this_light | ??? | ???
-| compress_type | number | ??? <br> 0 = ??? <br> 1 = ??? (fighter/gamewatch/model/body/c00/) <br> 2 = ??? (fighter/gamewatch/model/oil/c00/) <br> 4 = ??? (fighter/gamewatch/model/breath/c00/) <br> 5 = ??? (fighter/kirby/model/copy_gamewatch_fitkirby/c00/)
-| stage_visible_type | number | Determines a stage model's visibility with effect background appearences. <br> 0 = Always visible <br> 1 = Disappears during animated effect backgrounds <br> 2 = Only visible during animated effect backgrounds
-| mirror | number | ??? <br> 0x0000 = ???
-| instancing | number | Enables geometry instancing for a model? <br> 0 = No instancing? <br> 1 = Instancing?
-| aurora_vision | number | Related to jumbotrons or other screen projections. <br> 0 = Disabled? <br> 1 = Enabled?
-| stage_transition_type | number | Determines if a stage model temporarily blooms or not after the Stage Morph transition. <br> 0 = Enables bloom <br> 1 = ??? (identical to 0?) <br> 2 = Disables bloom
-| stage_transition_visible | number | Determines a stage model's visibility with the Stage Morph transition background. <br> 0 = Invisible <br> 1 = Visible
-| bounding_scale | number | ???
-| poison | number | ??? <br> 0 = ??? <br> 1 = ???
-| stage_expansion_type | number | ??? (has a value of 1 on some fighter model types) <br> 0 = ??? <br> 1 = ??? (stage/animal_city/battle/model/main_ring_set/)
-| stage_sh_priority | number | ??? <br> 0 = ??? <br> 1 = ??? (stage/75m/normal/model/stc_stgdonkey_elevator_set/) <br> 2 = ??? (stage/75m/normal/model/stc_chikei_set/) <br> 3 = ??? (stage/wreckingcrew/normal/model/stc_hashigo_floor_set/) <br> 4 = ??? (stage/bonusgame/normal/model/sbx0000_set/) <br> 5 = ??? (stage/bonusgame/normal/model/blackhole_gp_set/)
-| is_multi_sh | number | ??? <br> 0 = ??? <br> 1 = ??? (stage/ff_midgar/normal/model/dyr_ring_set/)
-| check_material | number | ??? <br> 0 = ???
-| stencil_type | number | Used for predetermined stencil operations? <br> 1 = ??? (common value for fighter model types) <br> 2 = ??? (common value for stage model types) <br> 3 = ??? (item/pacmanapple/model/body/c00/) <br> 4 = ??? (common value for effect model types) <br> 5 = ??? (assist/andross/model/body/c00/) <br> 6 = ??? (stage/mother_magicant/normal/model/s25_sake_sky/) <br> 7 = ??? (stage/mother_magicant/normal/model/s25_myhome/) <br> 8 = ???  (assist/flyandhand/model/body/c00/) <br> 9 = ??? (fighter/buddy/model/entrywipe/c00/) <br> 10 = ??? (stage/wario_madein/normal/model/stgmadein04a/) <br> 11 = ??? (stage/tantan_spring/normal/model/near_ceiling_set/) <br> 12 = ??? (stage/tantan_spring/normal/model/near_silhouette_set/) <br> 13 = ??? (effect/system/common/model/m_cmnflyingplate/c00/) <br> 14 = ??? (fighter/samus/model/gbeam/c00/) <br> 15 = ??? (stage/pac_land/normal/model/stc_s00_set/)
-| stage_ink_type | number | ??? <br> 0 = ??? <br> 1 = ??? (stage/streetpass/battle/model/main_ring_set/) <br> 2 = ??? (stage/pac_land/battle/model/main_ring_set/) <br> 3 = ??? (stage/poke_unova/normal/model/s13_e/)
-| force_opaque | number | ??? <br> 0 = ??? <br> 1 = ??? (fighter/bayonetta/model/body/c00/)
-| shadow_bounding_box_offset | offset | ???
-| silhouette_type | number | ??? <br> 0 = ??? <br> 1 = ??? (fighter/koopag/model/body/c00/)
+| Entry | Attribute | Description | Values |
+| --- | --- | --- | --- |
+| aurora_vision | number | Related to jumbotrons or other screen projections.  | 0, 1 |
+| bounding_scale | number | ??? | 0.0 to 1000.0 |
+| check_material | number | | 0, 1 |
+| compress_type | number | | 0, 1, 2, 4, 5 |
+| draw | action | | 0 |
+| draw | buffer | | 1 |
+| draw | type | | main, normalmap |
+| draw_range | number | | 0 to 22 |
+| drawing_order | number | | 0 to 255 |
+| force_opaque | number | | 0, 1 |
+| instancing | number | | 0, 1 |
+| is_multi_sh | number | | 0, 1 |
+| lightset | number | Determines which light set to use from the lighting file. Light set type may be determined by the model type. | 0 to 10 |
+| mirror | number | | 0x0000 |
+| model | type | Determines what model type the model.xmb file is for. | effect, effect_main, effect_near, fighter, stage |
+| object | type | | 2 |
+| poison | number | | 0, 1 |
+| pre_depth | number | | 1 |
+| reflection | search | | 100.0 |
+| shadow | caster | Determines what type of shadow casting the model will use. | 0 = None, 1 = Opaque, 2 = Alpha tested, 3 = Shadow only + opaque, 4 = Shadow only + alpha tested |
+| shadow_bounding_box_offset | offset | | `(float, float, float)` with values from 9.0 to 100.0 |
+| silhouette_type | number | ??? 0 = ??? 1 = ??? (fighter/koopag/model/body/c00/) | 0, 1 |
+| stage_expansion_type | number | | 0, 1 |
+| stage_ink_type | number | | 0, 1, 2, 3 |
+| stage_sh_priority | number | | 0, 1, 2, 3, 4, 5 |
+| stage_transition_type | number | Determines if a stage model temporarily blooms or not after the Stage Morph transition. | 0 = Enables bloom, 1 = ??? (identical to 0?), 2 = Disables bloom |
+| stage_transition_visible | number | Determines a stage model's visibility with the Stage Morph transition background | 0 = Invisible, 1 = Visible |
+| stage_visible_type | number | Determines a stage model's visibility with effect background appearences | 0 = Always visible, 1 = Disappears during animated effect backgrounds, 2 = Only visible during animated effect backgrounds |
+| stencil_type | number | | 1, 2, 3, 4, 5, 6, 7, 8, 8, 10, 11, 12, 13, 14, 15 |
+| this_light | action | | 0, False |
+| this_light | color | | `float, float, float` with values from 0.0 to 1.0  |
+| this_light | local_offset | | `float, float, float` with values from -100.0 to 0.0 |
+| this_light | offset | | 0.0 |
+| this_light | radius | | 9.0 to 100.0 |
+| version | number | Identifies the XMB file format version. Changing it has no effect | 2 |
 
 # lod.xmb
+| Entry | Attribute | Description | Values |
+| --- | --- | --- | --- |
+| Mesh | parent | | mesh names, ex: armhair |
+| Mesh | value | | mesh names, ex: armhair_high |
+| Motion | value | | 0 |
+| Ratio | value | | values from 0.0 to 1.0 |
+| text_node | _text | | no value? |
+| Visibility | value | | true, false |
+
 # effect_locator.xmb
+| Entry | Attribute | Description | Values |
+| --- | --- | --- | --- |
+| entry | effect_name |  | names starting with STG_ |
+| entry | expansion_type | | |
+| entry | id | | 0 |
+| entry | joint | | bone names |
+| entry | model | | model names, ex: dc_reaper_set |
+| entry | pos | | `float, float, float` with values from -1000.0 to 1000.0  |
+| entry | rot | | `float, float, float` with angle values (probably radians) |
+| entry | scale | | `float, float, float` with values from 0.0 to 200.0 |
+| entry | type | | 0, 1 |
+| entry | user_data | Some sort of bit flags? | 0, 1, 2, 3, 4, 5, 65536, 196608 |
+
 # area_light.xmb
-/stage/kirby_cave/battle/render/area_light.xmb<br>
-/stage/kirby_cave/normal/render/area_light.xmb<br>
-/stage/mario_galaxy/battle/render/area_light.xmb<br>
-/stage/mario_galaxy/normal/render/area_light.xmb
+| Entry | Attribute | Description | Values |
+| --- | --- | --- | --- |
+| entry | col_ceiling | | `float, float, float` with values from 0.0 to 3.0 |
+| entry | col_ground | | `float, float, float` with values from 0.0 to 1.0|
+| entry | id | | names, ex: groundGreen_01, red_17 |
+| entry | pos | | `float, float, float` with values from -400.0 to 400.0 |
+| entry | rot | | `float, float, float` with angle values (probably radians) |
+| entry | scale | | `float, float, float` with values from 0.0 to 200.0 |
