@@ -22,7 +22,7 @@
 | reflection | search | | 100.0 |
 | shadow | caster | Determines what type of shadow casting the model will use. | 0 = None, 1 = Opaque, 2 = Alpha tested, 3 = Shadow only + opaque, 4 = Shadow only + alpha tested |
 | shadow_bounding_box_offset | offset | | `(float, float, float)` with values from 9.0 to 100.0 |
-| silhouette_type | number | ??? 0 = ??? 1 = ??? (fighter/koopag/model/body/c00/) | 0, 1 |
+| silhouette_type | number | | 0, 1 |
 | stage_expansion_type | number | | 0, 1 |
 | stage_ink_type | number | | 0, 1, 2, 3 |
 | stage_sh_priority | number | | 0, 1, 2, 3, 4, 5 |
