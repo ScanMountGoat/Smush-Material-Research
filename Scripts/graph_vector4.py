@@ -8,26 +8,11 @@ import pandas as pd
 
 select_param_id_sql = 'SELECT Id FROM CustomParam WHERE Name = ?'
 select_values_sql = """
-SELECT Value1, Value2, Value3, Value4, COUNT(*) AS Count 
+SELECT X, Y, Z, W, COUNT(*) AS Count 
 FROM CustomVectorParam
 WHERE ParamID = ?
-GROUP BY Value1, Value2, Value3, Value4
+GROUP BY X, Y, Z, W
 """
-
-
-def get_values_csv(csv_file):
-    df = pd.read_csv(csv_file)
-    # Scale integers to a more suitable range for RGB display.
-    result = np.float32(df.values)
-    if df.dtypes[0] == np.int64 or df.dtypes[0] == np.int32:
-        print('Normalized integers to floats.')
-        print('[0,255] -> [0.0,1.0]')
-        result[:,:3] = result[:,:3] / 255
-    # Get top results to make the display less dense.
-    count = 5000
-    print(f'Selected top {count} results.')
-    return result[:count,:]
-
 
 def get_values_sqlite(db_file, param_name):
     with sqlite3.connect(db_file) as con:
@@ -63,19 +48,14 @@ def graph_values(param_name, values):
 
 
 if __name__ == '__main__':  
-    if len(sys.argv) == 3:
-        db_file = sys.argv[1]
-        param_name = sys.argv[2]
-        values = get_values_sqlite(db_file, param_name)
-    elif len(sys.argv) == 2:
-        csv_file = sys.argv[1]
-        param_name = os.path.basename(csv_file)
-        values = get_values_csv(csv_file)
-    else:
+    if len(sys.argv) != 3:
         print('Usage:')
         print(f'\tpython {sys.argv[0]} <Smush Materials SQLite DB> <CustomVector Param>')
-        print(f'\tpython {sys.argv[0]} <Value Occurrences.csv>')
         exit(1)
+
+    db_file = sys.argv[1]
+    param_name = sys.argv[2]
+    values = get_values_sqlite(db_file, param_name)
 
     graph_values(param_name, values)
 
