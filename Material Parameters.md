@@ -94,7 +94,7 @@ Unk7 and Unk8 determine if an order-independent transparency effect is used. Thi
 | Field | Values|
 | --- | --- |
 | Polygon Fill | 0 = Line, 1 = Solid |
-| Cull Mode | 0 = Back, 1 = Front, 2 = Front and Back |
+| Cull Mode | 0 = Back, 1 = Front, 2 = None |
 | Depth Bias | Floating point depth offset. Values can be negative. |
 | Unk4 | -1000, -100, 0, 100 |
 | Unk5 | -100, 0 |
