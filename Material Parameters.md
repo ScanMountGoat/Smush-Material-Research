@@ -42,6 +42,7 @@ Each texture has an associated UV transform parameter. The values are always (1,
 
 ## Blending State
 Alpha blending related parameters. Shaders seem to use premultiplied alpha. 
+The blending operation is always addition for both color and alpha.  
 Unk7 and Unk8 determine if an order-independent transparency effect is used. This is common for hair meshes.  
 
 | Param ID | Name | Description |
@@ -60,9 +61,9 @@ Unk7 and Unk8 determine if an order-independent transparency effect is used. Thi
 
 | Field | Values|
 | --- | --- |
-| Source Color Blend Factor | blend factor values |
+| Source Color | blend factor values |
 | Unk2 | 0 |
-| Destination Color Blend Factor | blend factor values |
+| Destination Color | blend factor values |
 | Unk4 | 0, 1 |
 | Unk5 | 0 |
 | Unk6 | 0, 1, 2, 6 |
