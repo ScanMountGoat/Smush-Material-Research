@@ -41,7 +41,8 @@ Each texture has an associated UV transform parameter. The values are always (1,
 | Unk5 | 0 |
 
 ## Blending State
-Related to alpha blending in some way.  
+Alpha blending related parameters. Shaders seem to use premultiplied alpha. 
+Unk7 and Unk8 determine if an order-independent transparency effect is used. This is common for hair meshes.  
 
 | Param ID | Name | Description |
 | ---  | --- | --- |
@@ -57,15 +58,14 @@ Related to alpha blending in some way.
 | 0x121 | BlendState9 | *Unused* |
 | 0x122 | BlendState10 | *Unused* |
 
-
 | Field | Values|
 | --- | --- |
-| SrcFactor | 0 = Zero, 1 = One |
+| Source Color Blend Factor | blend factor values |
 | Unk2 | 0 |
-| BlendFactor1 | 0 = Zero, 1 = One, 2 = Source Alpha, 6 = One Minus Source Alpha |
+| Destination Color Blend Factor | blend factor values |
 | Unk4 | 0, 1 |
 | Unk5 | 0 |
-| BlendFactor2 | 0 = Zero, 1 = One, 2 = Source Alpha, 6 = One Minus Source Alpha |
+| Unk6 | 0, 1, 2, 6 |
 | Unk7 | 0, 1 |
 | Unk8 | 0, 1 |
 | Unk9 | 0 |
@@ -73,8 +73,20 @@ Related to alpha blending in some way.
 | Unk11| 0 |
 | Unk12| 0 |
 
-BlendFactor1 and BlendFactor2 both seem to affect the DstFactor because premultiplied alpha is used.
-Unk7 and Unk8 determine if an order-independent transparency effect is used. This is common for hair meshes.  
+| Blend Factor | Description |
+| --- | --- |
+| 0 | Zero |
+| 1 | One |
+| 2 | Source Alpha |
+| 3 | Destination Alpha |
+| 4 | Source Color |
+| 5 | Destination Color |
+| 6 | One Minus Source Alpha |
+| 7 | One Minus Destination Alpha |
+| 8 | One Minus Source Color |
+| 9 | One Minus Destination Color |
+| 10 | Source Alpha Saturate |
+
 
 ## Rasterizer State
 | Param ID | Name | Description |
