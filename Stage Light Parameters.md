@@ -12,14 +12,14 @@ The stage light nuanmb files use the same material parameter names as model mate
 | CustomVector5 | Specular cube map color multiplier (Texture7). |
 | CustomVector6 | RGB = shadow color, A = ??? |
 | CustomVector7 | RGB? RGB values are 0 to 6. |
-| CustomVector8 | Specular edge tint. RGB = color, W = blend amount |
+| CustomVector8 | Rim lighting color. RGB = color, A = blend amount |
 | CustomVector9 | RGB? |
 | CustomVector10 | XYZW? Related to fog. X is very small. YZ appear to be angle values. W is always 1. |
 | CustomVector11 | XYZW? Related to fog. Z is very large. |
 | CustomVector12 | XYZW? XY are very large. ZW are small. XY can be negative. |
 | CustomVector13 | XYZW? XY are very large. Y is always larger than X. Z is 0 to 1. X and W can be negative. |
 | CustomVector14 | XYZW? Always set to (1, 1, 0, 0). |
-| CustomVector15 | Similar to CustomVector5. RGB = specular cube map color multiplier, W = ??? |
+| CustomVector15 | Similar to CustomVector5. RGB = specular cube map color multiplier, A = ??? |
 | CustomVector16 | XYZW? Similar values to CustomVector18. |
 | CustomVector17 | XYZW? XYZ are 0 to 1. W is always 0. |
 | CustomVector18 | XYZW? XY can be negative. Z is always 0. |
