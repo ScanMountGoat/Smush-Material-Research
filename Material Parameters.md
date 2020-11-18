@@ -283,7 +283,7 @@ Each texture parameter has a corresponding sampler parameter. The border color f
 | 0xD0 | CustomFloat16 | Set to 5.5 for the ore club eye material. |
 | 0xD1 | CustomFloat17 | Set to 0.5 for the paper mario ship and nintendogs curtain. |
 | 0xD2 | CustomFloat18 | Used with CustomVector37,38,39 for some sort of rotation/warp effect for vegetation. |
-| 0xD3 | CustomFloat19 | Used for water and glass materials. Probably some sort of IOR value. Values are 0 or higher. |
+| 0xD3 | CustomFloat19 | Controls angle fade in addition to the specular IOR used for environment reflections. Higher values are less transparent and have more intense reflections. |
 
 ## Boolean Flags
 Flags are separated into individual boolean parameters rather than being combined into a single value.
