@@ -25,11 +25,13 @@ def replace_hex_literals(line):
 
 def update_temp_env(line, value_by_temp_var):
     if '=' in line:
-        parts = line.split('=')
-        temp_vars = temp_pattern.findall(parts[0])
+        temp_vars = temp_pattern.findall(line[:line.index('=')])
         if len(temp_vars) != 0:
+            # Extract the assignment portion between '=' and ';'
+            assignment_text = line[line.index('=') + 1:]
+            assignment_text = assignment_text.strip().replace(';', '')
+
             # temp vars can be initialized with other temp vars.
-            assignment_text = parts[1].strip().replace(';', '')
             assignment_text = replace_temp_vars(assignment_text, temp_var_env)
 
             value_by_temp_var[temp_vars[0]] = assignment_text
