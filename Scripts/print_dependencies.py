@@ -29,10 +29,14 @@ def find_assignments(lines, variable_to_find, assignment_by_line):
         # This line is an assignment, so add it the output.
         assignment_by_line[line_number] = line
 
-        # Search any variables used in the assignment.
-        assignment_variables = list(dict.fromkeys(variables[1:]))
-        for assignment_variable in assignment_variables:
-            find_assignments(lines[:line_index], assignment_variable, assignment_by_line)
+        if any(pattern in line for pattern in ['*=','\\=','+=','-=']):
+            # The variable was assigned previously, so search for it again
+            find_assignments(lines[:line_index], variable, assignment_by_line)
+        else:
+            # Search any variables used in the assignment.
+            assignment_variables = list(dict.fromkeys(variables[1:]))
+            for assignment_variable in assignment_variables:
+                find_assignments(lines[:line_index], assignment_variable, assignment_by_line)
 
         # Stop searching once the most recent assignment is found.
         return
