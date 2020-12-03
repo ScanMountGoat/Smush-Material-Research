@@ -3,8 +3,8 @@ A collection of dumps, scripts, and markdown files for research into lighting, s
 The markdown files contain information on researched values for materials and can be viewed directly
 in the browser. Please submit an issue or pull request for any incorrect or missing information.
 
-# Smush-Material-Research Website (WIP)
-The repository has a [website](https://scanmountgoat.github.io/Smush-Material-Research/) for tutorials and real time demos. If any pages don't load properly or one of the demos is messed up, report the bug in [issues](https://github.com/ScanMountGoat/Smush-Material-Research/issues). 
+# [Website](https://scanmountgoat.github.io/Smush-Material-Research/)
+The repository has a website for tutorials and real time demos. If any pages don't load properly or one of the demos is messed up, report the bug in [issues](https://github.com/ScanMountGoat/Smush-Material-Research/issues). 
 
 # Generating Data - WIP
 ## SQLite database
