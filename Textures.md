@@ -49,7 +49,7 @@ of common values for non metals. A value of 1 results in a reflectance at normal
 | A | Specular Reflectivity |
 
 
-### [Principled Shading Paper by Disney](https://disney-animation.s3.amazonaws.com/library/s2012_pbs_disney_brdf_notes_v2.pdf)
+### [Principled Shading Paper by Disney](https://static1.squarespace.com/static/58586fa5ebbd1a60e7d76d3e/t/593a3afa46c3c4a376d779f6/1496988449807/s2012_pbs_disney_brdf_notes_v2.pdf)
 For more technical details, see the above paper by Disney. Its principles have become an industry standard for PBR materials. 
 The PRM maps work in a similar manner. The range of specular values will need to be adjusted to match other shaders. 
 The other channels should work properly without modification.
