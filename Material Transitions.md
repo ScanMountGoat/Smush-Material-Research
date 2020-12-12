@@ -2,7 +2,7 @@
 Many of these values are hardcoded into the shaders and cannot be changed. Any cells containing *unchanged* do use the value from the texture. Equivalent texture values are listed below. 
 
 | Material Effect | Albedo (RGB) | Metalness | Roughness | AO | Specular |
-| --- | --- | --- | --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | Metal Box | (0.257, 0.257, 0.257) | 1.0 | 0.3 | *unchanged* | 0.0 |
 | Ditto | (0.1694, 0.0924, 0.2002) | ??? | ??? | ??? | 0.16 | 
 | Ink | ??? | ??? | ??? | ??? | ??? |
