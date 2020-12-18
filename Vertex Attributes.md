@@ -9,7 +9,7 @@ Vertex color sets. RGBA values are typically 0 to 128, which are remapped to a s
 
 | Attribute | Description |
 | --- | --- |
-| colorSet1 | The model color is multiplied by the vertex color. Commonly stores ambient occlusion or baked lighting data for fighters, stages, etc. |
+| colorSet1 | Vertex color and alpha. RGBA values are multipled by 2. RGB = vertex color, A = vertex alpha. |
 
 | Attribute | Description |
 | --- | --- |
@@ -20,8 +20,8 @@ Vertex color sets. RGBA values are typically 0 to 128, which are remapped to a s
 
 | Attribute | Description |
 | --- | --- |
-| colorSet3 | RGB = ??? A = ??? Some sort of baked stage lighting. |
-| colorSet4 | RGBA? Set to colored values for mario_galaxy, zelda_tower, etc. |
+| colorSet3 | Similar to colorSet1. RGBA values are multipled by 2. RGB = vertex color, A = ???  |
+| colorSet4 | Some sort of specular tint. RGBA values are multipled by 2. RGB = color, A = blend |
 | colorSet5 | RGB = ??? Alpha is used for blending between the primary (5C) and secondary (5D) col maps.  |
 | colorSet6 | Used for some vegetation meshes. Red is often white. Blue and green are gradients.  |
 | colorSet7 | RGBA control separate intensity values for some sort of effect. May affect fog color. |
