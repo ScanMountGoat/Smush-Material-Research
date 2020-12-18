@@ -1,11 +1,16 @@
 # Position0
 The position of the vertices.
 
+# Normal0
+The normal vector used for shading.  
+
 # Tangent0
 The tangent vector used for calculating normal maps and anisotropic specular. The bitangent vector needed for these calculations is generated.
+The W component is used to flip the generated bitangent to account for normal maps with mirrored UVs. 
 
-# colorSet
-Vertex color sets. RGBA values are typically 0 to 128, which are remapped to a standard 0.0 to 1.0 range. Ex: 0 = black. 128 = white.
+# Vertex Color Attributes
+Vertex color sets. RGBA values are typically 0 to 128, which are normalized to floats and then multiplied by 2.  
+Ex: 0 = 0.0, 128 = 1.0, 255 = 2.0.  
 
 | Attribute | Description |
 | --- | --- |
@@ -26,20 +31,12 @@ Vertex color sets. RGBA values are typically 0 to 128, which are remapped to a s
 | colorSet6 | Used for some vegetation meshes. Red is often white. Blue and green are gradients.  |
 | colorSet7 | RGBA control separate intensity values for some sort of effect. May affect fog color. |
 
-# bake1
-bake1 stores UV coordinates for Bake Lit and Gao maps.
-
-X = bake map U  
-Y = bake map V  
-
-# map1
-Stores the main UV coordinates for most textures.
-
-# uvSet
-Stores additional UV coordinates. These are used for stage materials with multiple col maps.
-
+# UV Attributes
+The XY components of the vertex attribute are used as UV coordinates. The ZW components are unused. 
 | Attribute | Description |
 | --- | --- |
-| uvSet | Used for the second layer for col maps. |
+| map1 | UV coordinates for the first texture layer |
+| bake1 | UV coordinates for Bake Lit and Gao Maps | 
+| uvSet | UV coordinates for the second texture layer | 
 | uvSet1 | ??? |
 | uvSet2 | ??? |
