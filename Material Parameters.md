@@ -157,9 +157,9 @@ Stores an RGBA color or 4 float parameters.
 | 0x149 | CustomVector34 | UV Transform? Normal UV transform? |
 | 0x14A | CustomVector35 | RGBA? A is always 0 or 1. Used in conjunction with CB and CC. |
 | 0x14B | CustomVector36 | *Unused* |
-| 0x14C | CustomVector37 | Some sort of rotation/warp effect used for vegetation. XYZW = ??? |
-| 0x14D | CustomVector38 | Some sort of rotation/warp effect used for vegetation. XYZW = ??? |
-| 0x14E | CustomVector39 | Some sort of rotation/warp effect used for vegetation. XYZW = ??? |
+| 0x14C | CustomVector37 | Some sort of rotation/warp effect used for vegetation. XYZ = ???, W = ??? |
+| 0x14D | CustomVector38 | Some sort of rotation/warp effect used for vegetation. XYZ = ???, W = ??? |
+| 0x14E | CustomVector39 | Some sort of rotation/warp effect used for vegetation. XYZ = ???, W = ??? |
 | 0x14F | CustomVector40 | XYZW? Always (1, 25, 1, 25). |
 | 0x150 | CustomVector41 | *Unused* |
 | 0x151 | CustomVector42 | Controls some sort of rim lighting by smoothing between Z and W. XY = *Unused*, Z = smooth start, W = smooth end |
