@@ -189,16 +189,16 @@ Stores an RGBA color or 4 float parameters.
 ## Textures
 | Param ID | Name | UV Attribute | Description |
 | --- | --- | --- | --- |
-| 0x5C | Texture0 | map1 | Base Color Map (layer 1) |
-| 0x5D | Texture1 | uvSet | Base Color Map (layer 2) |
+| 0x5C | Texture0 | map1 | Col Map (layer 1) |
+| 0x5D | Texture1 | uvSet | Col Map (layer 2) |
 | 0x5E | Texture2 | *Cube Map* | Irradiance Cube Map |
 | 0x5F | Texture3 | bake1 | Ambient Occlusion Map |
-| 0x60 | Texture4 | map1 | Normal Map |
+| 0x60 | Texture4 | map1 | NOR Map |
 | 0x61 | Texture5 | map1 | Emissive Map (layer 1) |
 | 0x62 | Texture6 | map1 | PRM Map |
 | 0x63 | Texture7 | *Cube Map* | Specular Cube Map |
 | 0x64 | Texture8 | *Cube Map* | Diffuse Cube Map |
-| 0x65 | Texture9 | bake1 | Bake Lit Map |
+| 0x65 | Texture9 | bake1 | Baked Lighting Map |
 | 0x66 | Texture10 | map1 |  Diffuse Map (layer 1)  |
 | 0x67 | Texture11 | uvSet |  Diffuse Map (layer 2) |
 | 0x68 | Texture12 | ??? |  Diffuse Map (layer 3) |
