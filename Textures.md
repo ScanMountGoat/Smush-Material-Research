@@ -91,13 +91,13 @@ Baked ambient occlusion used for stage models. Fighters use the PRM texture inst
 effect. The maps can also store colored lighting information. These maps use the bake1 UVs.
 
 # Baked Lighting Maps (Texture9)
-Stores baked diffuse lighting and shadows for stages. Like ambient occlusion maps, these maps use the bake1 UVs. 
+Baked diffuse lighting and shadows for stages. Like ambient occlusion maps, these maps use the bake1 UVs. The RGB values are multiplied by 8.0, which allows storing lighting intensities 
+much higher than 1.0 in a standard 8 bits per channel image at the cost of precision. The alpha channe is not scaled like the RGB channels. The ambient lighting from the baked lighting maps 
+is not affected by ambient occlusion from PRM maps.  
 
 | Channel | Usage |
 | --- | --- |
-| R | Ambient R  |
-| G | Ambient G  |
-| B | Ambient B |
+| RGB | Baked Ambient Light |
 | A | Baked Shadows |
 
 # Projection Light Maps (Texture13)
