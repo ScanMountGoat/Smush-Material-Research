@@ -147,7 +147,7 @@ Stores an RGBA color or 4 float parameters.
 | 0x13F | CustomVector24 | RGBA? RGB values are 0 to 1. Alpha is 0 or 1. |
 | 0x140 | CustomVector25 | *Unused* |
 | 0x141 | CustomVector26 | *Unused* |
-| 0x142 | CustomVector27 | XYZW? X is between -100 and 30. YZW are between 0 and 1. |
+| 0x142 | CustomVector27 | Controls distance fog. X = Intensity, YZW = ??? |
 | 0x143 | CustomVector28 | *Unused* |
 | 0x144 | CustomVector29 | Used for rotating models for pilot wings, sky world, etc. X can be negative and has angle values (30, -60, or 720). Y and Z are always 0. W is always 300 or 0. |
 | 0x145 | CustomVector30 | Fake SSS using CustomVector11. X = blend factor, Y = diffuse shading smooth factor (higher is sharper), ZW = Unused |

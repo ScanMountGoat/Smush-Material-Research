@@ -5,7 +5,7 @@ The stage light nuanmb files use the same material parameter names as model mate
 | Name | Description |
 | --- | --- |
 | CustomVector0 | RGB color multiplier for lights. Multiplied by CustomFloat0. |
-| CustomVector1 | RGB? Controls some sort of fog color. RGB values are 0 to 1. |
+| CustomVector1 | Distance fog color. Used with CustomVector13. RGB = color, A = *unused* |
 | CustomVector2 | RGB? Affects the color of the sun on zelda_tower. RGB values can be negative. |
 | CustomVector3 | XYZW? Values are usually 0 to 1. Values can be negative. |
 | CustomVector4 | Mixes the final color with the blend color. RGB = blend color, A = blend factor. |
@@ -17,7 +17,7 @@ The stage light nuanmb files use the same material parameter names as model mate
 | CustomVector10 | XYZW? Related to fog. X is very small. YZ appear to be angle values. W is always 1. |
 | CustomVector11 | XYZW? Related to fog. Z is very large. |
 | CustomVector12 | XYZW? XY are very large. ZW are small. XY can be negative. |
-| CustomVector13 | XYZW? XY are very large. Y is always larger than X. Z is 0 to 1. X and W can be negative. |
+| CustomVector13 | Controls distance fog blending along with CustomVector1. XYW appear are distance values. X = ???, Y = ???, Z = intensity, W = ??? |
 | CustomVector14 | XYZW? Always set to (1, 1, 0, 0). |
 | CustomVector15 | Similar to CustomVector5. RGB = specular cube map color multiplier, A = ??? |
 | CustomVector16 | XYZW? Similar values to CustomVector18. |
