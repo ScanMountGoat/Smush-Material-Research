@@ -71,8 +71,6 @@ Unk7 and Unk8 determine if an order-independent transparency effect is used. Thi
 | Unk8 | 0, 1 |
 | Unk9 | 0 |
 | Unk10| 0 or 5 |
-| Unk11| 0 |
-| Unk12| 0 |
 
 | Blend Factor | Description |
 | --- | --- |
@@ -112,8 +110,6 @@ Unk7 and Unk8 determine if an order-independent transparency effect is used. Thi
 | Unk4 | -1000, -100, 0, 100 |
 | Unk5 | -100, 0 |
 | Unk6 | 16777217 |
-| Unk7 | 0 |
-| Unk8 | 0, 1599620691 |
 
 ## Custom Vector Param
 Stores an RGBA color or 4 float parameters.
