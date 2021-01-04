@@ -247,11 +247,11 @@ Each texture parameter has a corresponding sampler parameter. The border color f
 | Wrap R | 0 = Repeat, 1 = Clamp To Edge, 2 = Mirrored Repeat, 3 = Clamp to Border |
 | Min Filter | 0 = Nearest, 1 = Linear Mipmap Linear + ???, 2 = Linear Mipmap Linear + ??? |
 | Mag Filter | 0 = Nearest, 1 = Linear + ???, 2 = Linear + ??? |
-| Unk6 | 0 = No Anisotropic Filtering + ???, 1 = No Anisotropic Filtering + ???, 2 = Anisotropic Filtering |
-| Unk7 | 0 |
-| Unk8 | 0 |
-| Unk9 | 0 |
-| Unk10 | 0  |
+| Texture Filtering Type | 0 = No Anisotropic Filtering + ???, 1 = No Anisotropic Filtering + ???, 2 = Anisotropic Filtering |
+| Border Color R | Floating point value between 0.0 and 1.0. May be gamma corrected. |
+| Border Color B | Floating point value between 0.0 and 1.0. May be gamma corrected. |
+| Border Color G | Floating point value between 0.0 and 1.0. May be gamma corrected. |
+| Border Color A | Floating point value between 0.0 and 1.0. |
 | Unk11 | 0 |
 | Unk12 | 2139095022 |
 | LOD Bias | Values are floating point and clamped between `-MAX_LOD` and `+MAX_LOD` where `MAX_LOD = Mipmap Count`  |
