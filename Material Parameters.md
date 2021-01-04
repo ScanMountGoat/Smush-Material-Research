@@ -253,7 +253,7 @@ Each texture parameter has a corresponding sampler parameter. The border color f
 | Border Color G | Floating point value between 0.0 and 1.0. May be gamma corrected. |
 | Border Color A | Floating point value between 0.0 and 1.0. |
 | Unk11 | 0 |
-| Unk12 | 2139095022 |
+| Unk12 | Always 0x7F7FFFFF (127, 127, 255, 255). This may or may not be used. |
 | LOD Bias | Values are floating point and clamped between `-MAX_LOD` and `+MAX_LOD` where `MAX_LOD = Mipmap Count`  |
 | Max Anisotropy | 0 = 1x, 2 = 2x, 4 = 4x, 8 = 16x, 16 = 128x |
 
