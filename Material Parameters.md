@@ -215,7 +215,7 @@ Stores an RGBA color or 4 float parameters.
 | default_black | Used as a base color map | 61 |
 
 ## Samplers
-Each texture parameter has a corresponding sampler parameter. The border color for texture filtering is black.
+Each texture parameter has a corresponding sampler parameter. The wrap modes should be set to Clamp to Border for border color to have an effect. 
 
 | Param ID | Name | Description |
 | --- | --- | --- |
