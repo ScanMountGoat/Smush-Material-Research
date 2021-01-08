@@ -41,9 +41,10 @@ Each texture has an associated UV transform parameter. The values are always (1,
 | Unk5 | 0 |
 
 ## Blending State
-Alpha blending related parameters. Shaders seem to use premultiplied alpha. 
+Alpha blending related parameters. Shaders use premultiplied alpha. 
 The blending operation is always addition for both color and alpha.  
-Unk7 and Unk8 determine if an order-independent transparency effect is used. This is common for hair meshes.  
+
+Alpha to coverage is an order-independent transparency effect similar to alpha testing. A certain pattern of pixels are drawn at full opacity or discarded based on the alpha. The model will look grainy but not have any of the sorting issues associated with alpha blending.
 
 | Param ID | Name | Description |
 | ---  | --- | --- |
