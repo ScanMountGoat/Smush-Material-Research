@@ -67,7 +67,7 @@ Unk7 and Unk8 determine if an order-independent transparency effect is used. Thi
 | Unk4 | 0, 1 |
 | Unk5 | 0 |
 | Unk6 | 0, 1, 2, 6 |
-| Unk7 | 0, 1 |
+| Alpha to Coverage | 1 = enabled, 0 = disabled |
 | Unk8 | 0, 1 |
 | Unk9 | 0 |
 | Unk10| 0 or 5 |
