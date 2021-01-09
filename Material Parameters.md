@@ -289,7 +289,7 @@ Flags are separated into individual boolean parameters rather than being combine
 | --- | --- | --- |
 | 0xE8 | CustomBoolean0 | Always false? Used for pikmin_planet, poke_tengam, and fox_venom. |
 | 0xE9 | CustomBoolean1 | PRM specular override. True = PRM alpha, False = 0.16 |
-| 0xEA | CustomBoolean2 | Set to 0 for Olimar's helmet. Set to 1 for Incineroar emission mesh. Often used for meshes using additive blending. |
+| 0xEA | CustomBoolean2 | Alpha Override. True = set alpha to 0.0, False = preserve alpha |
 | 0xEB | CustomBoolean3 | Enables/disables the specular light contribution. True = enabled, False = disabled. |
 | 0xEC | CustomBoolean4 | Enables/disables the specular cube map contribution. True = enabled, False = disabled. |
 | 0xED | CustomBoolean5 | Used for meshes with scrolling textures. Used for stage morph, water, and other meshes with transparency effects. |
