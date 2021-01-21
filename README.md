@@ -19,6 +19,11 @@ TODO:
 ## Json Dumps
 TODO:
 
+
+## Shader Info Dump
+Extract the `nuc2effectlibrary.nufxlb.json` from `Value Dumps` or convert the `nuc2effectlibrary.nufxlb` file to JSON using [ssbh_lib_json](https://github.com/ultimate-research/ssbh_lib/releases).  
+`python batch_export_shader_info.py nuc2effectlibrary.nufxlb.json <export folder>`  
+
 ## Dump Shader Binaries
 1. Build the BatchExportShaderBinaries in [SSBHLib](https://github.com/Ploaj/SSBHLib/blob/master/BatchExportShaderBinaries)
 2. `BatchExportShaderBinaries.exe "render/shader/bin" <Binary Output Folder>`
