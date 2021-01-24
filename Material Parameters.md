@@ -142,7 +142,7 @@ Stores an RGBA color or 4 float parameters.
 | 0x13D | CustomVector22 | RGBA? RGB values are 0 to 2. Alpha is 0 or 1. |
 | 0x13E | CustomVector23 | RGB controls some sort of fog color. W is as high as 2400. |
 | 0x13F | CustomVector24 | RGBA? RGB values are 0 to 1. Alpha is 0 or 1. |
-| 0x140 | CustomVector25 | *Unused* |
+| 0x140 | CustomVector25 | ??? |
 | 0x141 | CustomVector26 | *Unused* |
 | 0x142 | CustomVector27 | Controls distance fog. X = Intensity, YZW = ??? |
 | 0x143 | CustomVector28 | *Unused* |
@@ -270,7 +270,7 @@ Each texture parameter has a corresponding sampler parameter. The wrap modes sho
 | 0xC6 | CustomFloat6 | Set to 1 for the pikmin_planet models that use C0. |
 | 0xC7 | CustomFloat7 | *Unused* |
 | 0xC8 | CustomFloat8 | Controls albedo color tint intensity used for the specular pass. The effect is similar to the tint used for the principled shader. |
-| 0xC9 | CustomFloat9 | *Unused* |
+| 0xC9 | CustomFloat9 | ??? |
 | 0xCA | CustomFloat10 | Specular anisotropy. A value of 0 produces isotropic specular. |
 | 0xCB | CustomFloat11 | Values range from 0 to 20000 and are lower than CC. Used in conjunction with CC and 14A. |
 | 0xCC | CustomFloat12 | Values range from -100 to 100000. Used in conjunction with CB and 14A. |
