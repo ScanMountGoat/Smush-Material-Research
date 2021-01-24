@@ -2,14 +2,14 @@
 Material parameters marked as unused aren't present in any of the numatb files. These parameters may still be used in material animations, however.
 
 ## Table of Contents
-[UV Transforms](#UV-Transforms)
-[Blend State](#Blend-State)
-[Rasterizer State](#Rasterizer-State)
-[Custom Vectors](#Custom-Vectors)
-[Textures](#Textures)
-[Samplers](#Samplers)
-[Custom Floats](#Custom-Floats)
-[Custom Booleans](#Custom-Booleans)
+- [UV Transforms](#UV-Transforms)
+- [Blend State](#Blend-State)
+- [Rasterizer State](#Rasterizer-State)
+- [Custom Vectors](#Custom-Vectors)
+- [Textures](#Textures)
+- [Samplers](#Samplers)
+- [Custom Floats](#Custom-Floats)
+- [Custom Booleans](#Custom-Booleans)
 
 ## UV Transforms
 Each texture has an associated UV transform parameter. The values are always (1, 1, 0, 0, 0).
