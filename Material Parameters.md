@@ -1,6 +1,16 @@
 # Material Parameter Descriptions
 Material parameters marked as unused aren't present in any of the numatb files. These parameters may still be used in material animations, however.
 
+## Table of Contents
+[UV Transforms](#UV-Transforms)
+[Blend State](#Blend-State)
+[Rasterizer State](#Rasterizer-State)
+[Custom Vectors](#Custom-Vectors)
+[Textures](#Textures)
+[Samplers](#Samplers)
+[Custom Floats](#Custom-Floats)
+[Custom Booleans](#Custom-Booleans)
+
 ## UV Transforms
 Each texture has an associated UV transform parameter. The values are always (1, 1, 0, 0, 0).
 
@@ -40,8 +50,8 @@ Each texture has an associated UV transform parameter. The values are always (1,
 | Unk4 | 0 |
 | Unk5 | 0 |
 
-## Blending State
-Alpha blending related parameters. Shaders use premultiplied alpha. 
+## Blend State
+Alpha blending related parameters. Shaders for materials that use alpha blending typically use premultiplied alpha. 
 The blending operation is always addition for both color and alpha.  
 
 Alpha to coverage is an order-independent transparency effect similar to alpha testing. A certain pattern of pixels are drawn at full opacity or discarded based on the alpha. The model will look grainy but not have any of the sorting issues associated with alpha blending.
@@ -112,7 +122,7 @@ Alpha to coverage is an order-independent transparency effect similar to alpha t
 | Unk5 | -100, 0 |
 | Unk6 | 16777217 |
 
-## Custom Vector Param
+## Custom Vectors
 Stores an RGBA color or 4 float parameters.
 
 | Param ID | Name | Description |
@@ -258,7 +268,7 @@ Each texture parameter has a corresponding sampler parameter. The wrap modes sho
 | LOD Bias | Values are floating point and clamped between `-MAX_LOD` and `+MAX_LOD` where `MAX_LOD = Mipmap Count`  |
 | Max Anisotropy | 0 = 1x, 2 = 2x, 4 = 4x, 8 = 16x, 16 = 128x |
 
-## Float
+## Custom Floats
 | Param ID | Name | Description |
 | --- | --- | --- |
 | 0xC0 | CustomFloat0 | Set to 0.997 for some models on pikmin_planet and fox_venom. |
@@ -282,7 +292,7 @@ Each texture parameter has a corresponding sampler parameter. The wrap modes sho
 | 0xD2 | CustomFloat18 | Used with CustomVector37,38,39 for some sort of rotation/warp effect for vegetation. |
 | 0xD3 | CustomFloat19 | Controls angle fade in addition to the specular IOR used for environment reflections. Higher values are less transparent and have more intense reflections. |
 
-## Boolean Flags
+## Custom Booleans
 Flags are separated into individual boolean parameters rather than being combined into a single value.
 
 | Param ID | Name | Description |
