@@ -306,7 +306,7 @@ Flags are separated into individual boolean parameters rather than being combine
 | 0xEE | CustomBoolean6 | Used for meshes with scrolling textures. Set to 1 for animal crossing island water. |
 | 0xEF | CustomBoolean7 | Used for battlefield waterfalls and other meshes with transparency effects. |
 | 0xF0 | CustomBoolean8 | Set to true for bossstage_final3 and poke_kalos interval wall. |
-| 0xF1 | CustomBoolean9 | Some sort of sprite sheet scale toggle. Used in conjunction with param AA. |
+| 0xF1 | CustomBoolean9 | Can be used with CustomVector18. Scales down UVs per the XY values in said vector and repurposes Z value to represent which sprite in the sheet to use for that frame in an animation. |
 | 0xF2 | CustomBoolean10 | Set to false for spirits_floor_model\damage for each stage. |
 | 0xF3 | CustomBoolean11 | Affects texture blending of emission textures. Set to false for spirits_floor_model meshes. Used for the sun shaft for fe_siege. |
 | 0xF4 | CustomBoolean12 | Set to true for fe_siege arena. False for ink meshes. |
