@@ -1,7 +1,8 @@
 # Render Passes
-Rendering in Smash Ultimate is grouped into several different passes. 
-This enables proper transparency rendering and post-processing effects such as bloom. 
-Passes are described below in order from first to last.
+Rendering in Smash Ultimate is grouped into several different passes. This enables proper transparency rendering and post-processing effects such as bloom. 
+Passes are described below in order from first to last. 
+
+The different passes such as `_far` or `_sort` allow changing the mesh render order without moving the mesh's vertices or adjusting the order in the mesh list. The meshes in a render passes are grouped together, so all meshes with `_sort` render after all meshes with `_opaque`, for example.
 
 ## 1. Depth Pass
 Renders models into a depth buffer to be used later for shadow mapping.
