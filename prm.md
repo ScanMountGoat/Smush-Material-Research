@@ -180,11 +180,10 @@ Specular defines the reflectance at normal. This may also be referred to as "f0"
 The specular values are scaled by 0.2, so a specular of 1.0 in Smash Ultimate corresponds to a reflectance at normal of 0.2 and 0.0
 still corresponds to 0.0. 
 
-### Convert Smash Ultimate's Specular to Blender
-It's common for applications to define their own specular scale. Blender's Principled BSDF has a specular range of 0% to
-8%, so the PRM specular should be converted as
+### Convert Blender's Specular to Smash Ultimate
+It's common for applications to define their own specular scale. Smash Ultimate has a specular range of 0% to 20%. Blender's Principled BSDF has a specular range of 0% to 8%, so the PRM specular should be converted as
 ```
-blenderSpecular = smashSpecular / 2.5
+smashSpecular = blenderSpecular / 2.5 = blenderSpecular * 0.4
 ``` 
 Image editors don't support 
 dividing by colors greater than 1.0 by default. Use a fill layer with color (0,0,40) in HSL or (102,102,102) in RGB
@@ -193,10 +192,10 @@ set to the multiply blend mode instead. This is equivalent to dividing by 2.5.
 - Fill Layer (Multiply)
 - Specular
 
-### Convert Blender's Specular to Smash Ultimate
+### Convert Smash Ultimate's Specular to Blender
 Converting Blender's specular to Smash Ultimate can be computed as
 ```
-smashSpecular = blenderSpecular * 2.5
+blenderSpecular = smashSpecular * 2.5
 ```
 Image editors don't support multiplying by colors greater than 1.0 by default. Use a fill layer with color (0,0,40) in HSL or (102,102,102) in RGB set to the divide blend mode instead. This is equivalent to multiplying by 2.5. 
 
