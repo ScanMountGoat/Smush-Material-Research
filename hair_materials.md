@@ -8,4 +8,11 @@ A value of 0.0 produces a round, symmetrical highlight. Higher values produce a 
 
 ## Anisotropic Rotation
 Some materials use the PRM alpha value as anisotropic rotation instead of controlling specular. A value of 0.0 is no rotation. A value of 0.5 rotates the highlight by 90 degrees. A value of 1.0 rotates the highlight by 180 degrees. Anisotropic rotation can be used to fix the highlight direction on surfaces with UV layouts that cause the highlight to appear rotated or distorted. 
-If the hair strands run from top to bottom on the texture and the hair planes are UV mapped to match, there is usually no need to correct the rotation of the highlight using the PRM alpha. 
+
+## Correcting Specular Highlight Direction
+If the following are all true, then the anisotropic rotation map is not required or can be set to 0.0 (no rotation).
+* Hair strands run from top to bottom on the texture
+* The hair meshes are all UV mapped so the hair strands run in the correct direction
+* CustomFloat10 is between 0.0 and 1.0
+
+If the UV islands for the hair are rotated or CustomFloat10 is > 1.0, the anisototropic rotation map can be used to correct the highlight direct for different parts of the mesh. 
