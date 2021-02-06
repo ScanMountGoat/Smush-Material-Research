@@ -4,7 +4,8 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np 
 import sqlite3
-import pandas as pd
+import plotly.express as px
+import plotly.graph_objs as go
 
 select_param_id_sql = 'SELECT Id FROM CustomParam WHERE Name = ?'
 select_values_sql = """
@@ -27,24 +28,24 @@ def get_values_sqlite(db_file, param_name):
 
 def graph_values(param_name, values):
     # Use the XYZ values as colors.
-    colors = np.clip(values[:,:3],0,1)
-
     # Size based on number of occurrences mapped to a more reasonable range.
-    sizes = (values[:,4] / np.max(values[:,4])) * 400 + 20
+    sizes = (values[:,4] / np.max(values[:,4])) * 30 + 10
 
-    # Plot the values in 3d.
-    fig = plt.figure()
-    ax = Axes3D(fig)
+    trace = go.Scatter3d(x=values[:,0],
+                        y=values[:,1],
+                        z=values[:,2],
+                        customdata = values[:,4],
+                        hovertemplate='<b>x:%{x}</b><br><b>y:%{y}<b><br><b>z: %{z}<b><br><b>occurrences: %{customdata}</b><extra></extra>',
+                        mode='markers',
+                        marker=dict(line=dict(width=2,color='DarkSlateGray',),size=sizes,
+                                    color=['rgb({},{},{})'.format(r,g,b) for r,g,b in np.clip((values[:,:3]*255).astype(np.int32),0,255)],opacity=0.9))
 
-    # Chart title
-    ax.text2D(0.05, 0.90, f'{param_name}\n(size = occurrences)', transform=ax.transAxes) 
+    data = [trace]
 
-    ax.set_xlabel('Red (X)')
-    ax.set_ylabel('Green (Y)')
-    ax.set_zlabel('Blue (Z)')
-    ax.scatter(values[:,0],values[:,1],values[:,2],c=colors,s=sizes,edgecolor='k') 
+    layout = go.Layout(margin=dict(l=0,r=0,b=0,t=0))
 
-    plt.show()
+    fig = go.Figure(data=data, layout=layout)
+    fig.show()
 
 
 if __name__ == '__main__':  
