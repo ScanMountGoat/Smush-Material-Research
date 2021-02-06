@@ -6,7 +6,7 @@
 | _gao | Ambient Occlusion Map |
 | _lit or _bake_lit | Bake Lit Map |
 | _prm | PRM Map |
-| _nor | Normal Map |
+| _nor | NOR Map |
 
 # Base Color Maps (Texture0,Texture1)
 RGBA albedo textures. Unlike diffuse, albedo colors specular reflections for metallic materials.
@@ -31,22 +31,21 @@ texture naming conventions.
 The main PBR texture maps are packed into a single texture. This simplifies the number of textures
 needed and can better take advantage of compression methods.
 
-Metalness is usually either 0 (not metallic) or 1 (metallic). Metals have their specular colored by albedo and no diffuse contribution. 
-Skin materials have a metalness of 1, but they have special diffuse shading and use metalness to mask the fake subsurface scattering effect instead.
+Metalness is usually either 0 (not metallic) or 1 (metallic). Metals have their specular colored by albedo and no diffuse contribution. Skin materials have a PRM metalness value of 1, but the material is not rendered as metallic. The PRM metalness is instead used to mask the fake subsurface scattering.
 
-Roughness affects the roughness of specular reflections. Smooth materials such as metals will have low roughness values.
+Roughness affects the roughness of specular highlights and specular cube map reflections. Smooth materials such as metals will have low roughness values.
 
 Ambient occlusion is a form of baked ambient lighting. The ambient occlusion map affects specular and ambient diffuse.
 
 Specular controls the reflectance at normal for non metals. The texture value is remapped to a range
-of common values for non metals. A value of 1 results in a reflectance at normal of 0.2. The specular channel has no effect if metalness is set to 1 (fully metallic).
+of common values for non metals. A value of 1 results in a reflectance at normal of 0.2. The specular channel has no effect if metalness is set to 1 (fully metallic). Some hair materials with anisotropic specular (CustomFloat10) use the PRM alpha to rotate the specular highlights. Alpha values of 0.0 to 1.0 are mapped to angle values of 0 to 180 degrees. 
 
-| Channel | Usage |
-| --- | --- |
-| R | Metalness  |
-| G | Roughness   |
-| B | Ambient Occlusion |
-| A | Specular Reflectivity |
+| Channel | Usage | Secondary Usage |
+| --- | --- | --- |
+| R | Metalness | SSS Mask  |
+| G | Roughness   | |
+| B | Ambient Occlusion | |
+| A | Specular Reflectivity | Anisotropic Rotation |
 
 
 ### [Principled Shading Paper by Disney](https://static1.squarespace.com/static/58586fa5ebbd1a60e7d76d3e/t/593a3afa46c3c4a376d779f6/1496988449807/s2012_pbs_disney_brdf_notes_v2.pdf)
@@ -59,21 +58,21 @@ Emissive maps ared used for glowing effects such as Samus's lights. The majority
 be black (no emission). Some materials use emission in place of a base color map for flat lighting.
 This is common for retro stages and skyboxes.
 
-# Normal Maps (Texture4)
+# NOR Maps (Texture4)
 The RG channels are used for the XY directions of the normal map. The Z direction of the normal map
-is generated. 
+is generated for materials that use the B channel as a blend map. Some stage materials use the B channel as the Z component of the normal map.
 
 The blend map is used for blending between materials for ink, metal box, and gold forms
 (Xerneas) based on an animated threshold value. 
 
-Cavity maps are similar to ambient occlusion maps but only occlude specular lighting. These maps are usually set to a default value of white.
+Cavity maps occlude specular and rim lighting but do not affect ambient diffuse lighting. The NOR alpha channel is usually set to a default value of white and isn't used by all shaders.
 
-| Channel | Usage |
-| --- | --- |
-| R | Normal X+  |
-| G | Normal Y+  |
-| B | Transition Blend |
-| A | Cavity |
+| Channel | Usage | Secondary Usage |
+| --- | --- | --- |
+| R | Normal X+  | |
+| G | Normal Y+  | |
+| B | Transition Blend | Normal Z+ |
+| A | Cavity | |
 
 ### Note on Differences in Normal Map Color Channels
 Normal maps have right handedness (Y+) in Smash Ultimate, which is used by OpenGL, Blender, and Maya. The green channel may need to be inverted for normal maps generated for other applications that default to DirectX (Y-). The correct setting will likely have "OpenGL" or "Y+" in the name. Compare with in game normal maps to ensure the channels are correct.
