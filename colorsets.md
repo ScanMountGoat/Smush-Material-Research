@@ -15,6 +15,6 @@ The alpha value of the colorSet5 attribute is used to blend between the first an
 
 <figure class="figure">
     <img src="{{ "/assets/images/colorset/colorset5_blend.jpg" | relative_url }}" height="auto" width="auto">
-    <figcaption class="figure-caption text-center">The result of blended the rock (layer 1) and grass (layer 2) textures using colorSet5.</figcaption>
+    <figcaption class="figure-caption text-center">The result of blending the rock (layer 1) and grass (layer 2) textures using colorSet5.</figcaption>
 </figure>
 colorSet5 enables blending between two layers of tiled textures. The rock and grass textures in this example are only 256x256, so it's not possible to specify an appropriate mask for the grassy regions using the texture alpha. colorSet5 has alpha values of roughly 85 or 0.3333 for the areas that should use the grass layer. The vertex color values are interpolated between adjacent vertices, which softens the transitions between textures. Duplicating faces along the desired boundares will prevent the values blending with neighboring faces and create a sharp seam.
