@@ -53,17 +53,23 @@ def create_indices(cursor):
 def fill_database(cursor, nuxf_file):
     with open(nuxf_file, 'r') as file:
         nufx = json.loads(file.read())
-        for program in nufx['data']['Nufx']['programs']['elements']:
-            cursor.execute(insert_shader_program, (program['name'],))
+        for program in nufx['data']['Nufx']['programs']:
+            program_name = program['name']
+            
+            # Assume each shader can use any of the render passes.
+            # if '_opaque' in program_name or '_near' in program_name or '_far' in program_name or '_sort' in program_name:
+            #     continue
+
+            cursor.execute(insert_shader_program, (program_name,))
             program_id = cursor.lastrowid
 
             attribute_records = []
-            for attribute in program['vertex_attributes']['elements']:
+            for attribute in program['vertex_attributes']:
                 attribute_records.append((program_id, attribute['name'], attribute['attribute_name']))
             cursor.executemany(insert_vertex_attribute, attribute_records)
 
             parameter_records = []
-            for attribute in program['material_parameters']['elements']:
+            for attribute in program['material_parameters']:
                 parameter_records.append((program_id, attribute['param_id']))
             cursor.executemany(insert_material_parameter, parameter_records)
 
