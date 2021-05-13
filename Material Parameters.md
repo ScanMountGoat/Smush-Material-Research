@@ -159,7 +159,7 @@ Stores an RGBA color or 4 float parameters.
 | 322 (0x142) | CustomVector27 | | Controls distance fog. X = Intensity, YZW = ??? |
 | 323 (0x143) | CustomVector28 | *Unused* | *Unused* |
 | 324 (0x144) | CustomVector29 | | Used for rotating models for pilot wings, sky world, etc. X can be negative and has angle values (30, -60, or 720). Y and Z are always 0. W is always 300 or 0. |
-| 325 (0x145) | CustomVector30 | (0,0,0,1) | Fake SSS using CustomVector11. X = blend factor, Y = diffuse shading smooth factor (higher is sharper), ZW = Unused |
+| 325 (0x145) | CustomVector30 | (0,0,0,1) | Used with CustomVector11 to fake subsurface scattering. X = blend factor, Y = diffuse shading smooth factor (higher is sharper), ZW = Unused |
 | 326 (0x146) | CustomVector31 | | UV Transform layer 2. |
 | 327 (0x147) | CustomVector32 | | UV Transform layer 3. |
 | 328 (0x148) | CustomVector33 | | UV Transform? Used for materials with 4 base color maps (Param IDS: 66, 67, 68, 69). |
