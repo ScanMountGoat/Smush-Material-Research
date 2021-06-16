@@ -1,0 +1,80 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <div class="container">
+    <a class="navbar-brand" rel="author" href="{{ "/" | relative_url }}">{{ site.title | escape }}</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <a class="nav-link nav-item" href="{{ "/" | relative_url }}">Home <span class="sr-only">(current)</span></a>
+        <div class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Textures
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+            <a class="dropdown-item" href="{{ "/col" | relative_url }}">Col Maps</a>
+            <a class="dropdown-item" href="{{ "/prm" | relative_url }}">PRM Maps</a>
+            <a class="dropdown-item" href="{{ "/nor" | relative_url }}">NOR Maps</a>
+            <a class="dropdown-item" href="{{ "/emi" | relative_url }}">Emissive Maps</a>
+            <a class="dropdown-item" href="{{ "/difcube" | relative_url }}">Diffuse Cube Maps</a>
+            <a class="dropdown-item" href="{{ "/gamma" | relative_url }}">Gamma Correction</a>
+          </div>
+        </div>
+        <div class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Vertex Attributes
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+            <a class="dropdown-item" href="{{ "/vertexattributes" | relative_url }}">Normals/Tangents/Bitangents</a>
+            <a class="dropdown-item" href="{{ "/texturecoordinates" | relative_url }}">Texture Coordinates</a>
+            <a class="dropdown-item" href="{{ "/colorsets" | relative_url }}">Color Sets</a>
+          </div>
+        </div>
+        <div class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Materials
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+            <a class="dropdown-item" href="{{ "/skin_materials" | relative_url }}">Skin Materials</a>
+            <a class="dropdown-item" href="{{ "/transparency" | relative_url }}">Transparency</a>
+            <a class="dropdown-item" href="{{ "/material_transitions" | relative_url }}">Material Transitions</a>
+            <a class="dropdown-item" href="{{ "/hair_materials" | relative_url }}">Hair Materials</a>
+          </div>
+        </div>
+        <div class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Post Processing
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+            <a class="dropdown-item" href="{{ "/post_processing" | relative_url }}">Post Processing Passes</a>
+            <a class="dropdown-item" href="{{ "/snapshot" | relative_url }}">Snapshot Filters</a>
+          </div>
+        </div>
+        <div class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Renders
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+            <a class="dropdown-item" href="{{ "/albedo_recoloring" | relative_url }}">Albedo Recoloring</a>
+          </div>
+        </div>
+        <div class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Documentation
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+            <a class="dropdown-item" href="https://github.com/ScanMountGoat/Smush-Material-Research/blob/master/Material%20Parameters.md" target="_blank">Material Parameters</a>
+            <a class="dropdown-item" href="https://github.com/ScanMountGoat/Smush-Material-Research/blob/master/Textures.md" target="_blank">Textures</a>
+            <a class="dropdown-item" href="https://github.com/ScanMountGoat/Smush-Material-Research/blob/master/Vertex%20Attributes.md" target="_blank">Vertex Attributes</a>
+            <a class="dropdown-item" href="https://github.com/ScanMountGoat/Smush-Material-Research/blob/master/Render%20Passes.md" target="_blank">Render Passes</a>
+            <a class="dropdown-item" href="https://github.com/ScanMountGoat/Smush-Material-Research/blob/master/Stage%20Light%20Parameters.md" target="_blank">Stage Light Parameters</a>
+            <a class="dropdown-item" href="https://github.com/ScanMountGoat/Smush-Material-Research/blob/master/XMB.md" target="_blank">XMB Attributes</a>
+            <a class="dropdown-item" href="https://github.com/ScanMountGoat/Smush-Material-Research/blob/master/Material%20Transitions.md" target="_blank">Material Transitions</a>
+          </div>
+        </div>
+        <a class="nav-link nav-item" href="{{ site.github.repository_url }}" target="_blank">Github</a>
+      </ul>
+    </div>
+  </div>
+</nav>
