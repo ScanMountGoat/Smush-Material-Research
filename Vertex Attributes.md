@@ -18,18 +18,18 @@ This allows storing floating point values higher than 1.0 in a single byte at th
 | 128 | 0.5 * scale |
 | 255 | 1.0 * scale | 
 
-| Attribute | Description | Values | Scale | 
-| --- | --- | --- | --- |
-| colorSet1 | Vertex color and alpha | RGB = vertex color, A = vertex alpha | 2.0 |
-| colorSet2 | Baked diffuse lighting. The RGB values are squared before multiplying by the scale. | RGB = lighting color, A = *unused* | 7.0 |
-| colorSet2_1 | Similar to colorSet2 | RGB = lighting color, A = *unused* | 7.0 |
-| colorSet2_2 | Similar to colorSet2 | RGB = lighting color, A = *unused* | 7.0 |
-| colorSet2_3 | Similar to colorSet2 | RGB = lighting color, A = *unused* | 7.0 |
-| colorSet3 | Vertex color and alpha. Similar to colorSet1. | RGB = vertex color, A = ??? | 2.0 |
-| colorSet4 | Some sort of specular tint | RGB = color, A = blend factor | 2.0 |
-| colorSet5 | Blends between the primary and secondary col maps | RGB = *unused*, A = alpha | 3.0 |
-| colorSet6 | Controls the warping effect used for plants along with CustomVector37,38,39 | XYZ = ???, W = ???  | 1.0 |
-| colorSet7 | Controls some sort of fog effect | XYZ = ???, W = intensity | 1.0 |
+| Attribute | Description | Values | Default Value | Scale |
+| --- | --- | --- | --- | --- |
+| colorSet1 | Vertex color and alpha | RGB = vertex color, A = vertex alpha | (0.5, 0.5, 0.5, 0.5) | 2.0 | 
+| colorSet2 | Baked diffuse lighting. The RGB values are squared before multiplying by the scale. | RGB = lighting color, A = *unused* | ??? | 7.0 
+| colorSet2_1 | Similar to colorSet2 | RGB = lighting color, A = *unused* | ??? | 7.0 |
+| colorSet2_2 | Similar to colorSet2 | RGB = lighting color, A = *unused* | ??? | 7.0 |
+| colorSet2_3 | Similar to colorSet2 | RGB = lighting color, A = *unused* | ??? | 7.0 |
+| colorSet3 | Vertex color and alpha. Similar to colorSet1. | RGB = vertex color, A = ??? | (0.5, 0.5, 0.5, 0.5) | 2.0 | 
+| colorSet4 | Some sort of specular tint | RGB = color, A = blend factor | ??? | 2.0 |
+| colorSet5 | Blends between the primary and secondary col maps | RGB = *unused*, A = alpha | (0, 0, 0, 0) or (0, 0, 0, 1/3) |  3.0 | 
+| colorSet6 | Controls the warping effect used for plants along with CustomVector37,38,39 | XYZ = ???, W = ??? | ??? | 1.0 |
+| colorSet7 | Controls some sort of fog effect | XYZ = ???, W = intensity | ??? |  1.0 | 
 
 # UV Attributes
 The XY components of the vertex attribute are used as UV coordinates. The ZW components are unused. 
