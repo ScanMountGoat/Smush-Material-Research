@@ -94,6 +94,9 @@ Baked diffuse lighting and shadows for stages. Like ambient occlusion maps, thes
 much higher than 1.0 in a standard 8 bits per channel image at the cost of precision. The alpha channel is not scaled like the RGB channels. The ambient lighting from the baked lighting maps 
 is not affected by ambient occlusion from PRM maps.  
 
+The RGB color is added to the stage's ambient lighting after being scaled by 8.0. The alpha channel occludes the direct lighting, so an alpha value of 0.0 will have no direct lighting and 
+appear to be in shadow. This produces a default baked lighting map color of (0, 0, 0, 1) to produce no effect.
+
 | Channel | Usage |
 | --- | --- |
 | RGB | Baked Ambient Light |
