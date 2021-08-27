@@ -198,6 +198,8 @@ Stores an RGBA color or 4 float parameters.
 ## Textures
 Similar to the default value, the "Default Texture" will have no effect or the same effect as not having the texture present in the material. The values use the in game default textures where possible.
 
+The string value stored in the `.numatb` file is the corresponding texture's file name with no extension. This can be a file in the current directory like `asf_ashley_col` or a full path like `/common/shader/sfxPBS/default_Params`. Cube map textures can specify `#replace_cubemap` to use the current stage's reflection cube map.
+
 | Param ID | Name | Default Texture | UV Attribute | Description |
 | --- | --- | --- | --- | --- |
 | 92 (0x5C) | Texture0 | | map1 | Col Map (layer 1) |
@@ -206,7 +208,7 @@ Similar to the default value, the "Default Texture" will have no effect or the s
 | 95 (0x5F) | Texture3 | | bake1 | Ambient Occlusion Map |
 | 96 (0x60) | Texture4 | | map1 | NOR Map |
 | 97 (0x61) | Texture5 | | map1 | Emissive Map (layer 1) |
-| 98 (0x62) | Texture6 | | map1 | PRM Map |
+| 98 (0x62) | Texture6 | `/common/shader/sfxPBS/default_Params` | map1 | PRM Map |
 | 99 (0x63) | Texture7 | `#replace_cubemap` | *Cube Map* | Specular Cube Map |
 | 100 (0x64) | Texture8 | | *Cube Map* | Diffuse Cube Map |
 | 101 (0x65) | Texture9 | | bake1 | Baked Lighting Map |
