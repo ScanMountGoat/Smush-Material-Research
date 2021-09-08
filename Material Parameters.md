@@ -125,7 +125,7 @@ Alpha to coverage is an order-independent transparency effect similar to alpha t
 | Unk6 | 16777217 |
 
 ## Custom Vectors
-Stores an RGBA color or 4 float parameters.
+Stores an RGBA color or 4 float parameters. If a custom vector required by the shader is missing, the value is set to black (0.0, 0.0, 0.0, 0.0).
 
 | Param ID | Name | Default Value | Description |
 | --- | --- | --- | --- |
