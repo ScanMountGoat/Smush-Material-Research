@@ -275,6 +275,8 @@ Each texture parameter has a corresponding sampler parameter. The wrap modes sho
 | Max Anisotropy | 0 = 1x, 2 = 2x, 4 = 4x, 8 = 16x, 16 = 128x |
 
 ## Custom Floats
+If a custom float required by a shader is missing, the value is set to 0.0.
+
 | Param ID | Name | Default Value | Description |
 | --- | --- | --- | --- |
 | 192 (0xC0) | CustomFloat0 | *Unused* | *Unused* |
