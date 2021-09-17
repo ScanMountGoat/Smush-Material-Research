@@ -1,7 +1,22 @@
 # Material Parameter Descriptions
-Material parameters marked as unused aren't referenced in any of the shader programs, so there is no way to use them without modifying the shader binaries themselves.
+Material parameters marked as *Unused* aren't referenced in any of the shader programs, so there is no way to use them without modifying the shader binaries themselves.
 
 The "Default Value" is a value that has no effect or the same effect as not having the parameter defined in the material. This is typically 0.0 for offset values (a + 0.0 = a), 1.0 for scale values (1.0 * a = a), and 1.0 for exponents (a^1.0 = a). The default value for intensities or blend factors for mixing between values may be 0.0 or 1.0 depending on the context. 
+
+The following pesudocode shows how to correctly use a parameter for rendering. See the nufx and shader dumps for what parameters are required by a particular shader. This code is intended for "uber shaders" that expose all inputs regardless of whether an input is used or not. Another approach is to create individual shaders for each in game shader, so non required values are simply never set rather than using a default value.
+```python
+def get_parameter_value_for_rendering(shader, material, parameter):
+    if shader.requires_parameter(parameter):
+        if material.has_parameter(parameter):
+            return material.get_value(parameter)
+        else:
+            # Missing required values default to (0.0, 0.0, 0.0, 0.0), false, etc.
+            # Missing textures are handled differently.
+            return parameter.zero
+    else:
+        # The parameter is unused, so use the default listed in the tables below.
+        return parameter.default_value
+```
 
 ## Table of Contents
 - [UV Transforms](#UV-Transforms)
@@ -301,7 +316,7 @@ If a custom float required by a shader is missing, the value is set to 0.0.
 | 211 (0xD3) | CustomFloat19 | | Controls angle fade in addition to the specular IOR used for environment reflections. Higher values are less transparent and have more intense reflections. |
 
 ## Custom Booleans
-Flags are separated into individual boolean parameters rather than being combined into a single value.
+Material flags are separated into individual boolean parameters rather than being combined into a single value. 
 
 | Param ID | Name | Default Value | Description |
 | --- | --- | --- | --- |
@@ -316,7 +331,7 @@ Flags are separated into individual boolean parameters rather than being combine
 | 240 (0xF0) | CustomBoolean8 | | Set to true for bossstage_final3 and poke_kalos interval wall. |
 | 241 (0xF1) | CustomBoolean9 | | Adjusts the effect of CustomVector18. Some shaders ignore CustomBoolean9. When enabled, CustomVector18.z selects the sprite in the texture to use. |
 | 242 (0xF2) | CustomBoolean10 | | Set to false for spirits_floor_model\damage for each stage. |
-| 243 (0xF3) | CustomBoolean11 | | May effect texture blending of emission textures. Set to false for spirits_floor_model meshes. Used for the sun shaft for fe_siege. |
+| 243 (0xF3) | CustomBoolean11 | False | Texture blending mode. True = additive blending, False = alpha blending |
 | 244 (0xF4) | CustomBoolean12 | | Set to true for fe_siege arena. False for ink meshes. |
 | 245 (0xF5) | CustomBoolean13 | *Unused* | *Unused* |
 | 246 (0xF6) | CustomBoolean14 | *Unused* | *Unused* |
