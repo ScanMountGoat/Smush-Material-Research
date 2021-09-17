@@ -1,4 +1,14 @@
 # Material Parameter Descriptions
+## Table of Contents
+- [UV Transforms](#UV-Transforms)
+- [Blend State](#Blend-State)
+- [Rasterizer State](#Rasterizer-State)
+- [Custom Vectors](#Custom-Vectors)
+- [Textures](#Textures)
+- [Samplers](#Samplers)
+- [Custom Floats](#Custom-Floats)
+- [Custom Booleans](#Custom-Booleans)
+
 Material parameters marked as *Unused* aren't referenced in any of the shader programs, so there is no way to use them without modifying the shader binaries themselves.
 
 The "Default Value" is a value that has no effect or the same effect as not having the parameter defined in the material. This is typically 0.0 for offset values (a + 0.0 = a), 1.0 for scale values (1.0 * a = a), and 1.0 for exponents (a^1.0 = a). The default value for intensities or blend factors for mixing between values may be 0.0 or 1.0 depending on the context. 
@@ -17,16 +27,6 @@ def get_parameter_value_for_rendering(shader, material, parameter):
         # The parameter is unused, so use the default listed in the tables below.
         return parameter.default_value
 ```
-
-## Table of Contents
-- [UV Transforms](#UV-Transforms)
-- [Blend State](#Blend-State)
-- [Rasterizer State](#Rasterizer-State)
-- [Custom Vectors](#Custom-Vectors)
-- [Textures](#Textures)
-- [Samplers](#Samplers)
-- [Custom Floats](#Custom-Floats)
-- [Custom Booleans](#Custom-Booleans)
 
 ## UV Transforms
 Each texture has an associated UV transform parameter. The values are always (1, 1, 0, 0, 0).
