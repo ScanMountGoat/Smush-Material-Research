@@ -120,7 +120,7 @@ results in a specular reflectivity of 0.1. A reasonable starting value for specu
 </figure>
 Surfaces in the real world exhibit something called the *fresnel effect* (pronounced "fre-nel") where the reflectivity 
 of the surface depends on the angle between the orientation of the surface and the viewing direction. 
-The effect is easiest to see on flat, glossy surfaces such as water or glass. In the above image of Mario, the edges 
+The effect is easiest to see on flat, glossy surfaces such as water or glass. In the below image of Mario, the edges 
 of the model always have reflectance values close to 1.0 regardless of the base specular value from the PRM alpha. 
 The effect is slightly less pronounced in game due to the intense rim lighting.   
   
