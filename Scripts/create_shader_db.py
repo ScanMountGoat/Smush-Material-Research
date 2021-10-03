@@ -3,6 +3,7 @@ import sys
 import json
 import sqlite3
 import time
+import argparse
 
 create_shader_program_table = """CREATE TABLE "ShaderProgram" (
 	"ID" INTEGER NOT NULL UNIQUE,
@@ -50,15 +51,16 @@ def create_indices(cursor):
     create_index(cursor, 'MaterialParameter', 'ShaderProgramID')
 
 
-def fill_database(cursor, nuxf_file):
+def fill_database(cursor, nuxf_file, remove_duplicates):
     with open(nuxf_file, 'r') as file:
         nufx = json.loads(file.read())
         for program in nufx['data']['Nufx']['programs']:
             program_name = program['name']
             
-            # Assume each shader can use any of the render passes.
-            # if '_opaque' in program_name or '_near' in program_name or '_far' in program_name or '_sort' in program_name:
-            #     continue
+            if remove_duplicates:
+                # Assume each shader can use any of the render passes.
+                if '_opaque' in program_name or '_near' in program_name or '_far' in program_name or '_sort' in program_name:
+                    continue
 
             cursor.execute(insert_shader_program, (program_name,))
             program_id = cursor.lastrowid
@@ -74,32 +76,31 @@ def fill_database(cursor, nuxf_file):
             cursor.executemany(insert_material_parameter, parameter_records)
 
 
-def create_shader_db(nuxf_file, db_file):
+def create_shader_db(nuxf_file, db_file, remove_duplicates):
     with sqlite3.connect(db_file) as con:
         cursor = con.cursor()
 
         create_database_tables(cursor)
-        fill_database(cursor, nuxf_file)
+        fill_database(cursor, nuxf_file, remove_duplicates)
         create_indices(cursor)
 
 if __name__ == '__main__':
-    if len(sys.argv) != 3:
-        print(f'Usage: {sys.argv[0]} <nuflxb.json> <SQLite DB>')
-        exit(1)
+    parser = argparse.ArgumentParser(description='create an SQLite database from an NUFX json dump')
+    parser.add_argument('json', type=str, help='the .nufxlb JSON dump')
+    parser.add_argument('database', type=str, help="the output SQLite file")
+    parser.add_argument('--remove_duplicates', action='store_true', help="remove additional shader programs with render pass tags (ex: _opaque)", default=False, required=False)
+    args = parser.parse_args()
 
     start_time = time.time()
 
-    nuxf_file = sys.argv[1]
-    db_file = sys.argv[2]
-
     # Overwrite the existing database file.
-    if os.path.exists(db_file):
-        os.remove(db_file)
+    if os.path.exists(args.database):
+        os.remove(args.database)
 
-    create_shader_db(nuxf_file, db_file)
+    create_shader_db(args.json, args.database, args.remove_duplicates)
 
     # Shrink the size if possible.
-    with sqlite3.connect(db_file) as con:
+    with sqlite3.connect(args.database) as con:
         con.execute('VACUUM')
 
-    print(f'{db_file} created in {time.time() - start_time} seconds')
+    print(f'{args.database} created in {time.time() - start_time} seconds')
