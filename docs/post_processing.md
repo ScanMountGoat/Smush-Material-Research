@@ -10,14 +10,17 @@
 # Post Processing Passes
 <figure class="figure">
     <img src="{{ "/assets/images/post_processing/post_processing.jpg" | relative_url }}" height="auto" width="auto">
-    <figcaption class="figure-caption text-center">From left to right: the base image, the image after adding bloom, the image after applying the color grading LUT (sepia), and the final post processing result.</figcaption>
+    <figcaption class="figure-caption text-center">From left to right: the base image, the bloom contribution, the image after adding bloom, and the final image after applying the color grading LUT (sepia).</figcaption>
 </figure>
-Smash Ultimate contains several post processing steps that grealy impact the final look of the image after all the models and effects are rendered. Post processing does not affect the color of UI elements such as stock icons and character portraits. Steps 2 to 4 are the post processing steps. 
+Smash Ultimate contains several post processing steps that grealy impact the final look of the image after all the models and effects are rendered. Post processing does not affect the color of UI elements such as stock icons and character portraits.
 
-1. Model and effect rendering
-2. Add bloom 
-3. Apply color grading LUT 
-4. Post process to brighten the image 
+- Rendering
+    - Render models  
+    - Render effects  
+- Post Processing
+    - Add bloom 
+    - Apply color grading LUT 
+- UI Elements
 
 ## Bloom 
 Bloom adds a glow around bright parts of the image. Any pixel in the frame that is brighter than a certain threshold contributes to bloom. The brighter the pixel, the more intense the bloom. The bloom threshold is calculated as follows. 
@@ -54,8 +57,8 @@ The LUT applies to all models and effects on screen but not UI. More extreme LUT
 </figure>
 A useful property of color grading LUTs is that any image editing operations that don't target individual pixels such as curves, levels, exposure, color balance, HSL, gradient maps, etc applied to the LUT will also apply to the final image. Simply apply the adjustments to a neutral color grading LUT and then save the result. A tool for creating color grading LUTs is available on the <a href="https://github.com/ScanMountGoat/Smush-LUT" target="_blank">Smush LUT Github repository</a>.
 
-## Final Post Processing Pass 
-Smash Ultimate applies an additional post processing pass after bloom and the color grading LUT has been applied. This step brightens the overall image significantly. The resulting image is roughly 1.4x brighter. The exact code is below. 
+## Code Sample
+The post processing shader code translated to GLSL is listed below. This is shader code is also used for Cross Mod's rendering.
 
 ```glsl
 vec3 GetPostProcessingResult(vec3 linear)
