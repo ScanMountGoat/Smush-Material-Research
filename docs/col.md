@@ -21,7 +21,7 @@ will have albedo maps that are mostly solid colors. Details are typically baked 
 
 Avoid using col map values close to pure white (255,255,255) or pure black (0,0,0). Use col map values below 
 0.72 (180 RGB) to avoid overly bright models and unwanted glow. A col map set to (180,180,180) will look grey in Photoshop but appear 
-almost completely white in game. The [Post Processing Passes](post_processing) page contains more details on why this happens. 
+almost completely white in game. The [Post Processing Passes](postprocessing) page contains more details on why this happens. 
 
 The [Albedo Recoloring](albedo_recoloring), [PRM](prm), and [Skin Materials](skin_materials) pages all have demos that demonstrate the effects of editing the model's albedo color.
 
