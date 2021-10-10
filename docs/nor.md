@@ -44,4 +44,4 @@ Some stage models store the z component of the normal map in the NOR blue channe
 <img src="{{ "/assets/images/nor/mario_cavity.jpg" | relative_url }}" height="auto" width="auto">
 The alpha channel contains the cavity map, which occludes specular reflections and rim lighting. 
 Unlike the ambient occlusion map in the PRM blue channel, cavity maps do not affect diffuse ambient lighting.
-The shaders for some models don't access the blue channel of the NOR map, so changing the cavity map may have no effect.
+The shaders for some models don't access the alpha channel of the NOR map, so changing the cavity map may have no effect.
