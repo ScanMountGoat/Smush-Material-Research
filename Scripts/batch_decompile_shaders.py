@@ -22,6 +22,4 @@ if __name__ == '__main__':
                 output_filename = f.replace('.bin','.glsl')
                 output_path = os.path.join(destination_folder, output_filename)
                
-                # Redirect the console output to a file.
-                with open(output_path, 'w') as file:
-                    subprocess.run([shader_tools, abs_path], stdout=file)
+                subprocess.run([shader_tools, abs_path, output_path])
