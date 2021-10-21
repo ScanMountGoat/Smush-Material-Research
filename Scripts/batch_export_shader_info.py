@@ -15,7 +15,7 @@ if __name__ == '__main__':
     with open(nufx_file, 'r') as file:
         nufxb = json.loads(file.read())
 
-        for program in nufxb['data']['Nufx']['programs']:
+        for program in nufxb['data']['Nufx']['programs']['ProgramsV1']:
             program_name = program['name']
             output_path = os.path.join(destination_folder,f'{program_name}_info.txt')
             with open(output_path,"w") as file:

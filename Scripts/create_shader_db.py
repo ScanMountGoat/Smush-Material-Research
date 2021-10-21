@@ -54,7 +54,7 @@ def create_indices(cursor):
 def fill_database(cursor, nuxf_file, remove_duplicates):
     with open(nuxf_file, 'r') as file:
         nufx = json.loads(file.read())
-        for program in nufx['data']['Nufx']['programs']:
+        for program in nufx['data']['Nufx']['programs']['ProgramsV1']:
             program_name = program['name']
             
             if remove_duplicates:
