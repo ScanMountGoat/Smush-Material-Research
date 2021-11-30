@@ -76,7 +76,7 @@ Values in between 0.0 and 1.0 enable smoother blending between metallic and non 
 
 Non metals have a white specular color and the diffuse component is colored by the albedo.
 The specular intensity for non metals is controlled by the PRM's specular. Metals have no diffuse component
-and specular intenisty is controlled entirely by albedo. In the demo above, note how the specular highlight becomes
+and specular intensity is controlled entirely by albedo. In the demo above, note how the specular highlight becomes
 closer in color to the albedo color as metalness increases.
 
 Skin materials are a special case and instead use the metalness map as a mask for the fake subsurface scattering effect. 
@@ -188,19 +188,38 @@ still corresponds to 0.0.
 f0 = 0.2 * smashSpecular
 ```
 
-### Convert Blender's Specular to Smash Ultimate
-It's common for applications to define their own specular scale. Smash Ultimate has a specular range of 0% to 20%. Blender's Principled BSDF has a specular range of 0% to 8%, so the PRM specular should be converted as
+
+### Blender Principled Shader Specular
+It's common for applications to define their own specular scale. Smash Ultimate has a specular range of 0% to 20%. Blender's Principled BSDF has a specular range of 0% to 8%.
+<div class="container">
+    <form>
+        <div class="row">
+            <label for="blenderSpec" class="col">Blender Principled Specular</label>
+            <div class="col-1"></div>
+            <label for="smashSpec" class="col">PRM Specular</label>
+        </div>
+        <div class="row">
+            <input type="text" name="blenderSpec" id="blenderSpec" class="col" value="0.4">
+            <div class="col-1 text-center">=</div>
+            <input type="text" name="smashSpec" id="smashSpec" class="col" value="0.16">
+        </div>
+    </form>
+</div>
+<br>
+
+#### Convert Blender Specular to Smash Ultimate
 ```
+// Blender -> Smash
 smashSpecular = blenderSpecular * 0.4
 ``` 
-Use a fill layer with color (0,0,40) in HSL or (102,102,102) in RGB set to the multiply blend mode. This is equivalent to dividing by 2.5. 
+Use a fill layer with color (0,0,40) in HSL or (102,102,102) in RGB set to the multiply blend mode. This is equivalent to dividing by 2.5 or multiplying by 0.4. 
 
 - Fill Layer (Multiply)
 - Specular
 
-### Convert Smash Ultimate's Specular to Blender
-Converting Blender's specular to Smash Ultimate can be computed as
+#### Convert Smash Ultimate Specular to Blender
 ```
+// Smash -> Blender
 blenderSpecular = smashSpecular * 2.5
 ```
 Image editors don't support multiplying by colors greater than 1.0 by default. Use a fill layer with color (0,0,40) in HSL or (102,102,102) in RGB set to the divide blend mode instead. This is equivalent to multiplying by 2.5. 
@@ -213,20 +232,20 @@ If the application doesn't support the divide blend mode, set the fill layer col
 - Fill Layer (Color Dodge)
 - Specular
 
-### Convert IOR to Smash Ultimate Specular
+### IOR
 Some applications may use IOR (Index of Reflection or Refraction) instead of specular.
 IOR values can be converted using the following code or by entering IOR or PRM specular values below.
 <div class="container">
     <form>
         <div class="row">
-            <label for="ior" class="col">IOR</label>
+            <label for="iorText" class="col">IOR</label>
             <div class="col-1"></div>
-            <label for="spec" class="col">PRM Specular</label>
+            <label for="specIor" class="col">PRM Specular</label>
         </div>
         <div class="row">
-            <input type="text" name="ior" id="ior" class="col" value="1.0">
+            <input type="text" name="iorText" id="iorText" class="col" value="1.0">
             <div class="col-1 text-center">=</div>
-            <input type="text" name="spec" id="specIor" class="col" value="0.0">
+            <input type="text" name="specIor" id="specIor" class="col" value="0.0">
         </div>
     </form>
 </div>
@@ -294,21 +313,30 @@ ior = -(f0 + 1 + 2*sqrt(f0)) / (f0 - 1)
     DataBinding.oneWayBindFloat(specularText, specularRange, demo.updateSpecular.bind(demo));
     DataBinding.oneWayBindColor(albedo, demo.updateAlbedo.bind(demo));
 
-    const iorText = document.getElementById("ior");
+    // IOR <-> Specular text inputs.
+    const iorText = document.getElementById("iorText");
     const specIorText = document.getElementById("specIor");
 
     iorText.addEventListener("input", function () {
         const ior = parseFloat(iorText.value);
-        console.log(ior);
         const newSpec = Math.pow((ior - 1.0) / (ior + 1.0), 2.0) / 0.2;
-        console.log(newSpec);
         specIorText.value = newSpec;
     });
-    //-[f0 + 1 + 2*sqrt(f0)] / (f0 - 1)
-    specIor.addEventListener("input", function () {
-        const spec = parseFloat(specIor.value);
+    specIorText.addEventListener("input", function () {
+        const spec = parseFloat(specIorText.value);
         const f0 = spec * 0.2;
         const newIor = -(f0 + 1.0 + 2.0 * Math.sqrt(f0)) / (f0 - 1.0);
-        ior.value = newIor;
+        iorText.value = newIor;
+    });
+
+    // Blender Specular <-> Smash Specular text inputs.
+    const smashSpecText = document.getElementById("smashSpec");
+    const blenderSpecText = document.getElementById("blenderSpec");
+
+    smashSpecText.addEventListener("input", function () {
+        blenderSpecText.value = parseFloat(smashSpecText.value) * 2.5;
+    });
+    blenderSpecText.addEventListener("input", function () {
+        smashSpecText.value = parseFloat(blenderSpecText.value) / 2.5;
     });
 </script>
