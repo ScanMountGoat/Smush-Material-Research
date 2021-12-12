@@ -40,7 +40,7 @@ The post processing shader code translated to GLSL is listed below. This is shad
 ```glsl
 vec3 GetPostProcessingResult(vec3 linear)
 {
-    // Convert to SRGB before applying the LUT.
+    // Convert to sRGB before applying the LUT.
     vec3 srgb = pow(fragColor0.rgb, vec3(0.454545));
     vec3 result = srgb * 0.9375 + 0.03125;
 

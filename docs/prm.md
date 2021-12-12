@@ -63,8 +63,8 @@ and the shading in many modern games.
 
 ## PRM Color Channels
 Although PRM maps are often very colorful (pink/cyan) when previewed in an image editor, *PRM maps do not contain color data*.
-Avoid saving PRM maps as DDS or Nutexb with
-srgb formats. Srgb formats have names that end in _SRGB. When rendering in programs such as Maya or Blender, set the PRM
+Avoid saving PRM maps as DDS or NUTEXB with
+sRGB formats. sRGB formats have names that end in _SRGB. When rendering in programs such as Maya or Blender, set the PRM
 maps to raw, non color data, or linear to ensure
 the values aren't gamma corrected.
 

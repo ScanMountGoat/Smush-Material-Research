@@ -8,8 +8,8 @@ The alpha channel is a cavity map.
 
 ## NOR Color Channels
 NOR maps do not contain color data despite being stored in a texture.
-Avoid saving NOR maps as DDS or Nutexb with
-srgb formats. Srgb formats have names that end in _SRGB. When rendering in programs such as Maya or Blender, set the NOR
+Avoid saving NOR maps as DDS or NUTEXB with
+sRGB formats. sRGB formats have names that end in _SRGB. When rendering in programs such as Maya or Blender, set the NOR
 maps to raw, non color data, or linear to ensure
 the values aren't gamma corrected.
 
