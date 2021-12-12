@@ -10,9 +10,9 @@ model,
 but they aren't strictly necessary.
 
 ## Col Map Channels
-Col maps contain color data, so they should be saved with srgb formats. Srgb formats have names that end in _SRGB.
-When rendering in programs such as Maya or Blender, set the Col maps to Color, Srgb, etc to ensure they are properly
-gamma corrected. Failing to use an Srgb format will result in the textures being too bright and looking washed out.
+Col maps contain color data, so they should be saved with sRGB formats. sRGB formats have names that end in _SRGB.
+When rendering in programs such as Maya or Blender, set the Col maps to Color, sRGB, etc to ensure they are properly
+gamma corrected. Failing to use an sRGB format will result in the textures being too bright and looking washed out.
 
 ### Albedo/Base Color (<span style="color:red">R</span><span style="color:green">G</span><span style="color:blue">B</span>)
 <img src="{{ "/assets/images/albedo/mario_albedo.jpg" | relative_url }}" height="auto" width="auto">

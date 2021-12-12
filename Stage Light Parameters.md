@@ -1,18 +1,18 @@
 # Stage Lighting Material Parameter Descriptions
-The stage light nuanmb files use the same material parameter names as model materials. The parameters are not the same, however.
+The stage light `.nuanmb` files use the same material parameter names as model materials. The parameters are not the same, however.
 
-## Float Vector 4
+## Custom Vectors
 | Name | Description |
 | --- | --- |
 | CustomVector0 | RGB color multiplier for lights. Multiplied by CustomFloat0. |
 | CustomVector1 | Distance fog color. Used with CustomVector13. RGB = color, A = *unused* |
-| CustomVector2 | RGB? Affects the color of the sun on zelda_tower. RGB values can be negative. |
-| CustomVector3 | XYZW? Values are usually 0 to 1. Values can be negative. |
+| CustomVector2 | RGB color multiplier for sun glow. Multiplied by CustomFloat1. |
+| CustomVector3 | XYZW. Affects rotation of sun glow. |
 | CustomVector4 | Mixes the final color with the blend color. RGB = blend color, A = blend factor. |
 | CustomVector5 | Specular cube map color multiplier (Texture7). |
-| CustomVector6 | RGB = shadow color, A = ??? |
+| CustomVector6 | RGB shadow color multiplier. A = ??? |
 | CustomVector7 | RGB? RGB values are 0 to 6. |
-| CustomVector8 | Rim lighting color. RGB = color, A = blend amount |
+| CustomVector8 | Rim lighting color. RGB = color, A = blend amount. |
 | CustomVector9 | RGB? |
 | CustomVector10 | XYZW? Related to fog. X is very small. YZ appear to be angle values. W is always 1. |
 | CustomVector11 | XYZW? Related to fog. Z is very large. |
@@ -20,16 +20,16 @@ The stage light nuanmb files use the same material parameter names as model mate
 | CustomVector13 | Controls distance fog blending along with CustomVector1. XYW appear are distance values. X = ???, Y = ???, Z = intensity, W = ??? |
 | CustomVector14 | XYZW? Always set to (1, 1, 0, 0). |
 | CustomVector15 | Similar to CustomVector5. RGB = specular cube map color multiplier, A = ??? |
-| CustomVector16 | XYZW? Similar values to CustomVector18. |
+| CustomVector16 | Shadow angle when CustomBoolean1 is false. Angle is represented in quaternions. |
 | CustomVector17 | XYZW? XYZ are 0 to 1. W is always 0. |
 | CustomVector18 | XYZW? XY can be negative. Z is always 0. |
 | CustomVector27 | ??? Always set to (1, 0, 0, 0). |
 
-# Float
+# Custom Floats
 | Name | Description |
 | --- | --- |
 | CustomFloat0 | Direct lighting strength. Multiplied by CustomVector0. |
-| CustomFloat1 | Affects the intensity of the sun on zelda_tower. Values are 0 to 1. |
+| CustomFloat1 | Sun glow strength. Multiplied by CustomVector2. |
 | CustomFloat2 | ??? Values are always 0. |
 | CustomFloat3 | ??? Values are always 2. |
 | CustomFloat4 | ??? Values are always 8. |
@@ -49,8 +49,8 @@ The stage light nuanmb files use the same material parameter names as model mate
 | CustomFloat18 | ??? Values are always 100000. |
 | CustomFloat19 | ??? Values are always 1. |
 
-# Boolean Flags
-| Name | Description |
-| --- | --- |
-| CustomBoolean0 | Affects sunshaft points. |
-| CustomBoolean1 | Affects lights. |
+# Custom Booleans
+| Name | Description | Values |
+| --- | --- | --- |
+| CustomBoolean0 | Affects sunshaft points. | |
+| CustomBoolean1 | Shadow angle override. | True = `LightStg0` rotation transform. False = CustomVector16. |
