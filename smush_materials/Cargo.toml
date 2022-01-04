@@ -1,0 +1,14 @@
+[package]
+name = "smush_materials"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+clap = "3.0.3"
+globwalk = "0.8.0"
+rayon = "1.5.1"
+xmltree = { version = "0.10.3", features = ["attribute-order"] }
+xmb_lib = { git = "https://github.com/ultimate-research/xmb_lib" }
+ssbh_lib = { git = "https://github.com/ultimate-research/ssbh_lib" }
