@@ -51,6 +51,12 @@ fn main() {
                 )
                 .arg(output_arg.clone()),
         )
+        .subcommand(
+            App::new("shader_binaries")
+                .about("Export shader binaries")
+                .arg(input_arg.clone())
+                .arg(output_arg.clone()),
+        )
         .get_matches();
 
     let start = std::time::Instant::now();
@@ -70,6 +76,13 @@ fn main() {
             "{light,light_}[0-9]*.nuanmb",
             "json",
             anim_data_to_json,
+        ),
+        ("shader_binaries", sub_m) => batch_convert(
+            sub_m.value_of("input").unwrap(),
+            sub_m.value_of("output").unwrap(),
+            "*.nushdb",
+            "bin",
+            shdrs_to_bin,
         ),
         ("shader_info", sub_m) => export_nufxlb_shader_info(
             sub_m.value_of("input").unwrap(),
@@ -196,6 +209,21 @@ fn anim_data_to_json(path: &Path, output_full_path: PathBuf) {
             writer
                 .write_all(serde_json::to_string_pretty(&anim).unwrap().as_bytes())
                 .unwrap();
+        }
+        Err(e) => eprintln!("Error reading {:?}: {:?}", path, e),
+    }
+}
+
+fn shdrs_to_bin(path: &Path, output: PathBuf) {
+    match ssbh_lib::formats::shdr::Shdr::from_file(path) {
+        Ok(shdr) => {
+            for shader in shdr.shaders.elements {
+                let output = output
+                    .with_file_name(shader.name.to_string_lossy())
+                    .with_extension("bin");
+                let mut writer = std::fs::File::create(output).unwrap();
+                writer.write_all(&shader.shader_binary.elements).unwrap();
+            }
         }
         Err(e) => eprintln!("Error reading {:?}: {:?}", path, e),
     }
