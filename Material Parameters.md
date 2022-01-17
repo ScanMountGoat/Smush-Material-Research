@@ -287,7 +287,7 @@ Each texture parameter has a corresponding sampler parameter. The wrap modes sho
 | Unk11 | 0 |
 | Unk12 | Always 2139095022 (0x7F7FFFEE) (127, 127, 255, 238). This may or may not be used. |
 | LOD Bias | Values are floating point and clamped between `-MAX_LOD` and `+MAX_LOD` where `MAX_LOD = Mipmap Count`  |
-| Max Anisotropy | 0 = 1x, 2 = 2x, 4 = 4x, 8 = 16x, 16 = 128x |
+| Max Anisotropy | 1 = 1x, 2 = 2x, 4 = 4x, 8 = 16x, 16 = 128x |
 
 ## Custom Floats
 If a custom float required by a shader is missing, the value is set to 0.0.
