@@ -13,5 +13,6 @@ jobs:
         env:
           # Target branch
           PAGES_BRANCH: gh-pages
+          BUILD_DIR: docs
           # Provide personal access token
           TOKEN: ${{ secrets.TOKEN }}
