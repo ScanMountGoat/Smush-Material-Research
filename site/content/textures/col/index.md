@@ -35,45 +35,13 @@ The alpha channel of the col map controls the opacity of the model. A value of 0
 Col maps tend to follow certain naming conventions.
 The texture name itself has no impact on how the texture is used.
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th scope="col" class="w-25">Col Texture Name</th>
-            <th scope="col">Usage</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>_b</td>
-            <td>Default Iris</td>
-        </tr>
-        <tr>
-            <td>_l</td>
-            <td>World of Light Enemy Iris (Red)</td>
-        </tr>
-        <tr>
-            <td>_g</td>
-            <td>Final Smash Iris (Yellow)</td>
-        </tr>
-        <tr>
-            <td>_w</td>
-            <td>Default Eye White</td>
-        </tr>
-        <tr>
-            <td>_d</td>
-            <td>World of Light Enemy Dark Iris (Purple)</td>
-        </tr>
-        <tr>
-            <td>_wd</td>
-            <td>World of Light Enemy Dark Eye White</td>
-        </tr>
-        <tr>
-            <td>alp_</td>
-            <td>Hair Color</td>
-        </tr>
-        <tr>
-            <td>def_</td>
-            <td>Main Color</td>
-        </tr>
-    </tbody>
-</table>
+| Col Texture Name | Usage |
+| --- | --- |
+| _b | Default Iris |
+| _l | World of Light Enemy Iris (Red) |
+| _g |Final Smash Iris (Yellow) |
+| _w | Default Eye White |
+| _d | World of LIght Enemy Dark Iris (Purple) |
+| _wd | World of Light Enemy Dark Eye White |
+| alp_ | Hair Color |
+| def_ | Main Color |
