@@ -4,12 +4,8 @@ weight = 0
 aliases = ["col"]
 +++
 Col maps control the albedo of a model. Albedo is the overall color of an object. Surfaces with higher albedo reflect more light and appear brighter than surfaces with 
-low albedo. This corresponds to the base color input of
-<a href="https://docs.blender.org/manual/en/latest/render/shader_nodes/shader/principled.html" target="_blank">Blender's
-    Principled Shader</a>.
-This is the primary texture to edit when recoloring a model. PRM and NOR maps can greatly improve the quality of a
-model,
-but they aren't strictly necessary.
+low albedo. This corresponds to the base color input of [Blender's Principled Shader](https://docs.blender.org/manual/en/latest/render/shader_nodes/shader/principled.html). This is the primary texture to edit when recoloring a model. PRM and NOR maps can greatly improve the quality of a
+model, but they aren't strictly necessary.
 
 ## Col Map Channels
 Col maps contain color data, so they should be saved with sRGB formats. sRGB formats have names that end in _SRGB.
