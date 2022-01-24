@@ -15,7 +15,7 @@ Some materials use the PRM alpha value as anisotropic rotation instead of contro
 ## Correcting Specular Highlight Direction
 If the following are all true, then the anisotropic rotation map is not required or can be set to 0.0 (no rotation).
 * Hair strands run from top to bottom on the texture
-* The hair meshes are all UV mapped so the hair strands run in the correct direction
+* The hair meshes are all UV mapped so the hair strands run vertically on the UV map
 * CustomFloat10 is between 0.0 and 1.0
 
 If the UV islands for the hair are rotated or CustomFloat10 is > 1.0, the anisototropic rotation map can be used to correct the highlight direct for different parts of the mesh. 
