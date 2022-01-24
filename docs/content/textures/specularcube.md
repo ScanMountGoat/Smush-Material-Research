@@ -30,6 +30,6 @@ This gives improved lighting quality when used with PBR materials like in Smash 
 ## Limitations
 Materials in Smash Ultimate can only reference a single stage specific cube map at a time using the "#replace_cubemap" value. 
 This means the lighting will only be correct for the single point in space used to bake the cube map. Stage models can use 
-their own model specific cube maps to improve the accuracy of the reflections, but this doesn't benefit models that appear on multiple stages like fighters or items. 
+their own model specific cube maps to improve the accuracy of the reflections. This doesn't benefit models that appear on multiple stages like fighters or items.  
 
 The floating point format used for HDR lighting improves lighting quality at the cost of greatly increased file sizes. Attempting to increase the cube map size beyond 16x16 may cause memory and stability issues in graphically demanding scenarios. Note that cube map resolution mostly affects materials with low roughness values, since rough surfaces will use higher mip levels with smaller dimensions.
