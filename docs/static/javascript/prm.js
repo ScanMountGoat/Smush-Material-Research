@@ -25,7 +25,7 @@ const demo = new PrmDemo(window, imgCanvas,
     parseFloat(roughnessText.value),
     parseFloat(aoText.value),
     parseFloat(specularText.value),
-    "./spec_cube/", 
+    "", 
     6,
     ".png");
 
