@@ -23,7 +23,10 @@ TODO: material params, darkening textures,
 
 ## Specular Highlights
 ### Explanation
-TODO: Samus reflections with varying roughness values
+<figure class="figure">
+    <img src="samus.jpg" height="auto" width="auto">
+    <figcaption class="figure-caption text-center">Different PRM (metalness, roughness, ambient occlusion, specular) values with ambient occlusion left unchanged.</figcaption>
+</figure>
 Specular reflections are another common source of overly bright models and are the hardest to control. 
 Specular reflections in Smash Ultimate try to be energy conserving, meaning that objects never reflect more light than they receive. 
 In practice, specular highlights appear darker as the roughness increases since the same amount of light is reflected from a larger area. 
