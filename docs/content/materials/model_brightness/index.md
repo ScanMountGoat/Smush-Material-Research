@@ -32,12 +32,14 @@ TODO: Fix the metalness values in text
 Specular reflections are another common source of overly bright models and are the hardest to control. 
 Specular reflections in Smash Ultimate try to be energy conserving, meaning that objects never reflect more light than they receive. 
 In practice, specular highlights appear darker as the roughness increases since the same amount of light is reflected from a larger area. 
-Decreasing roughness focuses the specular highlight into an intensely bright region. 
+Decreasing roughness focuses the specular highlight, making it appear brighter.
 
 The GGX function used for specular in Smash Ultimate is prone to having bright highlights, especially for metallic materials with low roughness values. This clipping in bright regions occurs even without bloom. This effect is easiest to see in the [PRM demo](/textures/prm/), which doesn't contain any post processing. 
 
 ### Fixing Metallic Materials
-TODO: "balance" metalness with roughness, avoid specular values above 0.16, start with a default PRM map
+Metallic materials use the albedo color from the col map as the specular color. In practice, col maps are often much brighter than the recommended specular value of 0.16. Lowering the metalness will use a blend of the col map and PRM alpha channel, which can produce darker but less saturated highlights. 
+
+The decrease in apparent saturation from lowering metalness may not always be desired. The only reliable way to produce saturated highlights without the risk of being too bright is to increase roughness. Roughness values above 0.7 are unlikely to cause unwanted bloom such as in the comparison of Samus above.
 
 ### Fixing Non Metallic Materials
-TODO: Link to the PRM specular section for non metals
+The most common cause of overly bright highlights for non metallic materials is setting the specular map too high. The PRM alpha channel is scaled differently than many other PBR applications and games, so a reasonable starting value is 0.16 or lower. See the [PRM](/textures/prm/#specular-alpha) page for details. Increasing roughness can also make non metallic specular appear darker but tends to be less of an issue than for metallic materials.

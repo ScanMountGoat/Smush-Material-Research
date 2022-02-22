@@ -112,15 +112,15 @@ results in a specular reflectivity of 0.1. A reasonable starting value for specu
     <img src="fresnel_lego.jpg" height="auto" width="auto">
     <figcaption class="figure-caption text-center">Note how the reflection in the glass is brightest when the camera is parallel with the glass.</figcaption>
 </figure>
+
 Surfaces in the real world exhibit something called the *fresnel effect* (pronounced "fre-nel") where the reflectivity 
 of the surface depends on the angle between the orientation of the surface and the viewing direction. 
 The effect is easiest to see on flat, glossy surfaces such as water or glass. In the below image of Mario, the edges 
 of the model always have reflectance values close to 1.0 regardless of the base specular value from the PRM alpha. 
-The effect is slightly less pronounced in game due to the intense rim lighting.   
   
 <figure class="figure">
     <img src="mario_f0.jpg" height="auto" width="auto">
-    <figcaption class="figure-caption text-center">The specular reflectance for different PRM specular values. The buttons are not effected by specular since their metalness is 1.0.</figcaption>
+    <figcaption class="figure-caption text-center">The specular reflectance for different PRM specular values. The buttons are not effected by specular since their metalness is 1.0. Note how the edges are always 100% reflective.</figcaption>
 </figure>
 Metals work differently and use the albedo color from the col map as the specular reflectivity. This allows for specular to be 
 tinted by the albedo color. Specular reflectivity is not scaled by 0.2 for metals, so metals can be significantly more reflective.
