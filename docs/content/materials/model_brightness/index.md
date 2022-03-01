@@ -7,7 +7,7 @@ This page explains the two main sources of overly bright models and potential fi
 ## Albedo Color
 ### Explanation
 <figure class="figure">
-    <img src="/textures/col/mario_albedo.jpg" height="auto" width="auto">
+    <img src="mario_albedo.jpg" height="auto" width="auto">
     <figcaption class="figure-caption text-center">Note how the model appears brighter than the col map's color in the shaded squares.</figcaption>
 </figure>
 
