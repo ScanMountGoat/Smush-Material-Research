@@ -31,18 +31,20 @@ if (alpha < 0.5)
 ```
 
 ## Alpha Sample to Coverage
+Alpha blending provides smooth blending but is prone to sorting issues. Alpha testing doesn't have any sorting issues but can only render parts of a model as fully opaque or fully transparent. Alpha sample to coverage represents transparency by sampling fragments or pixels based on their alpha.
 
+A 50% transparent white surface and a 50% black surface with normal alpha blending will produce the expected result of gray. Alpha testing will only display one of the surfaces due to the alpha threshold that is applied. Alpha sample to coverage will render roughly 50% of the pixels as black and roughly 50% of the pixels as white. From a distance, the overall effect is a surface that looks roughly gray. Like alpha testing, this effect doesn't have any sorting issues but can look noticeably grainy due to the game only rendering at 1080p.
 
-
+Alpha sample to coverage works best for translucent surfaces with lots of intersections that won't work well with other techniques like hair modeled with lots of 2D planes. Many games use a similar technique for LOD transitions or hiding objects blocking the camera. It's cheaper to render than alpha blending and creates a smoother transition than simply toggling the visibility.
 
 ## Render Order
 The order in which different meshes for a model are rendered depends on the shader label. The tag at the end of the shader label 
-splits the meshes into different rendering passes. For example, all meshes for with "_far" will render before any meshes with "_sort" 
-regardless of the parent model. In general, meshes with alpha blending should use _sort, and all other meshes should use _opaque.  
+splits the meshes into different rendering passes. For example, all meshes with "_far" will render before any meshes with "_sort" 
+regardless of the parent model. In general, meshes with alpha blending should use "_sort", and all other meshes should use "_opaque".  
 
 1. _opaque
 2. _far
 3. _sort
-4. *bloom*
+4. [*bloom pass*](/post_processing/postprocessing/#bloom)
 5. _near
-6. *post processing*
+6. [*color grading pass*](/post_processing/colorgradinglut/)
