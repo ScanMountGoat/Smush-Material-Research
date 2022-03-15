@@ -6,7 +6,7 @@ Specular cube maps simulate the specular reflections of a model's environment
 
 Each stage has its own cube map for specular reflections that can be accessed from materials as 
 the special value "#replace_cubemap". Specular cube maps can also use cube maps in the model folder 
-for special effects that don't vary between stages similar to [diffuse cube maps](/textures/difcube/).
+for special effects that don't vary between stages similar to [diffuse cube maps](../difcube/).
 
 ## Specular Roughness 
 **TODO: Show corresponding roughness and metal shader render for each mip level**  
@@ -15,7 +15,7 @@ appearance of environment reflections at different roughness levels. Stage cube 
 16x16 pixels. The base mipmap is the full 16x16 pixels and corresponds to the detailed reflections for a roughness of 0. 
 The last mipmap has a size of 1x1 and simulates the blurry reflections for a roughness of 1. Roughness values in between 0 and 1 
 blend between mip levels to create appropriately detailed or blurry reflections. 
-In the [PRM Demo](/textures/prm), set metalness to 1.0 and notice how the training stage becomes less visible when increasing roughness from 0 to 1.  
+In the [PRM Demo](../prm/), set metalness to 1.0 and notice how the training stage becomes less visible when increasing roughness from 0 to 1.  
 
 **TODO: Show code for calculating LOD**
 
