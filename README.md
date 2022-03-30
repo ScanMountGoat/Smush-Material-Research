@@ -34,6 +34,11 @@ First extract the shader binaries from the .nushdb files since each file contain
 Now the shaders can be decompiled using Ryujinx's ShaderTools. This currently requires a slightly modified build to start from the appropriate offset.  
 `python batch_decompile_shaders.py <ShaderTools.exe> <binary export folder> <export folder>`  
 
+The `shader_discard.csv` file contains the shader labels without their render pass tags for shader programs that may support alpha testing. 
+This list is based on searching the decompiled shader dump for shaders with the `discard;` keyword. There may be some false positives in this list since it's possible 
+for the shader code to contain `discard;` and not perform alpha testing based on the model and texture alpha. There are unlikely to be any missing shaders since 
+alpha testing is always done in game using shader code rather than through a graphics API call to enable or disable alpha testing.
+
 # Additional Tools
 [ssbh_lib](https://github.com/ultimate-research/ssbh_lib) - Contains the `ssbh_lib_json` and `ssbh_data_json` executables for editing various rendering related file types as JSON  
 [xmb_lib](https://github.com/ultimate-research/xmb_lib) - Contains the `xmb` executable that can be used to convert XMB files to and from XML
