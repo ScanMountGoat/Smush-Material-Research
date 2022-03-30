@@ -4,14 +4,13 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use clap::{App, Arg};
+use clap::{Arg, Command};
 use rayon::prelude::*;
 use ssbh_data::SsbhData;
 use xmb_lib::XmbFile;
 use xmltree::EmitterConfig;
 
 fn main() {
-    // TODO: Handle args with clap?
     let input_arg = Arg::new("input")
         .index(1)
         .help("The source folder to search recursively for files")
@@ -23,24 +22,24 @@ fn main() {
         .required(true)
         .takes_value(true);
 
-    let matches = App::new("smush_materials")
+    let matches = Command::new("smush_materials")
         .version("0.1")
         .author("SMG")
         .about("Rendering data dumps for Smash Ultimate")
         .subcommand(
-            App::new("xmb")
+            Command::new("xmb")
                 .about("Batch convert XMB to XML")
                 .arg(input_arg.clone())
                 .arg(output_arg.clone()),
         )
         .subcommand(
-            App::new("stage_lighting")
+            Command::new("stage_lighting")
                 .about("Batch convert stage NUANMB lighting to JSON")
                 .arg(input_arg.clone())
                 .arg(output_arg.clone()),
         )
         .subcommand(
-            App::new("shader_info")
+            Command::new("shader_info")
                 .about("Export shader input information")
                 .arg(
                     Arg::new("input")
@@ -52,7 +51,7 @@ fn main() {
                 .arg(output_arg.clone()),
         )
         .subcommand(
-            App::new("shader_binaries")
+            Command::new("shader_binaries")
                 .about("Export shader binaries")
                 .arg(input_arg.clone())
                 .arg(output_arg.clone()),
@@ -101,50 +100,48 @@ fn export_nufxlb_shader_info(input_file: &str, destination_folder: &str) -> usiz
     }
 
     match ssbh_lib::formats::nufx::Nufx::from_file(input_file) {
-        Ok(nufx) => match nufx.programs {
-            ssbh_lib::formats::nufx::ShaderPrograms::ProgramsV0(programs) => {
-                for program in programs.elements {
-                    println!("{}", program.name.to_string_lossy());
-                    let parameters = program
-                        .material_parameters
-                        .elements
-                        .iter()
-                        .map(|p| p.parameter_name.to_string_lossy())
-                        .collect::<Vec<String>>()
-                        .join("\n");
-                    println!("=== Material Parameters ===\n{}", parameters);
-                }
+        Ok(ssbh_lib::formats::nufx::Nufx::V0(nufx)) => {
+            for program in nufx.programs.elements {
+                println!("{}", program.name.to_string_lossy());
+                let parameters = program
+                    .material_parameters
+                    .elements
+                    .iter()
+                    .map(|p| p.parameter_name.to_string_lossy())
+                    .collect::<Vec<String>>()
+                    .join("\n");
+                println!("=== Material Parameters ===\n{}", parameters);
             }
-            ssbh_lib::formats::nufx::ShaderPrograms::ProgramsV1(programs) => {
-                for program in programs.elements {
-                    let parameters = program
-                        .material_parameters
-                        .elements
-                        .iter()
-                        .map(|p| p.parameter_name.to_string_lossy())
-                        .collect::<Vec<String>>()
-                        .join("\n");
-                    let attributes = program
-                        .vertex_attributes
-                        .elements
-                        .iter()
-                        .map(|a| a.attribute_name.to_string_lossy())
-                        .collect::<Vec<String>>()
-                        .join("\n");
+        }
+        Ok(ssbh_lib::formats::nufx::Nufx::V1(nufx)) => {
+            for program in nufx.programs.elements {
+                let parameters = program
+                    .material_parameters
+                    .elements
+                    .iter()
+                    .map(|p| p.parameter_name.to_string_lossy())
+                    .collect::<Vec<String>>()
+                    .join("\n");
+                let attributes = program
+                    .vertex_attributes
+                    .elements
+                    .iter()
+                    .map(|a| a.attribute_name.to_string_lossy())
+                    .collect::<Vec<String>>()
+                    .join("\n");
 
-                    let output_path = Path::new(destination_folder)
-                        .join(program.name.to_string_lossy() + "_info")
-                        .with_extension("txt");
-                    let mut writer = std::fs::File::create(output_path).unwrap();
-                    writeln!(
-                        &mut writer,
-                        "=== Material Parameters ===\n{}\n\n=== Vertex Attributes ===\n{}",
-                        parameters, attributes
-                    )
-                    .unwrap();
-                }
+                let output_path = Path::new(destination_folder)
+                    .join(program.name.to_string_lossy() + "_info")
+                    .with_extension("txt");
+                let mut writer = std::fs::File::create(output_path).unwrap();
+                writeln!(
+                    &mut writer,
+                    "=== Material Parameters ===\n{}\n\n=== Vertex Attributes ===\n{}",
+                    parameters, attributes
+                )
+                .unwrap();
             }
-        },
+        }
         Err(e) => eprintln!("Error reading {:?}: {:?}", input_file, e),
     }
     0
@@ -216,8 +213,8 @@ fn anim_data_to_json(path: &Path, output_full_path: PathBuf) {
 
 fn shdrs_to_bin(path: &Path, output: PathBuf) {
     match ssbh_lib::formats::shdr::Shdr::from_file(path) {
-        Ok(shdr) => {
-            for shader in shdr.shaders.elements {
+        Ok(ssbh_lib::formats::shdr::Shdr::V12 { shaders }) => {
+            for shader in shaders.elements {
                 let output = output
                     .with_file_name(shader.name.to_string_lossy())
                     .with_extension("bin");
