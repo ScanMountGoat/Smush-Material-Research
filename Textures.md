@@ -80,11 +80,11 @@ Cavity maps occlude specular and rim lighting but do not affect ambient diffuse 
 Normal maps have right handedness (Y+) in Smash Ultimate, which is used by OpenGL, Blender, and Maya. The green channel may need to be inverted for normal maps generated for other applications that default to DirectX (Y-). The correct setting will likely have "OpenGL" or "Y+" in the name. Compare with in game normal maps to ensure the channels are correct.
 
 ## Irradiance Cube Maps (Texture2)
-Cube map for PBR diffuse stage lighting. Usually only 16x16. Setting the texture to #replace_cubemap
+Cube map for PBR diffuse stage lighting. Usually only 16x16. Setting the texture to `#replace_cubemap`
 uses a default stage cube map.
 
-## Specular Cube Maps (Texture7)
-Cube map for PBR specular stage lighting. Usually only 64x64. Setting the texture to #replace_cubemap
+## [Specular Cube Maps (Texture7)](https://scanmountgoat.github.io/Smush-Material-Research/textures/specularcube/)
+Cube map for PBR specular stage lighting. Usually only 64x64. Setting the texture to `#replace_cubemap`
 uses the stage specific cube map from the `stage_name\render\` folder.
 
 ## Ambient Occlusion Maps (Texture3)

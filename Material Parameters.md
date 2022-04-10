@@ -211,32 +211,32 @@ Stores an RGBA color or 4 float parameters. If a custom vector required by the s
 
 
 ## Textures
-Similar to the default value, the "Default Texture" will have no effect or the same effect as not having the texture present in the material. The values use the in game default textures where possible.
+Some texture names link to their corresponding page on the material research website.
 
 The string value stored in the `.numatb` file is the corresponding texture's file name with no extension. This can be a file in the current directory like `asf_ashley_col` or a full path like `/common/shader/sfxPBS/default_Params`. Cube map textures can specify `#replace_cubemap` to use the current stage's reflection cube map.
 
-| Param ID | Name | Default Texture | UV Attribute | Description |
-| --- | --- | --- | --- | --- |
-| 92 (0x5C) | Texture0 | | map1 | Col Map (layer 1) |
-| 93 (0x5D) | Texture1 | | uvSet | Col Map (layer 2) |
-| 94 (0x5E) | Texture2 | | *Cube Map* | Irradiance Cube Map |
-| 95 (0x5F) | Texture3 | | bake1 | Ambient Occlusion Map |
-| 96 (0x60) | Texture4 | | map1 | NOR Map |
-| 97 (0x61) | Texture5 | | map1 | Emissive Map (layer 1) |
-| 98 (0x62) | Texture6 | `/common/shader/sfxPBS/default_Params` | map1 | PRM Map |
-| 99 (0x63) | Texture7 | `#replace_cubemap` | *Cube Map* | Specular Cube Map |
-| 100 (0x64) | Texture8 | | *Cube Map* | Diffuse Cube Map |
-| 101 (0x65) | Texture9 | | bake1 | Baked Lighting Map |
-| 102 (0x66) | Texture10 | | map1 |  Diffuse Map (layer 1)  |
-| 103 (0x67) | Texture11 | | uvSet |  Diffuse Map (layer 2) |
-| 104 (0x68) | Texture12 | | ??? |  Diffuse Map (layer 3) |
-| 105 (0x69) | Texture13 | | *Projection Coords* |  Projection Light Map |
-| 106 (0x6A) | Texture14 | | uvSet |  Emissive Map (layer 2) |
-| 107 (0x6B) | Texture15 | *Unused* | *Unused* |  *Unused* |
-| 307 (0x133) | Texture16 | | ??? | Ink Normal Map. Used for stage ink meshes. Often uses a default white texture. |
-| 308 (0x134) | Texture17 | *Unused* | *Unused* | *Unused* |
-| 309 (0x135) | Texture18 | *Unused* | *Unused* | *Unused* |
-| 310 (0x136) | Texture19 | *Unused* | *Unused* | *Unused* |
+| Param ID | Name | UV Attribute | Description |
+| --- | --- | --- | --- |
+| 92 (0x5C) | [Texture0](https://scanmountgoat.github.io/Smush-Material-Research/textures/col/) | map1 | Col Map (layer 1) |
+| 93 (0x5D) | [Texture1](https://scanmountgoat.github.io/Smush-Material-Research/textures/col/) | uvSet | Col Map (layer 2) |
+| 94 (0x5E) | Texture2 | *Cube Map* | Irradiance Cube Map |
+| 95 (0x5F) | Texture3 | bake1 | Ambient Occlusion Map |
+| 96 (0x60) | [Texture4](https://scanmountgoat.github.io/Smush-Material-Research/textures/nor/) | map1 | NOR Map |
+| 97 (0x61) | [Texture5](https://scanmountgoat.github.io/Smush-Material-Research/textures/emi/) | map1 | Emissive Map (layer 1) |
+| 98 (0x62) | [Texture6](https://scanmountgoat.github.io/Smush-Material-Research/textures/prm/) | map1 | PRM Map |
+| 99 (0x63) | [Texture7](https://scanmountgoat.github.io/Smush-Material-Research/textures/specularcube/) | *Cube Map* | Specular Cube Map |
+| 100 (0x64) | [Texture8](https://scanmountgoat.github.io/Smush-Material-Research/textures/difcube/) | *Cube Map* | Diffuse Cube Map |
+| 101 (0x65) | Texture9 | bake1 | Baked Lighting Map |
+| 102 (0x66) | Texture10 | map1 |  Diffuse Map (layer 1)  |
+| 103 (0x67) | Texture11 | uvSet |  Diffuse Map (layer 2) |
+| 104 (0x68) | Texture12 | ??? |  Diffuse Map (layer 3) |
+| 105 (0x69) | Texture13 | *Projection Coords* |  Projection Light Map |
+| 106 (0x6A) | [Texture14](https://scanmountgoat.github.io/Smush-Material-Research/textures/emi/) | uvSet |  Emissive Map (layer 2) |
+| 107 (0x6B) | Texture15 | *Unused* |  *Unused* |
+| 307 (0x133) | Texture16 | ??? | Ink Normal Map. Used for stage ink meshes. Often uses a default white texture. |
+| 308 (0x134) | Texture17 | *Unused* | *Unused* |
+| 309 (0x135) | Texture18 | *Unused* | *Unused* |
+| 310 (0x136) | Texture19 | *Unused* | *Unused* |
 
 ### Default Textures
 Any material can reference default textures stored in the `/common/shader` directories. Note that the red and yellow checkerboards that appear for invalid models are rendered in screen space using shaders and don't use any textures.  
