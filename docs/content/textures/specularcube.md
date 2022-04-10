@@ -17,7 +17,15 @@ The last mipmap has a size of 1x1 and simulates the blurry reflections for a rou
 blend between mip levels to create appropriately detailed or blurry reflections. 
 In the [PRM Demo](../prm/), set metalness to 1.0 and notice how the training stage becomes less visible when increasing roughness from 0 to 1.  
 
-**TODO: Show code for calculating LOD**
+```glsl
+float RoughnessToLod(float roughness) {
+    // Applies a curves adjustment to roughness.
+    // Clamp roughness to avoid divide by 0.
+    float r = max(roughness, 0.01);
+    float r2 = r * r;
+    return log2((1.0 / r2) * 2.0 - 2.0) * -0.4545 + 4.0;
+}
+```
 
 ## Creating Specular Cube Maps
 The base mip level can be baked using traditional methods for creating cube maps or 
