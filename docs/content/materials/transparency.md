@@ -10,10 +10,18 @@ A background color called the "destination color" or "dst color" is blended with
 The alpha blending parameters are controlled by BlendState0 in the materials. The material's source factor 
 and destination factor are controlled by the first and third value for BlendState0, respectively. 
 
-See the <a href="https://github.com/ScanMountGoat/Smush-Material-Research/blob/master/Material%20Parameters.md#blending-state" target="_blank">BlendState0 documentation</a> for information on additional blending parameters a more complete list of possible blending factors.
+See the [BlendState0 documentation](https://github.com/ScanMountGoat/Smush-Material-Research/blob/master/Material%20Parameters.md#Blend-State) for information on additional blending parameters a more complete list of possible blending factors.
+
+Materials that use one of the blending presets will likely want to find a material without alpha testing. This prevents unwanted harsh transitions from fully transparent to fully opaque when the model's alpha falls below the threshold.
 
 ### Alpha Blending Presets
-
+| Preset | Source Color | Destination Color | Description |
+| --- | --- | --- | --- |
+| Opaque | One | Zero | Opaque with no alpha blending. The material may still have alpha testing. |
+| Additive | One | One | Add the source and destination color for effects like fire, lasers, or spotlights. |
+| Alpha Blending (premultiplied) | One | One Minus Source Alpha | Transparency blending for effects like glass, ice, or thin cloth. |
+| Alpha Blending | Src Alpha | One Minus Source Alpha | Transparency blending for effects like glass, ice, or thin cloth. |
+| Black | Zero | Zero | A hack to render the model as black (0,0,0). The material may still have alpha testing. |
 
 ## Alpha Testing 
 Alpha testing skips rendering any pixels that have an alpha value less than a certain threshold. The texture's alpha channel acts as a mask to "cut out" transparent regions of the model. This avoids the sorting issues with alpha blending but can only be used for making regions of a model completely opaque or completely transparent. This works well for hair, leaves, or other materials that would 
