@@ -255,7 +255,7 @@ Any material can reference default textures stored in the `/common/shader` direc
 | /common/shader/sfxpbs/default_normal | (132, 120, 255, 255) |
 | /common/shader/sfxpbs/default_params | (0, 255, 255, 58) |
 | /common/shader/sfxpbs/default_params_r000_g025_b100 | (0, 65, 255, 255) |
-| /common/shader/sfxpbs/default_params_r100_g025_b100 | (255, 65, 255, 25) |
+| /common/shader/sfxpbs/default_params_r100_g025_b100 | (255, 65, 255, 255) |
 | /common/shader/sfxpbs/default_params2 | (255, 255, 255, 255) |
 | /common/shader/sfxpbs/default_params3 | (0, 117, 255, 58) |
 | /common/shader/sfxpbs/default_params3 | (58, 61, 58, 255) |
