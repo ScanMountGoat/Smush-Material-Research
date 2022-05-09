@@ -245,22 +245,22 @@ Any material can reference default textures stored in the `/common/shader` direc
 | --- | --- |
 | #replace_cubemap | *stage reflection_cubemap.nutexb* |
 | /common/shader/sfxpbs/default_black | (0, 0, 0, 255) |
-| /common/shader/sfxpbs/default_color | (255, 255, 255, 5) |
-| /common/shader/sfxpbs/default_color2 | (255, 255, 255, 5) |
-| /common/shader/sfxpbs/default_color3 | (255, 255, 255, 5) |
-| /common/shader/sfxpbs/default_color4 | (255, 255, 255, 5) |
+| /common/shader/sfxpbs/default_color | (255, 255, 255, 255) |
+| /common/shader/sfxpbs/default_color2 | (255, 255, 255, 255) |
+| /common/shader/sfxpbs/default_color3 | (255, 255, 255, 255) |
+| /common/shader/sfxpbs/default_color4 | (255, 255, 255, 255) |
 | /common/shader/sfxpbs/default_diffuse2 | (255, 255, 0, 25) and (0,0,0,0) |
-| /common/shader/sfxpbs/default_gray | (123, 121, 123, 5) |
+| /common/shader/sfxpbs/default_gray | (123, 121, 123, 255) |
 | /common/shader/sfxpbs/default_metallicbg | (0, 255, 255, 58) |
-| /common/shader/sfxpbs/default_normal | (132, 120, 255, 5) |
+| /common/shader/sfxpbs/default_normal | (132, 120, 255, 255) |
 | /common/shader/sfxpbs/default_params | (0, 255, 255, 58) |
 | /common/shader/sfxpbs/default_params_r000_g025_b100 | (0, 65, 255, 255) |
 | /common/shader/sfxpbs/default_params_r100_g025_b100 | (255, 65, 255, 25) |
-| /common/shader/sfxpbs/default_params2 | (255, 255, 255, 5) |
+| /common/shader/sfxpbs/default_params2 | (255, 255, 255, 255) |
 | /common/shader/sfxpbs/default_params3 | (0, 117, 255, 58) |
 | /common/shader/sfxpbs/default_params3 | (58, 61, 58, 255) |
-| /common/shader/sfxpbs/default_white | (255, 255, 255, 5) |
-| /common/shader/sfxpbs/fighter/default_normal | (128, 128, 255, 5) |
+| /common/shader/sfxpbs/default_white | (255, 255, 255, 255) |
+| /common/shader/sfxpbs/fighter/default_normal | (128, 128, 255, 255) |
 | /common/shader/sfxpbs/fighter/default_params | (0, 255, 255, 58) |
 
 ## Samplers
