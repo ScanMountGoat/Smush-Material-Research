@@ -18,6 +18,10 @@ As a general rule, keep albedo below 75% brightness. This means the colors in co
 (180, 180, 180) in RGB or (0.75, 0.75, 0.75) in float. An easy way to lower the texture brightness is to use a levels adjustment in an image editor. 
 Lower the output brightness until the brightest part of the texture is below 75% brightness.
 
+The albedo color brightness can also be controlled by material editing CustomVector13. Setting the RGB values between 0.0 and 1.0 will darken 
+the albedo color without needing to edit any textures. If the brightest value in the col map has a brightness of 100%, setting CustomVector13 to roughly
+(0.75, 0.75, 0.75, 1.0) will likely eliminate most of the blooming. 
+
 ## Specular Highlights
 ### Explanation
 <figure class="figure">
