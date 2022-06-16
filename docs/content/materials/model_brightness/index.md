@@ -11,16 +11,13 @@ This page explains the two main sources of overly bright models and potential fi
     <figcaption class="figure-caption text-center">Note how the model appears brighter than the col map's color in the shaded squares.</figcaption>
 </figure>
 
-The model's [col maps](../../textures/col/) determine its overall albedo or base color. A col map brightness of roughly 75% will appear white in game. Albedo colors brighter than 75% will start to clip and lead to excessive bloom.  The [wikipedia albedo page](https://en.wikipedia.org/wiki/Albedo) has a diagram with common real world albedo values that also tend to work well in Smash Ultimate. Real world example of surfaces that reflect approximately 75% of incoming light are paper and some white paints.
+The model's [col maps](../../textures/col/) determine its overall albedo or base color. The albedo color stored in the col map determines how much red, green, and blue light a model reflects rather than the final color that appears on screen. For example, an albedo brightness of 50% with a lighting intensity of 2.0 will have the same apparent brightness on screen as an albedo brightness of 100% with a lighting intensity of 1.0. In general, col map colors with 70% brightness will appear fully white on most stages. The [wikipedia albedo page](https://en.wikipedia.org/wiki/Albedo) has a diagram with common real world albedo values that also tend to work well in Smash Ultimate. Real world example of surfaces that reflect approximately 70% of incoming light are paper and some white paints.
 
 ### Fixes
-As a general rule, keep albedo below 75% brightness. This means the colors in col maps, diffuse maps, and emi maps should be darker than 
-(180, 180, 180) in RGB or (0.75, 0.75, 0.75) in float. An easy way to lower the texture brightness is to use a levels adjustment in an image editor. 
-Lower the output brightness until the brightest part of the texture is below 75% brightness.
+The final brightness in game will vary depending on the stage's lighting. As a general rule, take the desired color on screen and reduce the brightness to 70% of the original.  For example, a model that should appear solid white (255,255,255) on screen should actually be closer to (180,180,180) in the col map.  An easy way to lower the texture brightness is to use a levels adjustment in an image editor. Lower the output brightness until the brightest part of the texture is below 70% brightness.
 
 The albedo color brightness can also be controlled by material editing CustomVector13. Setting the RGB values between 0.0 and 1.0 will darken 
-the albedo color without needing to edit any textures. If the brightest value in the col map has a brightness of 100%, setting CustomVector13 to roughly
-(0.75, 0.75, 0.75, 1.0) will likely eliminate most of the blooming. 
+the albedo color without needing to edit any textures. If the brightest value in the col map has a brightness of 100%, setting CustomVector13 to roughly (0.70, 0.70, 0.70, 1.0) will likely eliminate most of the blooming. 
 
 ## Specular Highlights
 ### Explanation
