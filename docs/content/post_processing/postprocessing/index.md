@@ -11,7 +11,7 @@ weight = 0
 </style>
 <figure class="figure">
     <img src="post_processing.jpg" height="auto" width="auto">
-    <figcaption class="figure-caption text-center">From left to right: the base image, the bloom contribution, the image after adding bloom, and the final image after applying the color grading LUT (sepia).</figcaption>
+    <figcaption class="figure-caption text-center">From left to right: the base image, the bloom contribution, the image after adding bloom, and the final image after applying the color grading LUT.</figcaption>
 </figure>
 Smash Ultimate contains several post processing steps that grealy impact the final look of the image after all the models and effects are rendered. Post processing does not affect the color of UI elements such as stock icons and character portraits.
 
