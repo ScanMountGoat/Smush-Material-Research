@@ -27,7 +27,7 @@ but there may be discolorations. Potential fixes are discussed in the image edit
 
 ### How to Determine Albedo Color
 The albedo values can be copied from the Col maps for non skin materials. For skin materials, copy paste the values from
-Cross Mod's albedo rendering mode by taking a screenshot or using a screen color picker. This takes into account the fake subsurface scattering effect applied in game.
+SSBH Editor's albedo rendering mode by taking a screenshot or using a screen color picker. This takes into account the fake subsurface scattering effect applied in game.
 See [Skin Materials](skin_materials) for details.
 
 ### Example Code

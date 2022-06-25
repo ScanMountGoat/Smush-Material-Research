@@ -48,8 +48,8 @@ class PrmDemo {
                     uniform float ambientOcclusion;
                     uniform float specular;
     
-                    // Shader code ported from Cross Mod GUI
-                    // https://github.com/Ploaj/SSBHLib/blob/master/CrossModGui/Shaders/RModel.frag
+                    // Shader code ported from ssbh_wgpu
+                    // https://github.com/ScanMountGoat/ssbh_wgpu/blob/main/ssbh_wgpu/src/shader/model.wgsl
     
                     // Schlick fresnel approximation.
                     vec3 FresnelSchlick(float cosTheta, vec3 F0)

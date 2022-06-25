@@ -36,7 +36,7 @@ The graph below demonstrates the bloom intensity for different brightness values
 <img src="bloom_threshold.png" height="auto" width="auto">
 
 ## Code Sample
-The post processing shader code translated to GLSL is listed below. This is shader code is also used for Cross Mod's rendering.
+The post processing shader code translated to GLSL is listed below. This is shader code is also used for SSBH Editor's rendering.
 
 ```glsl
 vec3 GetPostProcessingResult(vec3 linear)
