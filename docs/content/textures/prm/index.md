@@ -185,21 +185,12 @@ f0 = 0.2 * smashSpecular
 
 #### Blender Principled Shader Specular
 It's common for applications to define their own specular scale. Smash Ultimate has a specular range of 0% to 20%. Blender's Principled BSDF has a specular range of 0% to 8%.
-<div class="container">
-    <form>
-        <div class="row">
-            <label for="blenderSpec" class="col">Blender Principled Specular</label>
-            <div class="col-1"></div>
-            <label for="smashSpec" class="col">PRM Specular</label>
-        </div>
-        <div class="row">
-            <input type="text" name="blenderSpec" id="blenderSpec" class="col" value="0.4">
-            <div class="col-1 text-center">=</div>
-            <input type="text" name="smashSpec" id="smashSpec" class="col" value="0.16">
-        </div>
-    </form>
-</div>
-<br>
+<form>
+    <label for="blenderSpec" class="col">Blender Principled Specular</label>
+    <input type="text" name="blenderSpec" id="blenderSpec" class="col" value="0.4">
+    <label for="smashSpec" class="col">PRM Specular</label>
+    <input type="text" name="smashSpec" id="smashSpec" class="col" value="0.16">
+</form>
 
 #### Convert Blender Specular to Smash Ultimate
 ```
@@ -229,20 +220,12 @@ If the application doesn't support the divide blend mode, set the fill layer col
 ### IOR
 Some applications may use IOR (Index of Reflection or Refraction) instead of specular.
 IOR values can be converted using the following code or by entering IOR or PRM specular values below.
-<div class="container">
-    <form>
-        <div class="row">
-            <label for="iorText" class="col">IOR</label>
-            <div class="col-1"></div>
-            <label for="specIor" class="col">PRM Specular</label>
-        </div>
-        <div class="row">
-            <input type="text" name="iorText" id="iorText" class="col" value="1.0">
-            <div class="col-1 text-center">=</div>
-            <input type="text" name="specIor" id="specIor" class="col" value="0.0">
-        </div>
-    </form>
-</div>
+<form>
+    <label for="iorText" class="col">IOR</label>
+    <input type="text" name="iorText" id="iorText" class="col" value="1.0">
+    <label for="specIor" class="col">PRM Specular</label>
+    <input type="text" name="specIor" id="specIor" class="col" value="0.0">
+</form>
 
 ```
 // IOR -> Smash PRM Specular
