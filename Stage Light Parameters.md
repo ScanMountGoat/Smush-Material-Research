@@ -1,5 +1,5 @@
 # Stage Lighting Material Parameter Descriptions
-The stage light `.nuanmb` files use the same material parameter names as model materials. The parameters are not the same, however.
+The stage light `.nuanmb` files use the same material parameter names as model materials. The parameters are not the same, however. The `.nuanmb` files should be edited using [ssbh_data_json](https://github.com/ultimate-research/ssbh_lib/releases) and a text editor.
 
 ## Custom Vectors
 | Name | Description |
