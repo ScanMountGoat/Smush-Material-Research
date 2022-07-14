@@ -264,7 +264,9 @@ Any material can reference default textures stored in the `/common/shader` direc
 | /common/shader/sfxpbs/fighter/default_params | (0, 255, 255, 58) |
 
 ## Samplers
-Each texture parameter has a corresponding sampler parameter. The wrap modes should be set to Clamp to Border for border color to have an effect. 
+Each texture parameter has a corresponding sampler parameter. 
+Border color determines sampled color for UVs outside the 0.0 to 1.0 range when the wrap mode is set to Clamp to Border.
+Wrap S and Wrap T correspond to the U and V coordinates of the texture coordinates. Wrap R is used for cube maps.
 
 | Param ID | Name | Description |
 | --- | --- | --- |
