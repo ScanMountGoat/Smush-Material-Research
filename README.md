@@ -31,7 +31,7 @@ The file contains duplicate entries for each render pass (_opaque, _sort, etc). 
 First extract the shader binaries from the .nushdb files since each file contains multiple shaders.  
 `cargo run --release -- shader_binaries <render folder> <binary export folder>`
 
-Now the shaders can be decompiled using Ryujinx's ShaderTools. This currently requires a slightly modified build to start from the appropriate offset.  
+Now the shaders can be decompiled using Ryujinx's ShaderTools. This currently requires a slightly modified build to start from offset 2896 of the binary.  
 `python batch_decompile_shaders.py <ShaderTools.exe> <binary export folder> <export folder>`  
 
 The `shaders_discard.txt` file contains the shader labels without their render pass tags for shader programs that may support alpha testing. 
