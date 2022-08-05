@@ -7,7 +7,7 @@ use std::{
 use clap::{Arg, Command};
 use rayon::prelude::*;
 use serde::Serialize;
-use ssbh_data::SsbhData;
+use ssbh_data::{prelude::*, shdr_data::BinaryData};
 use xmb_lib::XmbFile;
 use xmltree::EmitterConfig;
 
@@ -50,15 +50,22 @@ fn main() {
                         .takes_value(true),
                 )
                 .arg(
-                    Arg::new("decompiled_shaders")
+                    Arg::new("binary_folder")
                         .index(2)
+                        .help("The folder of shader binaries")
+                        .required(true)
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::new("source_folder")
+                        .index(3)
                         .help("The folder of decompiled GLSL shaders")
                         .required(true)
                         .takes_value(true),
                 )
                 .arg(
                     Arg::new("output")
-                        .index(3)
+                        .index(4)
                         .help("The output shader info JSON")
                         .required(true)
                         .takes_value(true),
@@ -97,9 +104,10 @@ fn main() {
             "bin",
             shdrs_to_bin,
         ),
-        ("shader_info", sub_m) => export_nufxlb_shader_info(
+        ("shader_info", sub_m) => export_shader_info(
             sub_m.value_of("nufxlb").unwrap(),
-            sub_m.value_of("decompiled_shaders").unwrap(),
+            sub_m.value_of("binary_folder").unwrap(),
+            sub_m.value_of("source_folder").unwrap(),
             sub_m.value_of("output").unwrap(),
         ),
         _ => 0,
@@ -121,11 +129,18 @@ struct ShaderProgram {
     params: Vec<String>,
 }
 
-fn export_nufxlb_shader_info(nufx_file: &str, shader_folder: &str, output_file: &str) -> usize {
+fn export_shader_info(
+    nufx_file: &str,
+    binary_folder: &str,
+    source_folder: &str,
+    output_file: &str,
+) -> usize {
     // Generate the shader info JSON for ssbh_wgpu.
     match ssbh_lib::formats::nufx::Nufx::from_file(nufx_file) {
         Ok(ssbh_lib::formats::nufx::Nufx::V1(nufx)) => {
             // TODO: Make excluding duplicate render pass entries optional?
+            // All "SFX_PBS..." programs support all render passes.
+            // Only consider one render pass per program since the entries are identical.
             let database = ShaderDatabase {
                 shaders: nufx
                     .programs
@@ -135,18 +150,62 @@ fn export_nufxlb_shader_info(nufx_file: &str, shader_folder: &str, output_file: 
                     .map(|program| {
                         // We can infer information from the shader source using some basic heurstics.
                         let pixel_shader = program.shaders.pixel_shader.to_string_lossy();
-                        let pixel_shader_file = Path::new(shader_folder)
-                            .join(pixel_shader)
+                        let pixel_shader_file = Path::new(source_folder)
+                            .join(&pixel_shader)
                             .with_extension("glsl");
                         let pixel_source = std::fs::read_to_string(&pixel_shader_file);
+
+                        let vertex_shader = program.shaders.vertex_shader.to_string_lossy();
+                        let vertex_shader_file = Path::new(source_folder)
+                            .join(&vertex_shader)
+                            .with_extension("glsl");
+                        let vertex_source = std::fs::read_to_string(&vertex_shader_file);
 
                         // Alpha testing in Smash Ultimate is done in shader, so check for discard.
                         // There may be false positives if the discard code path is unused.
                         let discard = pixel_source
+                            .as_ref()
                             .map(|source| source.contains("discard;"))
                             .unwrap_or_default();
 
-                        // TODO: Check what color channels are used from textures (requires nushdb).
+                        let binary_file = Path::new(binary_folder)
+                            .join(&pixel_shader)
+                            .with_extension("bin");
+                        let binary_data = BinaryData::from_file(&binary_file);
+
+                        let params: Vec<_> = program
+                            .material_parameters
+                            .elements
+                            .iter()
+                            .map(|p| {
+                                let mut name = p.parameter_name.to_string_lossy();
+
+                                // TODO: Clean this up.
+                                if name.contains("Texture") {
+                                    // TODO: Check what color channels are used from textures (requires nushdb).
+                                } else if name.contains("CustomVector") {
+                                    if let Some(uniform) =
+                                        binary_data.as_ref().ok().and_then(|data| {
+                                            data.uniforms.iter().find(|u| u.name == name)
+                                        })
+                                    {
+                                        // Check what Vector4 color channels are used.
+                                        if let (Ok(vertex), Ok(pixel)) =
+                                            (&vertex_source, &pixel_source)
+                                        {
+                                            let channels =
+                                                vector4_color_channels(uniform, &vertex, &pixel);
+
+                                            if channels != "" {
+                                                name = format!("{name}.{channels}")
+                                            }
+                                        }
+                                    }
+                                }
+
+                                name
+                            })
+                            .collect();
 
                         ShaderProgram {
                             name: program.name.to_string_lossy(),
@@ -157,12 +216,7 @@ fn export_nufxlb_shader_info(nufx_file: &str, shader_folder: &str, output_file: 
                                 .iter()
                                 .map(|a| a.attribute_name.to_string_lossy())
                                 .collect(),
-                            params: program
-                                .material_parameters
-                                .elements
-                                .iter()
-                                .map(|p| p.parameter_name.to_string_lossy())
-                                .collect(),
+                            params,
                         }
                     })
                     .collect(),
@@ -176,6 +230,25 @@ fn export_nufxlb_shader_info(nufx_file: &str, shader_folder: &str, output_file: 
         Err(e) => eprintln!("Error reading {:?}: {:?}", nufx_file, e),
     }
     0
+}
+
+fn vector4_color_channels(
+    uniform: &ssbh_data::shdr_data::Uniform,
+    vertex_source: &str,
+    pixel_source: &str,
+) -> String {
+    let mut channels = String::new();
+    // The material uniform buffer is always "vec4 fp_c9_data[0x1000]".
+    let vec4_index = uniform.uniform_buffer_offset / 16;
+    for component in "xyzw".chars() {
+        let vertex_access = format!("vp_c9_data[{vec4_index}].{component}");
+        let pixel_access = format!("fp_c9_data[{vec4_index}].{component}");
+        if vertex_source.contains(&vertex_access) || pixel_source.contains(&pixel_access) {
+            channels.push(component);
+        }
+    }
+
+    channels
 }
 
 fn batch_convert<F: Fn(&Path, PathBuf) + Send + Sync>(

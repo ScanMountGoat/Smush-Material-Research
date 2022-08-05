@@ -13,5 +13,5 @@ xmltree = { version = "0.10.3", features = ["attribute-order"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.0"
 xmb_lib = { git = "https://github.com/ultimate-research/xmb_lib", rev = "514f525" }
-ssbh_lib = { git = "https://github.com/ultimate-research/ssbh_lib", rev = "089da7d" }
-ssbh_data = { git = "https://github.com/ultimate-research/ssbh_lib", features=["serde"], rev = "089da7d" }
+ssbh_lib = { git = "https://github.com/ultimate-research/ssbh_lib", rev = "e14166d" }
+ssbh_data = { git = "https://github.com/ultimate-research/ssbh_lib", features=["serde"], rev = "e14166d" }
