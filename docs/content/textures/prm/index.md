@@ -8,8 +8,7 @@ Ultimate.
 The different channels of the PRM maps correspond to four separate textures. 
 The red channel is metalness, the green channel is roughness, the blue channel is ambient occlusion, and the alpha channel is specular.
 PRM maps work similarly
-to the inputs to Disney's principled shader, which is the basis for 
-<a href="https://docs.blender.org/manual/en/latest/render/shader_nodes/shader/principled.html" target="_blank">Blender's Principled Shader</a>
+to the inputs to Disney's principled shader, which is the basis for [Blender's Principled Shader](https://docs.blender.org/manual/en/latest/render/shader_nodes/shader/principled.html)
 and the shading in many modern games.
 <style>
     .container {
@@ -74,7 +73,7 @@ and specular intensity is controlled entirely by albedo. In the demo above, note
 closer in color to the albedo color as metalness increases.
 
 Skin materials are a special case and instead use the metalness map as a mask for the fake subsurface scattering effect. 
-See the [Skin Materials](skin_materials) page for details.
+See the [Skin Materials](../../skin_materials) page for details.
 
 ### Roughness (<span style="color:green">Green</span>)
 ![rougness](mario_roughness.jpg)
