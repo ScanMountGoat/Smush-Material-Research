@@ -319,9 +319,9 @@ If a custom float required by a shader is missing, the value is set to 0.0.
 | 195 (0xC3) | CustomFloat3 | *Unused* | *Unused* |
 | 196 (0xC4) | CustomFloat4 | 0.0 | Controls the intensity of a UV distortion effect using the normal map. Used for water materials. |
 | 197 (0xC5) | CustomFloat5 | *Unused* | *Unused* |
-| 198 (0xC6) | CustomFloat6 | | Set to 1 for the pikmin_planet models that use C0. |
+| 198 (0xC6) | CustomFloat6 | *Unused* | *Unused* |
 | 199 (0xC7) | CustomFloat7 | *Unused* | *Unused* |
-| 200 (0xC8) | CustomFloat8 | 0.0 | Controls albedo color tint intensity used for the specular pass. The effect is similar to the tint used for the principled shader. |
+| 200 (0xC8) | CustomFloat8 | 0.0 | Controls albedo color tint intensity used for the rim lighting pass. |
 | 201 (0xC9) | CustomFloat9 | | ??? |
 | 202 (0xCA) | CustomFloat10 | 0.0 | Specular anisotropy. A value of 0 produces isotropic specular. |
 | 203 (0xCB) | CustomFloat11 | | Values range from 0 to 20000 and are lower than CC. Used in conjunction with CC and 14A. |
@@ -329,7 +329,7 @@ If a custom float required by a shader is missing, the value is set to 0.0.
 | 205 (0xCD) | CustomFloat13 | *Unused* | *Unused* |
 | 206 (0xCE) | CustomFloat14 | *Unused* | *Unused* |
 | 207 (0xCF) | CustomFloat15 | *Unused* | *Unused* |
-| 208 (0xD0) | CustomFloat16 | | Set to 5.5 for the ore club eye material. |
+| 208 (0xD0) | CustomFloat16 | 0.0 | Vertex shader Z offset. Used to adjust depth sorting. |
 | 209 (0xD1) | CustomFloat17 | | Set to 0.5 for the paper mario ship and nintendogs curtain. |
 | 210 (0xD2) | CustomFloat18 | | Used with CustomVector37,38,39 for some sort of rotation/warp effect for vegetation. |
 | 211 (0xD3) | CustomFloat19 | | Controls angle fade in addition to the specular IOR used for environment reflections. Higher values are less transparent and have more intense reflections. |
@@ -339,7 +339,7 @@ Material flags are separated into individual boolean parameters rather than bein
 
 | Param ID | Name | Default Value | Description |
 | --- | --- | --- | --- |
-| 232 (0xE8) | CustomBoolean0 | | Always false? Used for pikmin_planet, poke_tengam, and fox_venom. |
+| 232 (0xE8) | CustomBoolean0 | *Unused* | *Unused* |
 | 233 (0xE9) | CustomBoolean1 | True | PRM specular override. True = PRM alpha, False = 0.16 |
 | 234 (0xEA) | CustomBoolean2 | False | Alpha Override. True = set alpha to 0.0, False = preserve alpha |
 | 235 (0xEB) | CustomBoolean3 | True | Enables/disables the specular light contribution. True = enabled, False = disabled. |
