@@ -144,7 +144,7 @@ Stores an RGBA color or 4 float parameters. If a custom vector required by the s
 
 | Param ID | Name | Default Value | Description |
 | --- | --- | --- | --- |
-| 152 (0x98) | CustomVector0 | (0,0,0,0) | Affects alpha testing. X = min texture alpha, Y = ???, Z = ???, W = *Unused* |
+| 152 (0x98) | CustomVector0 | (0,0,0,0) | Affects alpha testing. X = min texture alpha, Y = Ryu/Ken focus intensity, Z = ???, W = *Unused* |
 | 153 (0x99) | CustomVector1 | | RGBA? Used for s65_oniyon for pikmin_planet. Set to an orange color. |
 | 154 (0x9A) | CustomVector2 | | RGBA? Used for some s65 models for pikmin_planet. Set to yellow. |
 | 155 (0x9B) | CustomVector3 | (1,1,1,1) | Color multiplier for emission color. Used to brighten/darken emissive maps. Values are often higher than 1 to increase bloom. |
