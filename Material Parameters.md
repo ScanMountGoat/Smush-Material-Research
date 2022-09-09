@@ -192,22 +192,6 @@ Stores an RGBA color or 4 float parameters. If a custom vector required by the s
 | 340 (0x154) | CustomVector45 | | RGBA? Used for Wii Fit Trainer models for wiifit stage. Set to (0.008, 0.13, 0.02, 1). |
 | 341 (0x155) | CustomVector46 | | RGBA? Only used for one of Bayonetta's body anim meshes. |
 | 342 (0x156) | CustomVector47 | | Used for some stages. The color channels work the same as PRM maps. |
-| 343 (0x157) | CustomVector48 | *Unused* | *Unused* |
-| 344 (0x158) | CustomVector49 | *Unused* | *Unused* |
-| 345 (0x159) | CustomVector50 | *Unused* | *Unused* |
-| 346 (0x15A) | CustomVector51 | *Unused* | *Unused* |
-| 347 (0x15B) | CustomVector52 | *Unused* | *Unused* |
-| 348 (0x15C) | CustomVector53 | *Unused* | *Unused* |
-| 349 (0x15D) | CustomVector54 | *Unused* | *Unused* |
-| 350 (0x15E) | CustomVector55 | *Unused* | *Unused* |
-| 351 (0x15F) | CustomVector56 | *Unused* | *Unused* |
-| 352 (0x160) | CustomVector57 | *Unused* | *Unused* |
-| 353 (0x161) | CustomVector58 | *Unused* | *Unused* |
-| 354 (0x162) | CustomVector59 | *Unused* | *Unused* |
-| 355 (0x163) | CustomVector60 | *Unused* | *Unused* |
-| 356 (0x164) | CustomVector61 | *Unused* | *Unused* |
-| 357 (0x165) | CustomVector62 | *Unused* | *Unused* |
-| 358 (0x166) | CustomVector63 | *Unused* | *Unused* |
 
 
 ## Textures
