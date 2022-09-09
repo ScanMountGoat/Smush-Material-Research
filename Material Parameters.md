@@ -144,23 +144,23 @@ Stores an RGBA color or 4 float parameters. If a custom vector required by the s
 
 | Param ID | Name | Default Value | Description |
 | --- | --- | --- | --- |
-| 152 (0x98) | CustomVector0 | (0,0,0,0) | Affects alpha testing. X = min texture alpha, YZW = ??? |
+| 152 (0x98) | CustomVector0 | (0,0,0,0) | Affects alpha testing. X = min texture alpha, Y = ???, Z = ???, W = *Unused* |
 | 153 (0x99) | CustomVector1 | | RGBA? Used for s65_oniyon for pikmin_planet. Set to an orange color. |
 | 154 (0x9A) | CustomVector2 | | RGBA? Used for some s65 models for pikmin_planet. Set to yellow. |
 | 155 (0x9B) | CustomVector3 | (1,1,1,1) | Color multiplier for emission color. Used to brighten/darken emissive maps. Values are often higher than 1 to increase bloom. |
 | 156 (0x9C) | CustomVector4 | | RGBA? Set to white for arwinbeam_set for fox_venom. |
 | 157 (0x9D) | CustomVector5 | | RGBA? Set to white for s65_oniyon for pikmin_planet.  |
 | 158 (0x9E) | CustomVector6 | | UV Transform layer 1. |
-| 159 (0x9F) | CustomVector7 | | RGBA? Always set to (1, 1, 1, 0). |
+| 159 (0x9F) | CustomVector7 | *Unused* | *Unused* |
 | 160 (0xA0) | CustomVector8 | (1,1,1,1) | RGB color multiplier for the final color after diffuse, specular, etc. |
 | 161 (0xA1) | CustomVector9 | | RGBA? Always (1, 1, 1, 1) or (0.2620026, -0.6427876, -0.7198463, 0). |
-| 162 (0xA2) | CustomVector10 | | RGBA? Always (1, 0.8, 0.6, 0). |
+| 162 (0xA2) | CustomVector10 | *Unused* | *Unused* |
 | 163 (0xA3) | CustomVector11 | (0,1,0,0) | Used with CustomVector30 to fake subsurface scattering. RGB = SSS color |
 | 164 (0xA4) | CustomVector12 | *Unused* | *Unused* |
 | 165 (0xA5) | CustomVector13 | (1,1,1,1) | RGB diffuse color multiplier. May also affect alpha. Usually present and set to (1, 1, 1, 1). |
 | 166 (0xA6) | CustomVector14 | | Rim lighting color. RGB = color, A = blend factor. |
-| 167 (0xA7) | CustomVector15 | | RGBA? Always (0, 1000, 1, 0.2). |
-| 168 (0xA8) | CustomVector16 | | XYZW? Always (0.017, 35, 43.47, 0). Used for pikmin_planet. |
+| 167 (0xA7) | CustomVector15 | *Unused* | *Unused* |
+| 168 (0xA8) | CustomVector16 | *Unused* | *Unused* |
 | 169 (0xA9) | CustomVector17 | *Unused* | *Unused* |
 | 170 (0xAA) | CustomVector18 | (1,1,1,1) | Used for sprite sheet animations. X * Y = W if the sprite sheet is full. X = column count, Y = row count, Z = frames per sprite, W = sprite count |
 | 171 (0xAB) | CustomVector19 | | RGBA? Usually (1, 1, 1, 1). Alpha is always 1. |
@@ -174,13 +174,13 @@ Stores an RGBA color or 4 float parameters. If a custom vector required by the s
 | 322 (0x142) | CustomVector27 | | Controls distance fog. X = Intensity, YZW = ??? |
 | 323 (0x143) | CustomVector28 | *Unused* | *Unused* |
 | 324 (0x144) | CustomVector29 | | Used for rotating models for pilot wings, sky world, etc. X can be negative and has angle values (30, -60, or 720). Y and Z are always 0. W is always 300 or 0. |
-| 325 (0x145) | CustomVector30 | (0,0,0,1) | Used with CustomVector11 to fake subsurface scattering. X = blend factor, Y = diffuse shading smooth factor (higher is sharper), ZW = Unused |
+| 325 (0x145) | CustomVector30 | (0,0,0,1) | Used with CustomVector11 to fake subsurface scattering. X = blend factor, Y = diffuse shading smooth factor (higher is sharper), ZW = *Unused* |
 | 326 (0x146) | CustomVector31 | | UV Transform layer 2. |
 | 327 (0x147) | CustomVector32 | | UV Transform layer 3. |
 | 328 (0x148) | CustomVector33 | | UV Transform? Used for materials with 4 base color maps (Param IDS: 66, 67, 68, 69). |
 | 329 (0x149) | CustomVector34 | | UV Transform? Normal UV transform? |
 | 330 (0x14A) | CustomVector35 | | RGBA? A is always 0 or 1. Used in conjunction with CB and CC. |
-| 331 (0x14B) | CustomVector36 | | *Unused* |
+| 331 (0x14B) | CustomVector36 | *Unused* | *Unused* |
 | 332 (0x14C) | CustomVector37 | | Some sort of rotation/warp effect used for vegetation. XYZ = ???, W = ??? |
 | 333 (0x14D) | CustomVector38 | | Some sort of rotation/warp effect used for vegetation. XYZ = ???, W = ??? |
 | 334 (0x14E) | CustomVector39 | | Some sort of rotation/warp effect used for vegetation. XYZ = ???, W = ??? |
