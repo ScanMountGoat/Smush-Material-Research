@@ -150,7 +150,7 @@ Stores an RGBA color or 4 float parameters. If a custom vector required by the s
 | 155 (0x9B) | CustomVector3 | (1,1,1,1) | Color multiplier for emission color. Used to brighten/darken emissive maps. Values are often higher than 1 to increase bloom. |
 | 156 (0x9C) | CustomVector4 | | RGBA? Set to white for arwinbeam_set for fox_venom. |
 | 157 (0x9D) | CustomVector5 | | RGBA? Set to white for s65_oniyon for pikmin_planet.  |
-| 158 (0x9E) | CustomVector6 | | UV Transform layer 1. |
+| 158 (0x9E) | CustomVector6 | (1,1,0,0) | UV Transform layer 1. |
 | 159 (0x9F) | CustomVector7 | *Unused* | *Unused* |
 | 160 (0xA0) | CustomVector8 | (1,1,1,1) | RGB color multiplier for the final color after diffuse, specular, etc. |
 | 161 (0xA1) | CustomVector9 | | RGBA? Always (1, 1, 1, 1) or (0.2620026, -0.6427876, -0.7198463, 0). |
@@ -175,10 +175,10 @@ Stores an RGBA color or 4 float parameters. If a custom vector required by the s
 | 323 (0x143) | CustomVector28 | *Unused* | *Unused* |
 | 324 (0x144) | CustomVector29 | | Used for rotating models for pilot wings, sky world, etc. X can be negative and has angle values (30, -60, or 720). Y and Z are always 0. W is always 300 or 0. |
 | 325 (0x145) | CustomVector30 | (0,0,0,1) | Used with CustomVector11 to fake subsurface scattering. X = blend factor, Y = diffuse shading smooth factor (higher is sharper), ZW = *Unused* |
-| 326 (0x146) | CustomVector31 | | UV Transform layer 2. |
-| 327 (0x147) | CustomVector32 | | UV Transform layer 3. |
+| 326 (0x146) | CustomVector31 | (1,1,0,0) | UV Transform layer 2. |
+| 327 (0x147) | CustomVector32 | (1,1,0,0) | UV Transform layer 3. |
 | 328 (0x148) | CustomVector33 | | UV Transform? Used for materials with 4 base color maps (Param IDS: 66, 67, 68, 69). |
-| 329 (0x149) | CustomVector34 | | UV Transform? Normal UV transform? |
+| 329 (0x149) | CustomVector34 | (1,1,0,0) | UV Transform dual normal. Used for water materials. |
 | 330 (0x14A) | CustomVector35 | | RGBA? A is always 0 or 1. Used in conjunction with CB and CC. |
 | 331 (0x14B) | CustomVector36 | *Unused* | *Unused* |
 | 332 (0x14C) | CustomVector37 | | Some sort of rotation/warp effect used for vegetation. XYZ = ???, W = ??? |
@@ -326,11 +326,11 @@ Material flags are separated into individual boolean parameters rather than bein
 | 232 (0xE8) | CustomBoolean0 | *Unused* | *Unused* |
 | 233 (0xE9) | CustomBoolean1 | True | PRM specular override. True = PRM alpha, False = 0.16 |
 | 234 (0xEA) | CustomBoolean2 | False | Alpha Override. True = set alpha to 0.0, False = preserve alpha |
-| 235 (0xEB) | CustomBoolean3 | True | Enables/disables the specular light contribution. True = enabled, False = disabled. |
-| 236 (0xEC) | CustomBoolean4 | True | Enables/disables the specular cube map contribution. True = enabled, False = disabled. |
-| 237 (0xED) | CustomBoolean5 | | Used for meshes with scrolling textures. Used for stage morph, water, and other meshes with transparency effects. |
-| 238 (0xEE) | CustomBoolean6 | | Used for meshes with scrolling textures. Set to 1 for animal crossing island water. |
-| 239 (0xEF) | CustomBoolean7 | | Used for battlefield waterfalls and other meshes with transparency effects. |
+| 235 (0xEB) | CustomBoolean3 | True | Enables/disables the specular light contribution. |
+| 236 (0xEC) | CustomBoolean4 | True | Enables/disables the specular cube map contribution. |
+| 237 (0xED) | CustomBoolean5 | | Enables/disables the effect of CustomVector6 (UV Transform Layer 1). |
+| 238 (0xEE) | CustomBoolean6 | | Enables/disables the effect of CustomVector31 (UV Transform Layer 2). |
+| 239 (0xEF) | CustomBoolean7 | | Enables/disables the effect of CustomVector32 (UV Transform Layer 3). |
 | 240 (0xF0) | CustomBoolean8 | | Set to true for bossstage_final3 and poke_kalos interval wall. |
 | 241 (0xF1) | CustomBoolean9 | | Adjusts the effect of CustomVector18. Some shaders ignore CustomBoolean9. When enabled, CustomVector18.z selects the sprite in the texture to use. |
 | 242 (0xF2) | CustomBoolean10 | | Set to false for spirits_floor_model\damage for each stage. |
