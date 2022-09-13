@@ -155,7 +155,7 @@ Stores an RGBA color or 4 float parameters. If a custom vector required by the s
 | 160 (0xA0) | CustomVector8 | (1,1,1,1) | RGB color multiplier for the final color after diffuse, specular, etc. |
 | 161 (0xA1) | CustomVector9 | | RGBA? Always (1, 1, 1, 1) or (0.2620026, -0.6427876, -0.7198463, 0). |
 | 162 (0xA2) | CustomVector10 | *Unused* | *Unused* |
-| 163 (0xA3) | CustomVector11 | (0,1,0,0) | Used with CustomVector30 to fake subsurface scattering. RGB = SSS color |
+| 163 (0xA3) | CustomVector11 | (0,0,0,1) | Used with CustomVector30 to fake subsurface scattering. RGB = SSS color |
 | 164 (0xA4) | CustomVector12 | *Unused* | *Unused* |
 | 165 (0xA5) | CustomVector13 | (1,1,1,1) | RGB diffuse color multiplier. May also affect alpha. Usually present and set to (1, 1, 1, 1). |
 | 166 (0xA6) | CustomVector14 | | Rim lighting color. RGB = color, A = blend factor. |
