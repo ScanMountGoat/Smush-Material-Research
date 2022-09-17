@@ -3,8 +3,8 @@ title = "Introduction"
 weight = 0
 insert_anchor_links = "right"
 +++
-The tutorials, demos, and other documentation for rendering in Smash Ultimate can be accessed from the top navigation menu.
-Many of these pages contain interactive demos using WebGL, which should work on most computers, phones, and tablets. The [Col](col), [PRM](prm), and [NOR](nor) texture pages are a good starting point. Click the search icon to search any of the pages on this site.
+The tutorials, demos, and other documentation for rendering in Smash Ultimate can be accessed from the navigation menu.
+Many of these pages contain interactive demos using WebGL, which should work on most computers, phones, and tablets. The [Col](/col), [PRM](/prm), and [NOR](/nor) texture pages are a good starting point. Click the search icon to search any of the pages on this site.
 
 The main [Github repository](https://github.com/ScanMountGoat/Smush-Material-Research) contains documentation pages that serve as quick references for material parameters, texture types, etc. The documentation pages are updated more frequently than the website but contain less detailed explanations. 
 

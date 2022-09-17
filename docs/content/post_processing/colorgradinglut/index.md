@@ -1,7 +1,7 @@
 +++
 title = "Color Grading Lut"
 aliases = ["colorgradinglut"]
-weight = 1
+weight = 0
 +++
 <style>
     .pixelated {

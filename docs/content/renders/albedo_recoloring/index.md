@@ -1,5 +1,6 @@
 +++
 title = "Albedo Recoloring"
+weight = 0
 +++
 <style>
     #imgCanvas {
