@@ -15,6 +15,7 @@
       <!-- CSS -->
       {% block css %}
       <link rel="stylesheet" href="{{ get_url(path="book.css") | safe }}">
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
       {% endblock css %}
 
       {% block extra_head %}
@@ -51,6 +52,7 @@
                                 {% endif %}
                             </li>
                         {% endfor %}
+                        <a href="https://github.com/ScanMountGoat/Smush-Material-Research"><i class="fa fa-github"></i> GitHub Repository</a>
                     {% endblock menu %}
                 </ul>
             </nav>

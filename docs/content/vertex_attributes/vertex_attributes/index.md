@@ -1,6 +1,7 @@
 +++
 title = "Vertex Attributes"
 aliases = ["vertexattributes"]
+weight = 0
 +++
 ## Position0
 ![position0](position0.png)

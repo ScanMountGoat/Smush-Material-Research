@@ -1,6 +1,7 @@
 +++
 title = "Texture Coordinates - WIP"
 aliases = ["texturecoordinates"]
+weight = 1
 +++
 
 Texture coordinates or UV coordinates (often shortened to UVs) map the vertices to locations on the textures. Most meshes have a map1 attribute for the main layer of textures. Additional texture coordinate attributes allow additional layers to have separate texture layouts and use the limited texture resolution more efficiently. 

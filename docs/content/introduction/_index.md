@@ -31,4 +31,4 @@ Report any bugs in [issues](https://github.com/ScanMountGoat/Smush-Material-Rese
 ## Credits
 - [three.js](https://threejs.org/) - WebGL rendering library
 - [Zola](https://www.getzola.org/) - static site generator
-- [EasyDocs](https://www.getzola.org/themes/zola-easydocs-theme/) - theme used to style this site
+- [book](https://www.getzola.org/themes/book/) - theme used to style this site

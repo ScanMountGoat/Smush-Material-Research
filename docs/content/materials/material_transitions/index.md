@@ -1,6 +1,7 @@
 +++
 title = "Material Transitions"
 aliases = ["material_transitions"]
+weight = 0
 +++
 Smash Ultimate contains a number of animated material transitions. The transitions happen quite quickly, so it's easy to miss the effect during normal gameplay. 
 Examples of material transitions include inkling's ink or the metal box item. An animated threshold value combined with the model's NOR map blue channel 

@@ -1,6 +1,7 @@
 +++
 title = "Color Sets - WIP"
 aliases = ["colorsets"]
+weight = 2
 +++
 
 The attribute names with "colorSet" store vertex color data. Color set attribute data is stored as RGBA colors with unsigned integer values from 0 to 255. The integer values are then converted to floating point values in the range 0.0 to *scale* where *scale* depends on the type of color set. The [Vertex Attribute](https://github.com/ScanMountGoat/Smush-Material-Research/blob/master/Vertex%20Attributes.md#color-set-attributes) page on the main repository contains a table of color set attributes and their scale values.
