@@ -168,54 +168,29 @@ fn export_shader_info(
                             .map(|source| source.contains("discard;"))
                             .unwrap_or_default();
 
-                        let binary_file = Path::new(binary_folder)
+                        let pixel_binary_file = Path::new(binary_folder)
                             .join(&pixel_shader)
                             .with_extension("bin");
-                        let binary_data = BinaryData::from_file(&binary_file);
+                        let pixel_binary_data = BinaryData::from_file(&pixel_binary_file);
 
-                        let params: Vec<_> = program
-                            .material_parameters
-                            .elements
-                            .iter()
-                            .map(|p| {
-                                let mut name = p.parameter_name.to_string_lossy();
+                        let vertex_binary_file = Path::new(binary_folder)
+                            .join(&vertex_shader)
+                            .with_extension("bin");
+                        let vertex_binary_data = BinaryData::from_file(&vertex_binary_file);
 
-                                // TODO: Clean this up.
-                                if name.contains("Texture") {
-                                    // TODO: Check what color channels are used from textures (requires nushdb).
-                                } else if name.contains("CustomVector") {
-                                    if let Some(uniform) =
-                                        binary_data.as_ref().ok().and_then(|data| {
-                                            data.uniforms.iter().find(|u| u.name == name)
-                                        })
-                                    {
-                                        // Check what Vector4 color channels are used.
-                                        if let (Ok(vertex), Ok(pixel)) =
-                                            (&vertex_source, &pixel_source)
-                                        {
-                                            let channels =
-                                                vector4_color_channels(uniform, &vertex, &pixel);
+                        let params = material_parameters(
+                            &program,
+                            &pixel_binary_data,
+                            &vertex_source,
+                            &pixel_source,
+                        );
 
-                                            if channels != "" {
-                                                name = format!("{name}.{channels}")
-                                            }
-                                        }
-                                    }
-                                }
-
-                                name
-                            })
-                            .collect();
+                        let attrs = vertex_attributes(&program, vertex_binary_data, vertex_source);
 
                         ShaderProgram {
                             name: program.name.to_string_lossy(),
                             discard,
-                            attrs: program
-                                .vertex_attributes
-                                .elements
-                                .iter()
-                                .map(|a| a.attribute_name.to_string_lossy())
-                                .collect(),
+                            attrs,
                             params,
                         }
                     })
@@ -230,6 +205,92 @@ fn export_shader_info(
         Err(e) => eprintln!("Error reading {:?}: {:?}", nufx_file, e),
     }
     0
+}
+
+fn vertex_attributes(
+    program: &ssbh_lib::formats::nufx::ShaderProgramV1,
+    vertex_binary_data: Result<BinaryData, Box<dyn std::error::Error>>,
+    vertex_source: Result<String, std::io::Error>,
+) -> Vec<String> {
+    program
+        .vertex_attributes
+        .elements
+        .iter()
+        .map(|a| {
+            let mut name = a.attribute_name.to_string_lossy();
+
+            // Check the vertex shader since it uses the same naming conventions.
+            // TODO: This is overestimates used channels since we don't include the pixel shader.
+            // Some attributes are combined before passing to the pixel shader.
+            // TODO: Figure out what the pixel shader naming conventions are?
+            let input_name = format!("IN_{name}");
+            if let Some(location) = vertex_binary_data.as_ref().ok().and_then(|data| {
+                data.inputs
+                    .iter()
+                    .find(|i| i.name == input_name)
+                    .map(|i| i.location)
+            }) {
+                if let Ok(vertex) = &vertex_source {
+                    let channels = input_attribute_color_channels(location, vertex);
+                    if channels != "" {
+                        name = format!("{name}.{channels}")
+                    }
+                }
+            }
+            name
+        })
+        .collect()
+}
+
+fn input_attribute_color_channels(location: i32, source: &str) -> String {
+    // Assume the name is the location like "layout (location = 1) in vec4 in_attr1;"
+    let mut channels = String::new();
+    for component in "xyzw".chars() {
+        let access = format!("in_attr{location}.{component}");
+        if source.contains(&access) {
+            channels.push(component);
+        }
+    }
+
+    channels
+}
+
+fn material_parameters(
+    program: &ssbh_lib::formats::nufx::ShaderProgramV1,
+    pixel_binary_data: &Result<BinaryData, Box<dyn std::error::Error>>,
+    vertex_source: &Result<String, std::io::Error>,
+    pixel_source: &Result<String, std::io::Error>,
+) -> Vec<String> {
+    program
+        .material_parameters
+        .elements
+        .iter()
+        .map(|p| {
+            let mut name = p.parameter_name.to_string_lossy();
+
+            // TODO: Clean this up.
+            if name.contains("Texture") {
+                // TODO: Check what color channels are used from textures (requires nushdb).
+            } else if name.contains("CustomVector") {
+                if let Some(uniform) = pixel_binary_data
+                    .as_ref()
+                    .ok()
+                    .and_then(|data| data.uniforms.iter().find(|u| u.name == name))
+                {
+                    // Check what Vector4 color channels are used.
+                    if let (Ok(vertex), Ok(pixel)) = (vertex_source, pixel_source) {
+                        let channels = vector4_color_channels(uniform, &vertex, &pixel);
+
+                        if channels != "" {
+                            name = format!("{name}.{channels}")
+                        }
+                    }
+                }
+            }
+
+            name
+        })
+        .collect()
 }
 
 fn vector4_color_channels(
@@ -288,7 +349,7 @@ fn batch_convert<F: Fn(&Path, PathBuf) + Send + Sync>(
 fn xmb_to_xml(path: &Path, output_full_path: PathBuf) {
     match XmbFile::from_file(path) {
         Ok(xmb_file) => {
-            let element = xmb_file.to_xml();
+            let element = xmb_file.to_xml().unwrap();
 
             // Match the output of the original Python script where possible.
             let config = EmitterConfig::new()
