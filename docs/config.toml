@@ -18,3 +18,4 @@ highlight_theme = "base16-ocean-light"
 
 [extra]
 # Put all your custom variables here
+book_number_chapters = false

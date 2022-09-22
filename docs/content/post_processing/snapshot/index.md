@@ -1,7 +1,7 @@
 +++
 title = "Snapshot Filters - WIP"
 aliases = ["snapshot"]
-weight = 2
+weight = 1
 +++
 ## No Filter 
 <img src="no filter.jpg" height="auto" width="100%">

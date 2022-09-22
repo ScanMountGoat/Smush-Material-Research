@@ -1,6 +1,7 @@
 +++
 title = "Transparency - WIP"
 aliases = ["transparency"]
+weight = 1
 +++
 ## Alpha Blending
 Smash Ultimate uses alpha blending to simulate the appearance of transparent or translucent materials such as water, glass, smoke, etc. 

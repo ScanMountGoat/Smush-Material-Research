@@ -1,17 +1,18 @@
 +++
 title = "Color Grading Lut"
 aliases = ["colorgradinglut"]
-weight = 1
+weight = 0
 +++
 <style>
     .pixelated {
         image-rendering: pixelated;
     }
 </style>
+
 The normal and battlefield forms for each stage have a 3D LUT (lookup table) texture to add color grading to the rendered image. The same technique is used for the [snapshot filters](snapshot). The 3D texture is a lookup table, so each input RGB color on the screen is mapped to its corresponding output color. The <a href="https://docs.unrealengine.com/en-US/RenderingAndGraphics/PostProcessEffects/UsingLUTs/index.html" target="_blank">Unreal Engine Docs</a> have a good description of how a 3D LUT can be used to perform color grading.
 
 <figure class="figure col">
-    <img class="pixelated" src="../postprocessing/neutral_lut.png" height="auto" width="100%">
+    <img class="pixelated" src="../neutral_lut.png" height="auto" width="100%">
     <figcaption class="figure-caption text-center">The texture for the neutral color grading LUT above. Each of the 16 layers are separated into individual 16x16 slices for display.</figcaption>
 </figure>
 
@@ -63,6 +64,6 @@ A useful property of color grading LUTs is that color grading applied to the LUT
 
 ## Examples
 <figure class="figure">
-    <img src="../postprocessing/dreamland_lut.jpg" height="auto" width="auto">
+    <img src="../dreamland_lut.jpg" height="auto" width="auto">
     <figcaption class="figure-caption text-center">The result of editing the color_grading_lut.nutexb for Dreamland GB using a gradient map. The 16 slices of the LUT are displayed on the top of the image.</figcaption>
 </figure>

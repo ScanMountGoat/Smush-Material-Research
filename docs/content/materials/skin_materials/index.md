@@ -1,6 +1,7 @@
 +++
 title = "Skin Materials"
 aliases = ["skin_materials"]
+weight = 2
 +++
 Many fighters have separate materials for approximating the subsurface scattering of skin.
 The parameters can also be tweaked for more stylized diffuse shading, such as cel-shading or toon shading.

@@ -1,6 +1,7 @@
 +++
 title = "Hair Materials - WIP"
 aliases = ["hair_materials"]
+weight = 3
 +++
 Hair materials have separate parameters to control specular highlights to better recreate the way light interacts with hair. The highlights on hair materials are not symmetrical and appear to wrap around the surface. The anisotropic (not symmetrical) specular can be used for recreating the look strands of hair or brushed metal without having to model or texture the fine surface detail. 
 

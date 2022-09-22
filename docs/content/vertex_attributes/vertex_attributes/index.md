@@ -1,6 +1,7 @@
 +++
 title = "Vertex Attributes"
 aliases = ["vertexattributes"]
+weight = 0
 +++
 ## Position0
 ![position0](position0.png)
@@ -10,8 +11,7 @@ The XYZ components of the Position0 attribute contain the positions of a vertex 
 ![normal0](normal0.png)
 The XYZ components of the Normal0 attribute contain the vertex normal that define the orientation of a surface. The vertex normal is critical for calculating the shading for a surface based on lights, materials, and other properties. The screenshot above shows the Normal0 attribute values for the Battlefield stage.
 
-Vertex normals aren't really colors and contain floating point values that can't be directly displayed as a color like negative numbers. One approach to visualize vertex normals 
-like in the screenshot above is to scale the XYZ values into the 0.0 to 1.0 range and interpret the XYZ values as RGB colors. Surfaces that point up have a positive Y component and display as green. Surfaces the point right have a positive X component and display as red. Surfaces that point towards the viewer have a positive Z component and display as blue. Other orientations display as some combination of red, green, and blue. 
+Vertex normals are direction vectors and not colors. These vectors often contain floating point values that can't be directly displayed as a color like negative numbers. One approach to visualize vertex normals like in the screenshot above is to scale the XYZ values into the 0.0 to 1.0 range and interpret the XYZ values as RGB colors. Surfaces that point up have a positive Y component and display as green. Surfaces the point right have a positive X component and display as red. Surfaces that point towards the viewer have a positive Z component and display as blue. Other orientations display as some combination of red, green, and blue. 
 
 ## Tangent0
 ![tangent0](tangent0.png)
