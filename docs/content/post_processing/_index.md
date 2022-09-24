@@ -22,7 +22,7 @@ Smash Ultimate contains several post processing steps that grealy impact the fin
     - Render effects  
 - Post Processing
     - Add bloom 
-    - [Color Grading LUT](/post_processing/colorgradinglut)
+    - [Color Grading LUT](../post_processing/colorgradinglut/)
     - Additional post processing
 - UI Elements
 

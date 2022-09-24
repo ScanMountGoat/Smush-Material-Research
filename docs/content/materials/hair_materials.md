@@ -7,7 +7,7 @@ Hair materials have separate parameters to control specular highlights to better
 
 ## Anisotropic Specular
 CustomFloat10 controls the amount of anisotropy. This works identically to the anisotropy input of Blender's 
-[Principled BSDF]("https://docs.blender.org/manual/en/latest/render/shader_nodes/shader/principled.html").
+[Principled BSDF](https://docs.blender.org/manual/en/latest/render/shader_nodes/shader/principled.html).
 A value of 0.0 produces a round, symmetrical highlight. Higher values produce a more stretched highlight. 
 
 ## Anisotropic Rotation
