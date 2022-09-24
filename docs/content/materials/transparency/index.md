@@ -113,9 +113,9 @@ regardless of the parent model. In general, meshes with alpha blending should us
 1. _opaque
 2. _far
 3. _sort
-4. [*bloom pass*](/post_processing/postprocessing/#bloom)
+4. [*bloom pass*](../../post_processing/#bloom)
 5. _near
-6. [*color grading pass*](/post_processing/colorgradinglut/)
+6. [*color grading pass*](../../post_processing/colorgradinglut/)
 
 <script type="text/javascript">
     const opaquePass = document.getElementById("opaquePass");
