@@ -15,7 +15,10 @@ map1 is the main texture layer for col, PRM, NOR, and emissive maps. The map1 at
 bake1 is designed for baked textures such as baked stage lighting or baked ambient occlusion. The bake1 uvs should have no overlapping or mirrored UVs. All UV coordinates should be in the range 0.0 to 1.0 and fit within the first quadrant in the UV editor. This ensures each vertex can have a unique color in the texture map and avoid issues when baking.
 
 ## uvSet
+uvSet is used for the second texture layer for col, diffuse, and emissive maps. This includes the iris texture layer used for animated eye movement.
 
 ## uvSet1 
+uvSet1 adds an additional texture layer and is mostly used for stage materials with many diffuse map layers.
 
 ## uvSet2
+uvSet2 adds an additional texture layer and is mostly used for stage materials with many diffuse map layers.
