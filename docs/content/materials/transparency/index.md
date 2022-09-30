@@ -52,7 +52,21 @@ Materials that use one of the blending presets will likely want to find a materi
 | Alpha Blending | Src Alpha | One Minus Source Alpha | Transparency blending for effects like glass, ice, or thin cloth. |
 | Black | Zero | Zero | A hack to render the model as black (0,0,0). The material may still have alpha testing. |
 
-<sup id="fn1">1. Not all shaders properly support premultiplied alpha. Use in game materials with the premultiplied BlendState0 settings.</sup>
+<sup id="fn1">1. Some shaders already multiply the output color by the alpha. There's no need to premultiply the nutexb texture in this case.</sup>
+
+### Premultiplied Alpha
+Alpha blending works by mixing the source color with the destination color using the alpha of the source color. In some rare cases the alpha of the destination color or background color is used as well. The multiplication of the source or foreground alpha can be baked into the source color (premultiplied) or calculated later (postmultiplied or "straight" alpha). Using premultiplied alpha generally produces better results in more cases. 
+See the [Nvidia documentation](https://developer.nvidia.com/content/alpha-blending-pre-or-not-pre) or [gamedev StackExchange](https://gamedev.stackexchange.com/questions/138813/whats-the-difference-between-alpha-and-premulalpha) for more information.
+
+``` glsl
+// Postmultiplied or Straight Alpha
+destinationColor.rgb = (sourceColor.rgb * sourceColor.a) + (destinationColor.rgb * (1.0 - sourceColor.a));
+
+// Premultiplied Alpha
+destinationColor.rgb = (sourceColor.rgb * 1.0) + (destinationColor.rgb * (1.0 - sourceColor.a));
+```
+
+It's important to note that some shaders in Smash Ultimate premultiply the rendered color by the calculated alpha value. In this case, it is usually unecessary to premultiply the input textures themselves. Whether a shader premultiplies the rendered color or not is hardcoded and difficult to determine at this time. These shaders usually use blend state factors of "One" and "OneMinusSourceAlpha". These are the same blend factors required to make premultiplied alpha work when premultiplying the RGB color of the nutexb texture for a shader that does premultiply the calculated shader alpha.
 
 ## Alpha Testing
 <figure class="figure">
