@@ -20,7 +20,7 @@
 | poison | number |  Determines if a stage model can appear under foggy or poisonous cloud conditions in spirit battles. | 0 = Invisible, 1 = Visible |
 | pre_depth | number | | 1 |
 | reflection | search | *Unused* | 100.0 |
-| shadow | caster | Determines what type of shadow casting the model will use. | 0 = None, 1 = Opaque, 2 = Alpha tested, 3 = Shadow only + opaque, 4 = Shadow only + alpha tested |
+| shadow | caster | Determines what type of shadow casting the model will use. | 0 = Disabled, 1 = Enabled, 2 = Enabled + ???, 3 = Shadow Only, 4 = Shadow Only + ??? |
 | shadow_bounding_box_offset | offset | | `(float, float, float)` with values from 9.0 to 100.0 |
 | silhouette_type | number | | 0, 1 |
 | stage_expansion_type | number | | 0, 1 |
