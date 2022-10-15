@@ -33,7 +33,7 @@ The alpha value of the colorSet5 attribute is used to blend between the first an
     <input type="radio" id="colorSetBlendTexture" name="colorSetBlend" value="colorSetBlendTexture" checked>
     <label for="colorSetBlendTexture">Result</label>
 </figure>
-colorSet5 enables blending between two layers of tiled textures. The rock and grass textures in this example are tiled numerous times, so it's not possible to specify an appropriate mask for the grassy regions using the texture alpha. colorSet5 has alpha values of roughly 0.3333 for the areas that should use the grass layer. The vertex color values are interpolated between adjacent vertices, which softens the transitions between textures. Duplicating faces along the desired boundares will prevent the values blending with neighboring faces and create a sharp seam.
+colorSet5 enables blending between two layers of tiled textures. The rock and grass textures in this example are tiled numerous times, so it's not possible to specify an appropriate mask for the grassy regions using the texture alpha. colorSet5 has alpha values of roughly 0.3333 for the areas that should use the grass layer. The vertex color values are interpolated between adjacent vertices, which softens the transitions between textures. Duplicating faces along the desired edge boundaries will prevent the values blending with neighboring faces and create a sharp seam.
 
 ```glsl
 result = mix(texture0.rgb, texture1.rgb, colorSet5.a * 3.0);
