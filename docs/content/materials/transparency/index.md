@@ -8,13 +8,18 @@ Smash Ultimate uses a number of different techniques to simulate transparent or 
 Transparency effects are controlled using the [BlendState0](https://github.com/ScanMountGoat/Smush-Material-Research/blob/master/Material%20Parameters.md#Blend-State) 
 and [CustomVector0](https://github.com/ScanMountGoat/Smush-Material-Research/blob/master/Material%20Parameters.md#Custom-Vectors) material parameters.
 [Alpha blending](#alpha-blending) is the most costly but provides the most control over layering. [Alpha testing](#alpha-testing) is cheap to compute 
-but uses a hard cutoff threshold between opaque and fully transparent pixels. [Alpha sample to coverage](#alpha-sample-to-coverage) is similar to alpha testing but 
-uses pixelated dithering patterns to support more levels of transparency.
+but uses a hard cutoff threshold between opaque and fully transparent pixels. [Alpha sample to coverage](#alpha-sample-to-coverage) is similar to alpha testing but uses pixelated dithering patterns to support more levels of transparency.
 
 Due to hardware constraints such as low memory bandwidth and limited computing power, these techniques are 
 only approximations. Each technique has different tradeoffs in terms of quality and performance. 
 Avoid using transparency effects at all when possible for best performance in game. The more layers of transparent or semitransparent objects, 
 the more work the game needs to do to render the scene.
+
+| Technique | Order Independent |  Transparency Levels |
+| --- | --- | --- |
+| Alpha Blending | ❌ | Smooth Blending |
+| Alpha Testing | ✔️ | Transparent or Opaque |
+| Alpha Sample to Coverage | ✔️ | Dithered Blending  |
 
 ## Alpha Blending
 
