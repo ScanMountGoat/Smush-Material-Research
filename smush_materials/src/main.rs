@@ -64,7 +64,7 @@ fn main() {
                         .takes_value(true),
                 )
                 .arg(
-                    Arg::new("output")
+                    Arg::new("output_json")
                         .index(4)
                         .help("The output shader info JSON")
                         .required(true)
@@ -108,7 +108,7 @@ fn main() {
             sub_m.value_of("nufxlb").unwrap(),
             sub_m.value_of("binary_folder").unwrap(),
             sub_m.value_of("source_folder").unwrap(),
-            sub_m.value_of("output").unwrap(),
+            sub_m.value_of("output_json").unwrap(),
         ),
         _ => 0,
     };
@@ -127,6 +127,7 @@ struct ShaderProgram {
     discard: bool,
     attrs: Vec<String>,
     params: Vec<String>,
+    complexity: f64,
 }
 
 fn export_shader_info(
@@ -141,7 +142,7 @@ fn export_shader_info(
             // TODO: Make excluding duplicate render pass entries optional?
             // All "SFX_PBS..." programs support all render passes.
             // Only consider one render pass per program since the entries are identical.
-            let database = ShaderDatabase {
+            let mut database = ShaderDatabase {
                 shaders: nufx
                     .programs
                     .elements
@@ -150,16 +151,10 @@ fn export_shader_info(
                     .map(|program| {
                         // We can infer information from the shader source using some basic heurstics.
                         let pixel_shader = program.shaders.pixel_shader.to_string_lossy();
-                        let pixel_shader_file = Path::new(source_folder)
-                            .join(&pixel_shader)
-                            .with_extension("glsl");
-                        let pixel_source = std::fs::read_to_string(&pixel_shader_file);
+                        let pixel_source = shader_source(source_folder, &pixel_shader);
 
                         let vertex_shader = program.shaders.vertex_shader.to_string_lossy();
-                        let vertex_shader_file = Path::new(source_folder)
-                            .join(&vertex_shader)
-                            .with_extension("glsl");
-                        let vertex_source = std::fs::read_to_string(&vertex_shader_file);
+                        let vertex_source = shader_source(source_folder, &vertex_shader);
 
                         // Alpha testing in Smash Ultimate is done in shader, so check for discard.
                         // There may be false positives if the discard code path is unused.
@@ -168,15 +163,8 @@ fn export_shader_info(
                             .map(|source| source.contains("discard;"))
                             .unwrap_or_default();
 
-                        let pixel_binary_file = Path::new(binary_folder)
-                            .join(&pixel_shader)
-                            .with_extension("bin");
-                        let pixel_binary_data = BinaryData::from_file(&pixel_binary_file);
-
-                        let vertex_binary_file = Path::new(binary_folder)
-                            .join(&vertex_shader)
-                            .with_extension("bin");
-                        let vertex_binary_data = BinaryData::from_file(&vertex_binary_file);
+                        let pixel_binary_data = shader_binary_data(binary_folder, pixel_shader);
+                        let vertex_binary_data = shader_binary_data(binary_folder, vertex_shader);
 
                         let params = material_parameters(
                             &program,
@@ -185,17 +173,39 @@ fn export_shader_info(
                             &pixel_source,
                         );
 
-                        let attrs = vertex_attributes(&program, vertex_binary_data, vertex_source);
+                        let attrs = vertex_attributes(&program, vertex_binary_data, &vertex_source);
+
+                        // TODO: Don't count comment lines?
+                        // This assumes each line of code takes has the same cost.
+                        // Some lines will cost more in practice like texture loads.
+                        let lines_of_code =
+                            pixel_source.map(|s| s.lines().count()).unwrap_or_default()
+                                + vertex_source.map(|s| s.lines().count()).unwrap_or_default();
 
                         ShaderProgram {
                             name: program.name.to_string_lossy(),
                             discard,
                             attrs,
                             params,
+                            complexity: lines_of_code as f64,
                         }
                     })
                     .collect(),
             };
+
+            // Normalize shader complexity so the highest complexity is 1.0.
+            // Prevent a potential division by zero.
+            let total_lines_of_code = database
+                .shaders
+                .iter()
+                .map(|s| s.complexity)
+                .reduce(f64::max)
+                .unwrap_or_default()
+                .max(1.0);
+
+            for s in &mut database.shaders {
+                s.complexity /= total_lines_of_code;
+            }
 
             // TODO: Make pretty printing optional.
             let json = serde_json::to_string_pretty(&database).unwrap();
@@ -207,10 +217,23 @@ fn export_shader_info(
     0
 }
 
+fn shader_binary_data(
+    binary_folder: &str,
+    shader: String,
+) -> Result<BinaryData, Box<dyn std::error::Error>> {
+    let file = Path::new(binary_folder).join(&shader).with_extension("bin");
+    BinaryData::from_file(&file)
+}
+
+fn shader_source(source_folder: &str, shader: &String) -> Result<String, std::io::Error> {
+    let file = Path::new(source_folder).join(shader).with_extension("glsl");
+    std::fs::read_to_string(&file)
+}
+
 fn vertex_attributes(
     program: &ssbh_lib::formats::nufx::ShaderProgramV1,
     vertex_binary_data: Result<BinaryData, Box<dyn std::error::Error>>,
-    vertex_source: Result<String, std::io::Error>,
+    vertex_source: &Result<String, std::io::Error>,
 ) -> Vec<String> {
     program
         .vertex_attributes
@@ -232,7 +255,7 @@ fn vertex_attributes(
             }) {
                 if let Ok(vertex) = &vertex_source {
                     let channels = input_attribute_color_channels(location, vertex);
-                    if channels != "" {
+                    if !channels.is_empty() {
                         name = format!("{name}.{channels}")
                     }
                 }
@@ -279,9 +302,9 @@ fn material_parameters(
                 {
                     // Check what Vector4 color channels are used.
                     if let (Ok(vertex), Ok(pixel)) = (vertex_source, pixel_source) {
-                        let channels = vector4_color_channels(uniform, &vertex, &pixel);
+                        let channels = vector4_color_channels(uniform, vertex, pixel);
 
-                        if channels != "" {
+                        if !channels.is_empty() {
                             name = format!("{name}.{channels}")
                         }
                     }
