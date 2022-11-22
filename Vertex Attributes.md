@@ -30,7 +30,7 @@ The scale depends on the colorSet, and the same scale is applied to each of the 
 | colorSet2_3 | Similar to colorSet2 | RGB = lighting color, A = *unused* | ??? | 7.0 |
 | colorSet3 | Vertex color and alpha. Similar to colorSet1. | RGB = vertex color, A = ??? | (0.5, 0.5, 0.5, 0.5) | 2.0 | 
 | colorSet4 | Some sort of specular tint | RGB = color, A = blend factor | ??? | 2.0 |
-| colorSet5 | Used for texture blending. Some shaders just use alpha to blend between the primary and secondary col maps.  | R = diffuse layer 1?, B = diffuse layer 2?, G = baked lit map?, A = blend factor | (0, 0, 0, 0) or (0, 0, 0, 1/3) |  3.0 | 
+| colorSet5 | Texture blending masks combined with texture alpha.  | R = blend layer 1, G = blend layer 1, B = ???, A = blend layer 2 | (0, 0, 0, 0) or (0, 0, 0, 1/3) |  3.0 | 
 | colorSet6 | Controls the warping effect used for plants along with CustomVector37,38,39 | XYZ = ???, W = ??? | ??? | 1.0 |
 | colorSet7 | Controls some sort of fog effect | XYZ = ???, W = intensity | ??? |  1.0 | 
 
