@@ -199,6 +199,8 @@ Some texture names link to their corresponding page on the material research web
 
 The string value stored in the `.numatb` file is the corresponding texture's file name with no extension. This can be a file in the current directory like `asf_ashley_col` or a full path like `/common/shader/sfxPBS/default_Params`. Cube map textures can specify `#replace_cubemap` to use the current stage's reflection cube map.
 
+Diffuse maps are additional textures with shader specific usages. Diffuse maps are used for color layers, alpha masks, and various other effects.  
+
 | Param ID | Name | UV Attribute | Description |
 | --- | --- | --- | --- |
 | 92 (0x5C) | [Texture0](https://scanmountgoat.github.io/Smush-Material-Research/textures/col/) | map1 | Col Map (layer 1) |
