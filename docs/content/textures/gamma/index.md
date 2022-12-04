@@ -16,7 +16,7 @@ The texture format must match the type of data stored in the texture for the tex
 <table class="table table-striped">
     <thead>
         <tr>
-            <th scope="col" class="w-25">Texture</th>
+            <th scope="col">Texture</th>
             <th scope="col">Format</th>
         </tr>
     </thead>
@@ -77,14 +77,19 @@ Textures need to be saved with the correct format to appear correctly in game. S
 too bright or too dark in game. The full format depends on the compression type being used and if the texture has alpha. 
 
 ### sRGB
-<div class="row">
-    <div class="col-md-5 d-flex align-items-center justify-content-center">
-        <img class="img-fluid" src="srgb_srgb.jpg">
-    </div>
-    <div class="col-md-7 d-flex align-items-center justify-content-center">
-        <img class="img-fluid" src="srgb_to_float.png">
-    </div>
-</div>
+
+<style>
+    .center {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        width: 75%;
+    }
+</style>
+
+<img class="center" src="srgb_srgb.jpg">
+<img class="center" src="srgb_to_float.png">
+
 Textures with sRGB formats store nonlinear color data. The texture values are converted to linear floating point values in the range 0.0 to 1.0 using the 
 <a href="https://en.wikipedia.org/wiki/SRGB#The_sRGB_transfer_function_(%22gamma%22)" target="_blank">sRGB transfer function</a>. 
 The conversion from the sRGB texture values directly to floating point doesn't introduce any of the artifacts caused by applying the adjustment manually in an image editor.
@@ -93,27 +98,19 @@ Smash Ultimate uses the sRGB format for storing the final color to be displayed 
 so textures storing color data should also use a format with "sRGB" as part of the format name.
 
 ### Unorm (Unsigned Normalized / Linear / Linear Unsigned)
-<div class="row">
-    <div class="col-md-5 d-flex align-items-center justify-content-center">
-        <img class="img-fluid" src="unorm_srgb.jpg">
-    </div>
-    <div class="col-md-7 d-flex align-items-center justify-content-center">
-        <img class="img-fluid" src="unorm_to_float.png">
-    </div>
-</div>
+
+<img class="center" src="unorm_srgb.jpg">
+<img class="center" src="unorm_to_float.png">
+
 Textures with unorm formats store linear data and are converted to floating point by simply dividing by the type's max value. 
 8 bit values are divided by 255, 16 bit values are divided by 16355, etc. This converts unsigned integer values to floating point values in the range 0.0 to 1.0. 
 Textures that don't store color data, such as NOR maps and PRM maps, must be saved as unorm to render correctly in game.
 
 ### Snorm (Signed Normalized / Linear Signed)
-<div class="row">
-    <div class="col-md-5 d-flex align-items-center justify-content-center">
-        <img class="img-fluid" src="snorm_srgb.jpg">
-    </div>
-    <div class="col-md-7 d-flex align-items-center justify-content-center">
-        <img class="img-fluid" src="snorm_to_float.png">
-    </div>
-</div>
+
+<img class="center" src="snorm_srgb.jpg">
+<img class="center" src="snorm_to_float.png">
+
 Textures with snorm formats are converted to floating point values in the range -1.0 to 1.0. These formats aren't as common as unorm or sRGB. 
 
 
