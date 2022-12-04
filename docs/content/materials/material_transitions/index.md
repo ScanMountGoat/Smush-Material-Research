@@ -12,13 +12,6 @@ enables models to smoothly transition between two completely different materials
         display: grid;
         grid-template-columns: 5fr 7fr;
     }
-    .form-container {
-        display: grid;
-        grid-template-columns: 175px 1fr 2fr;
-        grid-auto-rows: 40px;
-        row-gap: 10px;
-    }
-
     canvas {
         width: 100%;
     }
@@ -26,23 +19,26 @@ enables models to smoothly transition between two completely different materials
 
 <div class="container">
     <canvas id="imgCanvas"></canvas>
-    <form>                
-        <label for="threshold" class="col-md-4 col-form-label">Transition Threshold</label>
-        <input type="text" value="0.4" name="threshold" id="thresholdText" class="col-md-2">
-        <input type="range" value="0.4" min="0.0" max="1.0" step="0.001" name="threshold" id="thresholdRange" class="col">
-        <label for="threshold" class="col-md-4 col-form-label">Render Mode</label>
+    <form>
+        <div>Transition Threshold</div>
+        <div>
+            <input type="text" value="0.4" name="threshold" id="thresholdText" class="col-md-2">
+            <input type="range" value="0.4" min="0.0" max="1.0" step="0.001" name="threshold" id="thresholdRange" class="col">
+        </div>
+        </br>
+        <div>Render Mode</div>
         <div>
             <div>
-                <input type="radio" name="renderMode" id="shaded" class="form-check-input" value="shaded" checked>
-                <label for="shaded" class="form-check-label">Shaded</label>
+                <input type="radio" name="renderMode" id="shaded"value="shaded" checked>
+                <label for="shaded">Shaded</label>
             </div>
             <div>
-                <input type="radio" name="renderMode" id="norB" class="form-check-input" value="norB">
-                <label for="norB" class="form-check-label">NOR.b</label>
+                <input type="radio" name="renderMode" id="norB"value="norB">
+                <label for="norB">NOR.b</label>
             </div>
             <div>
-                <input type="radio" name="renderMode" id="transitionBlend" class="form-check-input" value="transitionBlend">
-                <label for="transitionBlend" class="form-check-label">Transition Blend (Calculated)</label>
+                <input type="radio" name="renderMode" id="transitionBlend"value="transitionBlend">
+                <label for="transitionBlend">Transition Blend (Calculated)</label>
             </div>
         </div>
     </form>
