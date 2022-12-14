@@ -19,4 +19,4 @@ Emission materials use CustomVector3 as a color multiplier for the emissive map.
     <img src="mario_past_usa.jpg" height="auto" width="auto">
     <figcaption class="figure-caption text-center">All of the stage materials in this screenshot are colored using emissive maps.</figcaption>
 </figure>
-The emission color is not effected by stage lighting, which is ideal for "shadeless" materials. If CustomVector3 is set to (1.0, 1.0, 1.0, 1.0), the color on the emissive map is the final color that will be rendered on screen. Shadeless materials are useful for retro stages or for prendered background elements that don't need to be lit dynamically. 
+The emission color is not affected by stage lighting, which is ideal for "shadeless" materials. If CustomVector3 is set to (1.0, 1.0, 1.0, 1.0), the color on the emissive map is the final color that will be rendered on screen. Shadeless materials are useful for retro stages or for prendered background elements that don't need to be lit dynamically. 

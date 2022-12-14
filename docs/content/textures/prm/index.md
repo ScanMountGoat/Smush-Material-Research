@@ -119,7 +119,7 @@ of the model always have reflectance values close to 1.0 regardless of the base 
   
 <figure class="figure">
     <img src="mario_f0.jpg" height="auto" width="auto">
-    <figcaption class="figure-caption text-center">The specular reflectance for different PRM specular values. The buttons are not effected by specular since their metalness is 1.0. Note how the edges are always 100% reflective.</figcaption>
+    <figcaption class="figure-caption text-center">The specular reflectance for different PRM specular values. The buttons are not affected by specular since their metalness is 1.0. Note how the edges are always 100% reflective.</figcaption>
 </figure>
 Metals work differently and use the albedo color from the col map as the specular reflectivity. This allows for specular to be 
 tinted by the albedo color. Specular reflectivity is not scaled by 0.2 for metals, so metals can be significantly more reflective.
