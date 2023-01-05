@@ -15,6 +15,6 @@ Vertex normals are direction vectors and not colors. These vectors often contain
 
 ## Tangent0
 ![tangent0](tangent0.png)
-Tangents and bitangents are used for rendering [normal maps](/textures/nor/) and [anisotropic specular](/hair_materials/). The tangent vector is the XYZ components of the Tangent0 attribute. The bitangent vector is generated from the tangent vector in the shaders, so there is no way to directly control the bitangent vector. 
+Tangents and bitangents are used for rendering [normal maps](../../textures/nor/) and [anisotropic specular](../../materials/hair-materials/). The tangent vector is the XYZ components of the Tangent0 attribute. The bitangent vector is generated from the tangent vector in the shaders, so there is no way to directly control the bitangent vector. 
 
 Similar to vertex normals, tangents are sometimes visualized as colors. Tangents are calculated using vertex normals and texture coordinates, so they don't have an intuitive mapping to RGB colors like vertex normals. Looking at a color visualization of tangents may help identify potential problems with normals or normal map rendering such as surfaces appearing inverted or identifying seams. Tangents are not directly editable like vertex positions or texture coordinates. Problems with tangents indicate a problem with the model itself usually due to bad topology, vertex normals, or UV maps. 
