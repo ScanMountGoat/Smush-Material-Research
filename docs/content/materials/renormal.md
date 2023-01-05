@@ -1,7 +1,0 @@
-+++
-title = "Renormal Materials"
-weight = 5
-+++
-A small number of materials in game have material labels that begin with the "RENORMAL_" prefix like "RENORMAL_skin_pikachu_001". This special prefix instructs the game to recalculate the normals during animation for any meshes assigned to that material. Recalculating normals can reduce shading artifacts on meshes with heavy deformations such as pikachu's crouch animation. This technique isn't enabled for all meshes since it has a performance cost and recalculating normals isn't always desirable such as for meshes with heavily modified normals or meshes without vertex skinning.
-
-The model.adjb file contains precomputed triangle adjacency information for select meshes from the model.numshb. The adjacency information specifies the adjacent faces for each vertex to allow the game to calculate smooth vertex normals by averaging the normals calculated from the vertex positions of each adjacent face. Meshes with materials with the "RENORMAL_" prefix but no entry in the model.adjb will have broken normals in game. SSBH Editor can automatically detect this and provides ways to easily create a missing model.adjb or add missing entries to an existing model.adjb.
