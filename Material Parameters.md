@@ -187,11 +187,11 @@ Stores an RGBA color or 4 float parameters. If a custom vector required by the s
 | 335 (0x14F) | CustomVector40 | | XYZW? Always (1, 25, 1, 25). |
 | 336 (0x150) | CustomVector41 | *Unused* | *Unused* |
 | 337 (0x151) | CustomVector42 | | Controls some sort of rim lighting by smoothing between Z and W. XY = *Unused*, Z = smooth start, W = smooth end |
-| 338 (0x152) | CustomVector43 | | XYZW? Used for Wii Fit Trainer models for wiifit stage. Set to (0, 63, 0, 0) and (0, 25, 0, 0). |
-| 339 (0x153) | CustomVector44 | | RGBA? Used for Wii Fit Trainer models for wiifit stage. Set to (0.1804, 0.3462, 0.1314, 1). |
-| 340 (0x154) | CustomVector45 | | RGBA? Used for Wii Fit Trainer models for wiifit stage. Set to (0.008, 0.13, 0.02, 1). |
+| 338 (0x152) | CustomVector43 | | Used to smoothly blend between CustomVector44 and CustomVector45 using vertex position. X = height threshold start, Y = height threshold end, ZW = *Unused* |
+| 339 (0x153) | CustomVector44 | | Start color for blending with CustomVector43. RGB = color, A = *Unused* |
+| 340 (0x154) | CustomVector45 | | End color for blending with CustomVector43. RGB = color, A = *Unused* |
 | 341 (0x155) | CustomVector46 | | RGBA? Only used for one of Bayonetta's body anim meshes. |
-| 342 (0x156) | CustomVector47 | | Used for some stages. The color channels work the same as PRM maps. |
+| 342 (0x156) | CustomVector47 | | A parameter for PRM map values. R = metalness, G = roughness, B = ambient occlusion, A = alpha |
 
 
 ## Textures
