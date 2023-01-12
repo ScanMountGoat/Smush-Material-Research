@@ -3,7 +3,7 @@ title = "Model Brightness"
 weight = 4
 +++
 Custom models in Smash Ultimate often appear brighter than expected. 
-This page explains the two main sources of overly bright models and potential fixes.
+This page explains the main sources of overly bright models and potential fixes.
 
 ## Albedo Color
 ### Explanation
@@ -40,3 +40,10 @@ The decrease in apparent saturation from lowering metalness may not always be de
 
 ### Fixing Non Metallic Materials
 The most common cause of overly bright highlights for non metallic materials is setting the specular map brightness too high. The PRM alpha channel is scaled differently than many other PBR applications and games, so a reasonable starting value is 0.16 or lower. See the [PRM](../../textures/prm/#specular-alpha) page for details. Increasing roughness can also make non metallic specular appear darker but tends to be less of an issue than for metallic materials.
+
+## Vertex Color
+### Explanation
+Vertex color attributes in Smash Ultimate are scaled during rendering. A colorSet1 value of (0.5, 0.5, 0.5, 0.5) will render as white in game since colorSet1 is scaled by a factor of 2.0. For a full list of scaling values, see [Vertex Attributes](https://github.com/ScanMountGoat/Smush-Material-Research/blob/master/Vertex%20Attributes.md#color-set-attributes). Different exporting applications will handle vertex color scaling differently, which may result in models rendering as brighter than intended.
+
+### Fixes
+The render settings menu for SSBH Editor has various render modes and toggles for vertex color. If the model appears too bright with vertex color rendering enabled, check the color set debug modes like colorSet1. Unchecking the vertex color scaling will show the raw color values. For example, colorSet1 values should usually not exceed (0.5, 0.5, 0.5, 0.5) with scaling unchecked for most models. The actual values on screen may differ slightly due to gamma correction. Vertex color scaling should be fixed in the 3d modeling program used to export such as Blender.
