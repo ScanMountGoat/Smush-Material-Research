@@ -1,4 +1,5 @@
 use std::{
+    error::Error,
     fs::File,
     io::{BufWriter, Write},
     path::{Path, PathBuf},
@@ -174,6 +175,7 @@ fn export_shader_info(
 
                         let params = material_parameters(
                             &program,
+                            &vertex_binary_data,
                             &pixel_binary_data,
                             &vertex_source,
                             &pixel_source,
@@ -287,6 +289,7 @@ fn input_attribute_color_channels(location: i32, source: &str) -> String {
 
 fn material_parameters(
     program: &ssbh_lib::formats::nufx::ShaderProgramV1,
+    vertex_binary_data: &Result<BinaryData, Box<dyn std::error::Error>>,
     pixel_binary_data: &Result<BinaryData, Box<dyn std::error::Error>>,
     vertex_source: &Result<String, std::io::Error>,
     pixel_source: &Result<String, std::io::Error>,
@@ -302,19 +305,25 @@ fn material_parameters(
             if name.contains("Texture") {
                 // TODO: Check what color channels are used from textures (requires nushdb).
             } else if name.contains("CustomVector") {
-                if let Some(uniform) = pixel_binary_data
-                    .as_ref()
-                    .ok()
-                    .and_then(|data| data.uniforms.iter().find(|u| u.name == name))
-                {
-                    // Check what Vector4 color channels are used.
-                    if let (Ok(vertex), Ok(pixel)) = (vertex_source, pixel_source) {
-                        let channels = vector4_color_channels(uniform, vertex, pixel);
+                // Check what Vector4 color channels are used.
+                let pixel_channels =
+                    vector4_color_channels(&name, "fp_c9_data", pixel_binary_data, pixel_source)
+                        .unwrap_or_default();
+                let vertex_channels =
+                    vector4_color_channels(&name, "vp_c9_data", vertex_binary_data, vertex_source)
+                        .unwrap_or_default();
 
-                        if !channels.is_empty() {
-                            name = format!("{name}.{channels}")
-                        }
-                    }
+                // Channels may be accessed in either shader.
+                let channels: String = "xyzw"
+                    .chars()
+                    .into_iter()
+                    .enumerate()
+                    .filter(|(i, _)| pixel_channels[*i] || vertex_channels[*i])
+                    .map(|(_, c)| c)
+                    .collect();
+
+                if !channels.is_empty() {
+                    name = format!("{name}.{channels}")
                 }
             }
 
@@ -324,18 +333,37 @@ fn material_parameters(
 }
 
 fn vector4_color_channels(
+    name: &str,
+    buffer_name: &str,
+    binary_data: &Result<BinaryData, Box<dyn Error>>,
+    source: &Result<String, std::io::Error>,
+) -> Option<[bool; 4]> {
+    let uniform = binary_data
+        .as_ref()
+        .ok()?
+        .uniforms
+        .iter()
+        .find(|u| u.name == name)?;
+
+    // Check what Vector4 color channels are used.
+    Some(vector4_color_channels_from_source(
+        uniform,
+        source.as_ref().ok()?,
+        buffer_name,
+    ))
+}
+
+fn vector4_color_channels_from_source(
     uniform: &ssbh_data::shdr_data::Uniform,
-    vertex_source: &str,
-    pixel_source: &str,
-) -> String {
-    let mut channels = String::new();
-    // The material uniform buffer is always "vec4 fp_c9_data[0x1000]".
+    source: &str,
+    buffer_name: &str,
+) -> [bool; 4] {
+    let mut channels = [false; 4];
     let vec4_index = uniform.uniform_buffer_offset / 16;
-    for component in "xyzw".chars() {
-        let vertex_access = format!("vp_c9_data[{vec4_index}].{component}");
-        let pixel_access = format!("fp_c9_data[{vec4_index}].{component}");
-        if vertex_source.contains(&vertex_access) || pixel_source.contains(&pixel_access) {
-            channels.push(component);
+    for (channel, component) in channels.iter_mut().zip("xyzw".chars()) {
+        let access = format!("{buffer_name}[{vec4_index}].{component}");
+        if source.contains(&access) {
+            *channel = true;
         }
     }
 
