@@ -17,18 +17,18 @@
 | mirror | number | | 0x0000 |
 | model | type | Determines what model type the `model.xmb` file is for. | `fighter`, `stage`, `effect`, `effect_main` (unused), `effect_near` (unused) |
 | object | type | *Unused* | 2 |
-| poison | number |  Determines if a stage model can appear under foggy or poisonous cloud conditions in spirit battles. | 0 = Invisible, 1 = Visible |
+| poison | number |  Determines if a stage model is visible under foggy or poisonous cloud conditions in spirit battles. | 0 = Invisible, 1 = Visible |
 | pre_depth | number | | 1 |
 | reflection | search | *Unused* | 100.0 |
 | shadow | caster | Determines what type of shadow casting the model will use. | 0 = Disabled, 1 = Enabled, 2 = Enabled + Texture 0 Alpha Test, 3 = Shadow Only, 4 = Shadow Only + Texture 0 Alpha Test. Shadow programs listed in `/render/shader/nusampleeffectlibrary.nufxlb`. |
 | shadow_bounding_box_offset | offset | | `(float, float, float)` with values from 9.0 to 100.0 |
 | silhouette_type | number | | 0, 1 |
-| stage_expansion_type | number | | 0, 1 |
-| stage_ink_type | number | Determines how Splat Roller ink will be projected onto surfaces with ink meshes. | 0 = Flat, 1 = ???, 2 = Overhanging, 3 = ??? (used in `s13_e` in poke_unova) |
+| stage_expansion_type | number | Determines if a stage model scales in battles with five or more fighters when playing on the stage's Omega form. | 0 = Default scale, 1 = 1.5x scale |
+| stage_ink_type | number | Determines how ink from Inkling's Splat Roller will be projected onto surfaces with ink meshes. | 0 = Flat, 1 = ???, 2 = Overhanging, 3 = ??? (used in `s13_e` in poke_unova) |
 | stage_sh_priority | number | | 0, 1, 2, 3, 4, 5 |
-| stage_transition_type | number | Determines if a stage model temporarily blooms or not after the Stage Morph transition. | 0 = Enables bloom, 1 = ??? (identical to 0?), 2 = Disables bloom |
+| stage_transition_type | number | Determines if a stage model temporarily blooms after the Stage Morph transition. | 0 = Enables bloom, 1 = ??? (identical to 0?), 2 = Disables bloom |
 | stage_transition_visible | number | Determines if a stage model is visible during its transition out in Stage Morph. | 0 = Invisible, 1 = Visible |
-| stage_visible_type | number | Determines a stage model's visibility during effect background appearences. | 0 = Always visible, 1 = Disappears during effect backgrounds, 2 = Only visible during effect backgrounds |
+| stage_visible_type | number | Determines a stage model's visibility during effect background appearences. | 0 = Visible, 1 = Invisible, 2 = Visible only during effect background appearances |
 | stencil_type | number | Stenciling states. | 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 |
 | this_light | action | | 0, False |
 | this_light | color | | `float, float, float` with values from 0.0 to 1.0 |
