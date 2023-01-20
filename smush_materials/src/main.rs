@@ -78,6 +78,18 @@ fn main() {
                 .arg(input_arg.clone())
                 .arg(output_arg.clone()),
         )
+        .subcommand(
+            Command::new("nushdb_metadata")
+                .about("Export nushdb shader metadata JSON")
+                .arg(
+                    Arg::new("nushdb_folder")
+                        .index(1)
+                        .help("The folder containing the nushdb files")
+                        .required(true)
+                        .takes_value(true),
+                )
+                .arg(output_arg.clone()),
+        )
         .get_matches();
 
     let start = std::time::Instant::now();
@@ -110,6 +122,10 @@ fn main() {
             sub_m.value_of("binary_folder").unwrap(),
             sub_m.value_of("source_folder").unwrap(),
             sub_m.value_of("output_json").unwrap(),
+        ),
+        ("nushdb_metadata", sub_m) => export_nushdb_metadata(
+            sub_m.value_of("nushdb_folder").unwrap(),
+            sub_m.value_of("output").unwrap(),
         ),
         _ => 0,
     };
@@ -529,6 +545,42 @@ fn most_recent_assignment<'a>(source: &'a str, var: &str) -> Option<&'a str> {
         .rfind(|l| l.contains(&format!("{var} = ")))
         .and_then(|s| s.split_once("="))
         .map(|(_, s)| s.trim().trim_end_matches(';'))
+}
+
+fn export_nushdb_metadata(nushdb_folder: &str, output_folder: &str) -> usize {
+    // Make sure the output directory exists.
+    let output_folder = Path::new(output_folder);
+    if !output_folder.exists() {
+        std::fs::create_dir(output_folder).unwrap();
+    }
+
+    let paths: Vec<_> = globwalk::GlobWalkerBuilder::from_patterns(nushdb_folder, &["*.nushdb"])
+        .build()
+        .unwrap()
+        .into_iter()
+        .filter_map(Result::ok)
+        .collect();
+
+    // Each nushdb file can contain multiple shader entry.
+    // The shader entry contains the compiled code and metadata.
+    // Split into separate files to match the binary/decompiled dumps.
+    let count: usize = paths
+        .par_iter()
+        .filter_map(|path| ShdrData::from_file(path.path()).ok())
+        .flat_map(|data| data.shaders)
+        .map(|shader| {
+            let output_path = output_folder.join(&shader.name).with_extension("json");
+            if let Ok(json) = serde_json::to_string_pretty(&shader) {
+                if let Err(e) = std::fs::write(&output_path, json) {
+                    println!("Error writing to {output_path:?}: {e}");
+                }
+            }
+
+            1
+        })
+        .sum();
+
+    count
 }
 
 #[cfg(test)]

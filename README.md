@@ -29,6 +29,11 @@ The JSON dump of the Nufx file can be converted to an SQLite database for more e
 The file contains duplicate entries for each render pass (_opaque, _sort, etc). These entries can be removed by adding the `--remove_duplicates` flag.  
 `python create_shader_db.py nuc2effectlibrary.json nufx.db --remove_duplicates`   
 
+## Nushdb Metadata
+Generates a separate JSON metadata file for each of the shaders in the nushdb files. This metadata describes how material inputs are mapped to the shader code.
+
+`cargo run --release -- nushdb_metadata </render/shader/bin folder> <export folder>`  
+
 ## Decompiled Shaders - WIP
 First extract the shader binaries from the .nushdb files since each file contains multiple shaders.  
 `cargo run --release -- shader_binaries <render folder> <binary export folder>`
