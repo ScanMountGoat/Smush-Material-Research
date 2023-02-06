@@ -19,10 +19,11 @@ The 4 values will be referred to as XYZW or RGBA. For example, CustomVector11.g 
 The four values of a texture can also be written using the "texture.b" or "texture.z" notation depending on if it makes more sense to refer to the channels as RGBA colors or not. Phrases like "PRM alpha", "PRM.a" or "PRM.w" all refer to the fourth channel of the PRM texture. Not all alpha channels are used for transparency, but the convention in image editing programs is to show the fourth channel as alpha regardless of its usage.
 
 ## Tools 
-- [SSBH Editor](https://github.com/ScanMountGoat/ssbh_editor/releases) - model and animation viewer and material editor
+- [SSBH Editor](https://github.com/ScanMountGoat/ssbh_editor/releases) - view, edit, and validate models
 - [ssbh_lib_json/ssbh_data_json](https://github.com/ultimate-research/ssbh_lib/releases) - command line tools for editing model formats as text files
 - [smash-ultimate-blender](https://github.com/ssbucarlos/smash-ultimate-blender) - import and export models with Blender
-- [Switch Toolbox](https://github.com/KillzXGaming/Switch-Toolbox) - edit BNTX and NUTEXB files
+- [Switch Toolbox](https://github.com/KillzXGaming/Switch-Toolbox) - edit bntx and nutexb files (Windows only)
+- [Ultimate Tex](https://github.com/ScanMountGoat/ultimate_tex/releases) - batch convert texture files like bntx, dds, or nutexb
 - [Smush LUT](https://github.com/ScanMountGoat/Smush-LUT) - edit color_grading_lut.nutexb files
 
 ## Support
