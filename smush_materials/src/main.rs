@@ -143,6 +143,7 @@ struct ShaderProgram {
     name: String,
     discard: bool,
     premultiplied: bool,
+    receives_shadow: bool,
     attrs: Vec<String>,
     params: Vec<String>,
     complexity: f64,
@@ -206,10 +207,19 @@ fn export_shader_info(
                             pixel_source.map(|s| s.lines().count()).unwrap_or_default()
                                 + vertex_source.map(|s| s.lines().count()).unwrap_or_default();
 
+                        // Texture15 is always the shadow map texture.
+                        // Shaders with Texture15 also have IN_ShadowMap.
+                        // Just check if the shadow map is present for now.
+                        // Checking shadow map usage requires mapping decompiled texture handles to uniforms.
+                        let receives_shadow = pixel_binary_data
+                            .map(|p| p.uniforms.iter().any(|u| u.name == "Texture15"))
+                            .unwrap_or_default();
+
                         ShaderProgram {
                             name: program.name.to_string_lossy(),
                             discard,
                             premultiplied,
+                            receives_shadow,
                             attrs,
                             params,
                             complexity: lines_of_code as f64,
