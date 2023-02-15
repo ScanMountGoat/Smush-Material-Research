@@ -144,6 +144,8 @@ struct ShaderProgram {
     discard: bool,
     premultiplied: bool,
     receives_shadow: bool,
+    sh: bool,
+    lighting: bool,
     attrs: Vec<String>,
     params: Vec<String>,
     complexity: f64,
@@ -212,7 +214,25 @@ fn export_shader_info(
                         // Just check if the shadow map is present for now.
                         // Checking shadow map usage requires mapping decompiled texture handles to uniforms.
                         let receives_shadow = pixel_binary_data
+                            .as_ref()
                             .map(|p| p.uniforms.iter().any(|u| u.name == "Texture15"))
+                            .unwrap_or_default();
+
+                        // Spherical harmonic ambient lighting is passed from the vertex shader.
+                        let sh = pixel_binary_data
+                            .as_ref()
+                            .map(|p| p.inputs.iter().any(|i| i.name == "IN_shLighting"))
+                            .unwrap_or_default();
+
+                        // Some models with baked lighting don't use the light set.
+                        // A negative offset means that the buffer doesn't contain the uniform.
+                        let lighting = pixel_binary_data
+                            .as_ref()
+                            .map(|p| {
+                                p.uniforms.iter().any(|u| {
+                                    u.name == "lightDirColor1" && u.uniform_buffer_offset != -1
+                                })
+                            })
                             .unwrap_or_default();
 
                         ShaderProgram {
@@ -220,6 +240,8 @@ fn export_shader_info(
                             discard,
                             premultiplied,
                             receives_shadow,
+                            sh,
+                            lighting,
                             attrs,
                             params,
                             complexity: lines_of_code as f64,
