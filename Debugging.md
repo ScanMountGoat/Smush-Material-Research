@@ -2,11 +2,11 @@
 ## Introduction
 Debugging is vital to successfully reverse engineering the rendering techniques for a game like Smash Ultimate. The goal is not simply to find out *what* a model or visual effect will look like in game. This question is easily answered by booting up the game or using an emulator. The primary goal of rendering research is to figure out *how* a particular effect is achieved and even *why* the game developers may have chosen to implement it in a particular way.
 
-It's easy to see the result of animations by playing the game. It's not obvious that *how* this is achieved involves a compute shader pass at the start of the frame rather than traditional techniques like vertex shader skinning. Debugging tools make it straightforward to discover this by inspecting the rendering API calls in Ryujinx or Yuzu emulator.
+It's easy to see the result of animations by playing the game. It's not obvious that *how* this is achieved involves a compute shader pass at the start of the frame rather than traditional techniques like vertex shader skinning. Debugging tools make it straightforward to discover this by inspecting the rendering API calls in Ryujinx or Yuzu emulator. 
 
-This helps answer the question of *why* the game uses compute shader skinning instead of vertex shader skinning. One likely theory is that the developers wanted to avoid applying the vertex skinning in the 
-vertex shader since this would run the code in both the depth only pass for shadowmapping and the main color pass. A compute shader ensures each vertex is transformed only once and simplifies 
-the vertex shader code. Investigating answers to these questions helps understand what visual effects are possible in game and what steps should be taken by mod authors to achieve them.
+Understanding *how* an effect is achieved allows for recreating it in code. Recreating rendering in code can be beneficial for testing understanding of the rendering techniques by comparing with the game itself. Having a shared code implementaiton of the game's rendering enables the development of applications and tools for modding. The rendering code implemented in [ssbh_wgpu](https://github.com/ScanMountGoat/ssbh_wgpu) is used to create the 3D viewport for applications like [SSBH Editor](https://github.com/ScanMountGoat/ssbh_editor). The ssbh_wgpu code also serves as a point of reference when developing and fixing the Blender addon [Smash-Ultimate-Blender](https://github.com/ssbucarlos/smash-ultimate-blender).
+
+This helps answer the question of *why* the game uses compute shader skinning instead of vertex shader skinning. One likely theory is that the developers wanted to avoid applying the vertex skinning in the vertex shader since this would run the code in both the depth only pass for shadowmapping and the main color pass. A compute shader ensures each vertex is transformed only once and simplifies the vertex shader code. Investigating answers to these questions helps understand what visual effects are possible in game and what steps should be taken by mod authors to achieve them.
 
 ## Debugging Process
 The basic process when investigating a particular visual effect or technique in game is to investigate the rendering calls in an unmodified scene or a scene with known behavior. 
@@ -22,10 +22,7 @@ This can make it seem like a value does nothing or does something unexpected. Fo
 It can be helpful to test multiple different models or scenes that use a particular value. Dumping all possible values for a parameter from the game files can help predict if a value is used or not. 
 It's not always the case that values that only use a single value in game are unused or values with many unique values actually do something in game, however. 
 
-It's generally not feasible or even valuable for modding to completely reverse engineer all of the game's rendering code or test every possible parameter combination. 
-An efficient way to produce reasonably good understanding is to start with a basic guess of how something works, find cases that don't match up with in game, and try to find 
-the value or values responsible for the difference via debugging. Many improvements in material and rendering research have been found by analyzing why the output of the renderer 
-in applications like SSBH Editor does not match in game. It's important to discover why these discrepencies exist even if perfectly recreating them in applications is deemed not worth the effort.
+It's generally not feasible or even valuable for modding to completely reverse engineer all of the game's rendering code or test every possible parameter combination. An efficient way to produce reasonably good understanding is to start with a basic guess of how something works, find cases that don't match up with in game, and try to find the value or values responsible for the difference via debugging. Many improvements in material and rendering research have been found by analyzing why the output of the renderer in applications like SSBH Editor does not match in game. It's important to discover why these discrepencies exist even if perfectly recreating them in applications is deemed not worth the effort. It may also be necessary in some cases to sacrifice rendering accuracy in some cases to achieve better performance or compatibility on PC hardware.
 
 ## Testing
 Testing is a vital part of validating not only application code but also understanding of how the in game rendering works. Without access to the original code or specification, it's unlikely that 
@@ -45,13 +42,12 @@ Discovering which values affect certain state like alpha blending is trivial usi
 This technique also has the advantage of being able to edit shaders in RenderDoc and obvserve the changes to the rendered image. 
 The sequence of API calls and shader code in the emulator can be used as a reference for the application. 
 
-It can even be beneficial in some cases to translate sections of shader code or recreate sequences of API calls. Blindly copying API calls and shader code can quickly create an unmaintainable mess in the application code.
-A perfect 1:1 creation of the in game code might produce accurate output, but it won't help modders or application developers make informed decisions if it can't be understood.
-There will always be a tradeoff between rendering accuracy and development effort. 
+It can even be beneficial in some cases to translate sections of shader code or recreate sequences of API calls. Blindly copying API calls and shader code can quickly create an unmaintainable mess in the application code. A perfect 1:1 creation of the in game code might produce accurate output, but it won't help modders or application developers make informed decisions if it can't be understood. There will always be tradeoffs between rendering accuracy, readability, and development effort.
 
 One approach is to try and come up with the simplest possible solution that explains the 
 rendering results seen in game. This simple, readable solution can be tested by comparing the application outputs with the "reference" solution of the emulator. RenderDoc allows for editing shader code, which can 
-be an easy way to quickly test different parameter values and isolate sections of the code. This makes it easy to test the same scenario for both the application code and the game. 
+be an easy way to quickly test different parameter values and isolate sections of the code. This makes it easy to test the same scenario for both the application code and the game and compare the output.
+
 It's important to establish the relationships between values even if the math isn't obvious right away. 
 For example, it's easy to see that colorSet1 makes the model brighter or darker by changing vertex attribute values in the shader in RenderDoc. A value of 0 makes the model black and a value of 1 makes the model bright. 
 This sounds like multiplication, so an application might express this as `color = color * colorSet1.rgb`. 
