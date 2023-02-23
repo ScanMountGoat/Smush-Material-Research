@@ -1,10 +1,9 @@
 # Debugging
 ## Introduction
-Debugging is vital to successfully reverse engineering the rendering techniques for a game like Smash Ultimate. 
-The goal is not simply to find out *what* a model or visual effect will look like in game. This question is easily answered by booting up the game or using an emulator.
-The primary goal of rendering research is to figure out *how* a particular effect is achieved and even *why* the game developers may have chosen to implement it in a particular way.
-For example, it's easy to see the result of animations by playing the game. It's not obvious that *how* this is achieved involves a compute shader pass at the start of the frame 
-rather than traditional techniques like vertex shader skinning. Debugging tools make it straightforward to discover this by inspecting the rendering API calls in Ryujinx or Yuzu emulator.
+Debugging is vital to successfully reverse engineering the rendering techniques for a game like Smash Ultimate. The goal is not simply to find out *what* a model or visual effect will look like in game. This question is easily answered by booting up the game or using an emulator. The primary goal of rendering research is to figure out *how* a particular effect is achieved and even *why* the game developers may have chosen to implement it in a particular way.
+
+It's easy to see the result of animations by playing the game. It's not obvious that *how* this is achieved involves a compute shader pass at the start of the frame rather than traditional techniques like vertex shader skinning. Debugging tools make it straightforward to discover this by inspecting the rendering API calls in Ryujinx or Yuzu emulator.
+
 This helps answer the question of *why* the game uses compute shader skinning instead of vertex shader skinning. One likely theory is that the developers wanted to avoid applying the vertex skinning in the 
 vertex shader since this would run the code in both the depth only pass for shadowmapping and the main color pass. A compute shader ensures each vertex is transformed only once and simplifies 
 the vertex shader code. Investigating answers to these questions helps understand what visual effects are possible in game and what steps should be taken by mod authors to achieve them.
