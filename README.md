@@ -48,7 +48,7 @@ alpha testing is always done in game using shader code rather than through a gra
 
 # Additional Tools
 [ssbh_lib](https://github.com/ultimate-research/ssbh_lib) - Contains the `ssbh_lib_json` and `ssbh_data_json` executables for editing various rendering related file types as JSON  
-[xmb_lib](https://github.com/ultimate-research/xmb_lib) - Contains the `xmb` executable that can be used to convert XMB files to and from XML
-[Ryujinx](https://ryujinx.org/) - Nintendo Switch emulator used for the research and documentation of in game rendering.
-[Yuzu](https://yuzu-emu.org/) - Nintendo Switch emulator used for early research. Not recommended for research due to its decompiled shaders and rendering commands being structured differently than Ryujinx.
+[xmb_lib](https://github.com/ultimate-research/xmb_lib) - Contains the `xmb` executable that can be used to convert XMB files to and from XML  
+[Ryujinx](https://ryujinx.org/) - Nintendo Switch emulator used for the research and documentation of in game rendering.  
+[Yuzu](https://yuzu-emu.org/) - Nintendo Switch emulator used for early research. Not recommended for research due to its decompiled shaders and rendering commands being structured differently than Ryujinx.  
 [RenderDoc](https://renderdoc.org/) - a powerful GPU debugging program that can be used with Ryujinx or RenderDoc to analyze in game rendering.
