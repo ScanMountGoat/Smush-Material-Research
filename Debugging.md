@@ -62,10 +62,12 @@ More careful analysis by analyzing the game's vertex shader code in RenderDoc wi
 It's also beneficial to test the code itself using traditional software testing techniques. This includes tests like unit testing, fuzz testing, integration tests, etc.
 Testing shader and rendering code tends using traditonal tests like unit tests tends to be not very straightforward since rendering calls typically modify memory or state on the GPU and don't return meaningful values.
 It's not impossible to adapt testing techniques to work with rendering code, but it can be difficult to maintain due to the complexities in moving data to and from the CPU and GPU and configuring rendering state.
-Code that just runs on the CPU can easily be tested using traditional testing techniques. For example, the ssbh_lib repository for loading rendering related file formats uses unit tests 
-as well as fuzz testing for checking how invalid inputs are handled. ssbh_wgpu itself uses unit testing for the skeletal animation code since it runs on the CPU. 
+
+Code that just runs on the CPU can easily be tested using traditional testing techniques. For example, the ssbh_lib repository for loading rendering related file formats uses unit tests as well as fuzz testing for checking how invalid inputs are handled. 
+
+ssbh_wgpu itself uses unit testing for the skeletal animation code since it runs on the CPU. 
 Fuzz tests check for basic handling of missing or invalid files to check for potential crashes. The shader and rendering code itself is not tested due to complexities in writing and maintaining tests. This saves time writing tests but has the side effect of 
-the rendering code being easy to break accidentally while modifying the code. ssbh_wgpu instead uses batch rendering for quickly rendering screenshots of multiple models to check for any obvious visual errors.
+the rendering code being easy to break accidentally while modifying the code. ssbh_wgpu instead uses batch rendering for quickly rendering screenshots of multiple models to check for any obvious visual errors. This also helps check for any API errors or crashes while loading and rendering models. 100% accuracy to in game rendering is not a goal of ssbh_wgpu, so minor visual errors are generally ok as long as the application is stable and gives a mostly accurate representation of the scene.
 
 ## Debugging Tools
 A great tool for graphical debugging is [RenderDoc](https://renderdoc.org/). RenderDoc can debug OpenGL, Vulkan, and DirectX applications. 
