@@ -1,7 +1,7 @@
 # Smash Ultimate Material Research
 A collection of dumps, scripts, and markdown files for research into lighting, shading, rendering, and materials for Smash Ultimate.
 The markdown files contain information on researched values for materials and can be viewed directly
-in the browser. Please submit an issue or pull request for any incorrect or missing information.
+in the browser. Please submit an issue or pull request for any incorrect or missing information. Ask questions or discuss in game rendering using [discussions](https://github.com/ScanMountGoat/Smush-Material-Research/discussions).
 
 # [Website](https://scanmountgoat.github.io/Smush-Material-Research/)
 The repository has a website for tutorials and real time demos. If any pages don't load properly or one of the demos is messed up, report the bug in [issues](https://github.com/ScanMountGoat/Smush-Material-Research/issues). 
