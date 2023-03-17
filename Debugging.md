@@ -32,6 +32,8 @@ The results are often unhelpful since spotting visual differences doesn't tell y
 If the application's lighting code is known to not be accurate yet, it can be hard to isolate the errors in material coloring.
 
 ### Graphical Debugger Captures
+![image](https://user-images.githubusercontent.com/23301691/226055125-44453c88-af82-4d1a-bc8c-65fb2c11bfde.png)
+
 Another method for testing is to compare the application and an emulator using a debugger like RenderDoc. RenderDoc is similar to devtools available in modern browsers, and both are usually accessed by hitting F12. The advantage of using a debugger is that it's possible to easily spot differences in API calls that may not be discernible in screenshots. 
 Discovering which values affect certain state like alpha blending is trivial using this technique by simplying comparing the pipeline state for two meshes.
 RenderDoc also has the ability to edit shaders and observe the changes to the rendered image, which can be far faster than editing material files. 
