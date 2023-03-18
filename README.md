@@ -46,6 +46,10 @@ This list is based on searching the decompiled shader dump for shaders with the 
 for the shader code to contain `discard;` and not perform alpha testing based on the model and texture alpha. There are unlikely to be any missing shaders since 
 alpha testing is always done in game using shader code rather than through a graphics API call to enable or disable alpha testing.
 
+## Annotated Decompiled Shaders
+Replaces hardcoded offsets into uniform buffers in the decompiled shader dump using variable names from the nushdb metadata. See [shaders](https://github.com/ScanMountGoat/Smush-Material-Research/blob/master/Shaders.md) for details.  
+`cargo run --release -- annotate_decompiled_shaders <decompiled shaders> </render/shader/bin folder> <export folder>`
+
 # Additional Tools
 [ssbh_lib](https://github.com/ultimate-research/ssbh_lib) - Contains the `ssbh_lib_json` and `ssbh_data_json` executables for editing various rendering related file types as JSON  
 [xmb_lib](https://github.com/ultimate-research/xmb_lib) - Contains the `xmb` executable that can be used to convert XMB files to and from XML  
