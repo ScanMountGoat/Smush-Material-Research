@@ -1,4 +1,5 @@
 use std::{
+    collections::HashMap,
     error::Error,
     fs::File,
     io::{BufWriter, Write},
@@ -9,8 +10,11 @@ use clap::{Arg, Command};
 use rayon::prelude::*;
 use serde::Serialize;
 use ssbh_data::{prelude::*, shdr_data::BinaryData};
+use ssbh_lib::formats::shdr::ShaderType;
 use xmb_lib::XmbFile;
 use xmltree::EmitterConfig;
+
+const VEC4_SIZE: i32 = 16;
 
 fn main() {
     let input_arg = Arg::new("input")
@@ -90,6 +94,31 @@ fn main() {
                 )
                 .arg(output_arg.clone()),
         )
+        .subcommand(
+            Command::new("annotate_decompiled_shaders")
+                .about("Annotate parameter names in decompiled shader code")
+                .arg(
+                    Arg::new("source_folder")
+                        .index(1)
+                        .help("The folder of decompiled GLSL shaders")
+                        .required(true)
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::new("nushdb_folder")
+                        .index(2)
+                        .help("The folder containing the nushdb files")
+                        .required(true)
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::new("output")
+                        .index(3)
+                        .help("The output folder")
+                        .required(true)
+                        .takes_value(true),
+                ),
+        )
         .get_matches();
 
     let start = std::time::Instant::now();
@@ -124,6 +153,11 @@ fn main() {
             sub_m.value_of("output_json").unwrap(),
         ),
         ("nushdb_metadata", sub_m) => export_nushdb_metadata(
+            sub_m.value_of("nushdb_folder").unwrap(),
+            sub_m.value_of("output").unwrap(),
+        ),
+        ("annotate_decompiled_shaders", sub_m) => annotate_decompiled_shaders(
+            sub_m.value_of("source_folder").unwrap(),
             sub_m.value_of("nushdb_folder").unwrap(),
             sub_m.value_of("output").unwrap(),
         ),
@@ -407,7 +441,7 @@ fn vector4_color_channels_from_source(
     buffer_name: &str,
 ) -> [bool; 4] {
     let mut channels = [false; 4];
-    let vec4_index = uniform.uniform_buffer_offset / 16;
+    let vec4_index = uniform.uniform_buffer_offset / VEC4_SIZE;
     for (channel, component) in channels.iter_mut().zip("xyzw".chars()) {
         let access = format!("{buffer_name}[{vec4_index}].{component}");
         if source.contains(&access) {
@@ -596,7 +630,7 @@ fn export_nushdb_metadata(nushdb_folder: &str, output_folder: &str) -> usize {
     // Each nushdb file can contain multiple shader entry.
     // The shader entry contains the compiled code and metadata.
     // Split into separate files to match the binary/decompiled dumps.
-    let count: usize = paths
+    paths
         .par_iter()
         .filter_map(|path| ShdrData::from_file(path.path()).ok())
         .flat_map(|data| data.shaders)
@@ -607,21 +641,186 @@ fn export_nushdb_metadata(nushdb_folder: &str, output_folder: &str) -> usize {
                     println!("Error writing to {output_path:?}: {e}");
                 }
             }
-
-            1
         })
-        .sum();
+        .count()
+}
 
-    count
+fn annotate_decompiled_shaders(
+    source_folder: &str,
+    nushdb_folder: &str,
+    output_folder: &str,
+) -> usize {
+    // Make sure the output directory exists.
+    let output_folder = Path::new(output_folder);
+    if !output_folder.exists() {
+        std::fs::create_dir(output_folder).unwrap();
+    }
+
+    let nushdb_paths: Vec<_> =
+        globwalk::GlobWalkerBuilder::from_patterns(nushdb_folder, &["*.nushdb"])
+            .build()
+            .unwrap()
+            .into_iter()
+            .filter_map(Result::ok)
+            .collect();
+
+    // Collect the nushdb metadata for each shader program.
+    let metadata_by_name: HashMap<String, (_, _)> = nushdb_paths
+        .par_iter()
+        .filter_map(|path| ShdrData::from_file(path.path()).ok())
+        .flat_map(|data| data.shaders)
+        .map(|shader| (shader.name, (shader.shader_type, shader.binary_data)))
+        .collect();
+
+    let shader_paths: Vec<_> =
+        globwalk::GlobWalkerBuilder::from_patterns(source_folder, &["*.glsl"])
+            .build()
+            .unwrap()
+            .into_iter()
+            .filter_map(Result::ok)
+            .collect();
+
+    // Don't count decompiled shaders that can't be annotated.
+    shader_paths
+        .par_iter()
+        .filter_map(|e| annotate_and_write_glsl(e.path(), &metadata_by_name, output_folder))
+        .count()
+}
+
+fn annotate_and_write_glsl(
+    glsl_path: &Path,
+    metadata_by_name: &HashMap<String, (ShaderType, BinaryData)>,
+    output_folder: &Path,
+) -> Option<()> {
+    let glsl = std::fs::read_to_string(glsl_path).ok()?;
+    let shader_name = glsl_path.with_extension("");
+    let shader_name = shader_name.file_name()?.to_str()?;
+
+    let (shader_type, metadata) = metadata_by_name.get(shader_name)?;
+    let annotated_glsl = annotate_glsl(glsl, shader_type, &metadata)?;
+
+    // TODO: Move this out of the function?
+    let output_path = output_folder.join(&shader_name).with_extension("glsl");
+    if let Err(e) = std::fs::write(&output_path, annotated_glsl) {
+        println!("Error writing to {output_path:?}: {e}");
+    }
+
+    Some(())
+}
+
+fn annotate_glsl(glsl: String, shader_type: &ShaderType, metadata: &BinaryData) -> Option<String> {
+    // TODO: The goal is to eventually annotate texture names as well.
+    let mut annotated_glsl = glsl;
+
+    // TODO: is there a way to determine the binding index for a uniform buffer?
+    // Just use known slots for buffer names for now.
+    let per_material_slot = metadata
+        .buffers
+        .iter()
+        .position(|b| b.name == "nuPerMaterial")?;
+
+    let buffer = match shader_type {
+        ShaderType::Vertex => Some("vp_c9_data"),
+        ShaderType::Geometry => None,
+        ShaderType::Fragment => Some("fp_c9_data"),
+        ShaderType::Compute => None,
+    }?;
+
+    // Assign variables so this can still be compiled and used in RenderDoc.
+    let mut assignments = Vec::new();
+
+    for u in metadata
+        .uniforms
+        .iter()
+        .filter(|u| u.buffer_slot == per_material_slot as i32)
+    {
+        if u.uniform_buffer_offset != -1 {
+            // Assume all uniform buffers are of the form "vec4 data[0x1000];".
+            let vec4_index = u.uniform_buffer_offset / VEC4_SIZE;
+            // TODO: Also convert bools and floats?
+            match u.data_type {
+                ssbh_data::shdr_data::DataType::Boolean => {
+                    // Booleans offsets are accessed as floats and converted to booleans.
+                    let assignment = annotate_float(&mut annotated_glsl, u, buffer, vec4_index);
+                    assignments.push(assignment);
+                }
+                ssbh_data::shdr_data::DataType::Float => {
+                    // Float offsets point to one of the vec4 components.
+                    let assignment = annotate_float(&mut annotated_glsl, u, buffer, vec4_index);
+                    assignments.push(assignment);
+                }
+                ssbh_data::shdr_data::DataType::Vector4 => {
+                    let assignment = annotate_vector4(&mut annotated_glsl, u, buffer, vec4_index);
+                    assignments.push(assignment);
+                }
+                _ => (),
+            }
+        }
+    }
+
+    add_variable_assignments(&mut annotated_glsl, assignments);
+
+    Some(annotated_glsl)
+}
+
+fn annotate_vector4(
+    annotated_glsl: &mut String,
+    u: &ssbh_data::shdr_data::Uniform,
+    buffer: &str,
+    vec4_index: i32,
+) -> String {
+    let pattern = format!("{buffer}[{vec4_index}]");
+    *annotated_glsl = annotated_glsl.replace(&pattern, &u.name);
+
+    format!("vec4 {} = {pattern};", &u.name)
+}
+
+fn annotate_float(
+    annotated_glsl: &mut String,
+    u: &ssbh_data::shdr_data::Uniform,
+    buffer: &str,
+    vec4_index: i32,
+) -> String {
+    let component_offset = u.uniform_buffer_offset - vec4_index * VEC4_SIZE;
+    let component = match component_offset {
+        0 => "x",
+        4 => "y",
+        8 => "z",
+        12 => "w",
+        _ => todo!(),
+    };
+    let pattern = format!("{buffer}[{vec4_index}].{component}");
+    *annotated_glsl = annotated_glsl.replace(&pattern, &u.name);
+
+    format!("float {} = {pattern};", &u.name)
+}
+
+fn add_variable_assignments(annotated_glsl: &mut String, assignments: Vec<String>) {
+    // TODO: Find a more robust way to add the variable assignments to the start of main.
+    let mut lines: Vec<String> = annotated_glsl.lines().map(Into::into).collect();
+    let assignment_index = lines
+        .iter()
+        .position(|l| l.contains("void main()"))
+        .unwrap_or_default()
+        + 2;
+    for assignment in &assignments {
+        let indented = format!("    {assignment}");
+        lines.insert(assignment_index, indented);
+    }
+    *annotated_glsl = lines.join("\n");
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::is_premultiplied_alpha;
+    use super::*;
+
+    use indoc::indoc;
+    use ssbh_data::shdr_data::{Buffer, DataType, Uniform};
 
     #[test]
     fn is_premultiplied() {
-        let source = "temp_743 = fma(temp_736, temp_742, temp_736);
+        let source = indoc! {"
+            temp_743 = fma(temp_736, temp_742, temp_736);
             // 0x001850: 0x5C68100000570201 Fmul
             temp_744 = temp_739 * temp_736;
             // 0x001858: 0x5C68100000570000 Fmul
@@ -650,14 +849,16 @@ mod tests {
                 out_attr0.x = temp_746;
             }
             temp_748 = false;
-            out_attr0.w = temp_743;";
+            out_attr0.w = temp_743;"
+        };
 
         assert!(is_premultiplied_alpha(source).unwrap_or_default());
     }
 
     #[test]
     fn pixel_source_not_premultiplied() {
-        let source = "temp_733 = temp_730 * temp_680;
+        let source = indoc! {"
+            temp_733 = temp_730 * temp_680;
             // 0x0017F8: 0x49A002AC06870000 Ffma
             temp_734 = fma(temp_722, fp_c11_data[26].x, temp_732);
             // 0x001808: 0x49A002AC06870401 Ffma
@@ -686,7 +887,8 @@ mod tests {
                 out_attr0.x = temp_736;
             }
             temp_738 = false;
-            out_attr0.w = temp_733;";
+            out_attr0.w = temp_733;
+        "};
 
         assert!(!is_premultiplied_alpha(source).unwrap_or_default());
     }
@@ -694,5 +896,68 @@ mod tests {
     #[test]
     fn pixel_source_not_premultiplied_empty() {
         assert!(!is_premultiplied_alpha("").unwrap_or_default());
+    }
+
+    #[test]
+    fn annotate_glsl_fragment() {
+        let glsl = indoc! {"
+            void main() 
+            {
+                vec4 varVec4 = fp_c9_data[0];
+                float varFloat = fp_c9_data[5].y;
+                float varBool = 0 != floatBitsToInt(fp_c9_data[9].z);
+            }
+        "}
+        .to_string();
+
+        let metadata = BinaryData {
+            buffers: vec![Buffer {
+                name: "nuPerMaterial".to_string(),
+                used_size_in_bytes: 0,
+                uniform_count: 0,
+                unk4: 0,
+                unk5: 0,
+            }],
+            uniforms: vec![
+                Uniform {
+                    name: "CustomVector0".to_string(),
+                    data_type: DataType::Vector4,
+                    buffer_slot: 0,
+                    uniform_buffer_offset: 0,
+                    unk11: -1,
+                },
+                Uniform {
+                    name: "CustomFloat0".to_string(),
+                    data_type: DataType::Float,
+                    buffer_slot: 0,
+                    uniform_buffer_offset: 5 * VEC4_SIZE + 4,
+                    unk11: -1,
+                },
+                Uniform {
+                    name: "CustomBoolean0".to_string(),
+                    data_type: DataType::Boolean,
+                    buffer_slot: 0,
+                    uniform_buffer_offset: 9 * VEC4_SIZE + 8,
+                    unk11: -1,
+                },
+            ],
+            inputs: Vec::new(),
+            outputs: Vec::new(),
+        };
+
+        pretty_assertions::assert_eq!(
+            indoc! {"
+                void main() 
+                {
+                    float CustomBoolean0 = fp_c9_data[9].z;
+                    float CustomFloat0 = fp_c9_data[5].y;
+                    vec4 CustomVector0 = fp_c9_data[0];
+                    vec4 varVec4 = CustomVector0;
+                    float varFloat = CustomFloat0;
+                    float varBool = 0 != floatBitsToInt(CustomBoolean0);
+                }"
+            },
+            annotate_glsl(glsl, &ShaderType::Fragment, &metadata).unwrap()
+        );
     }
 }
