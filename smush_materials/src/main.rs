@@ -712,6 +712,52 @@ fn annotate_glsl(glsl: String, shader_type: &ShaderType, metadata: &BinaryData) 
     // TODO: The goal is to eventually annotate texture names as well.
     let mut annotated_glsl = glsl;
 
+    annotate_input_outputs(&mut annotated_glsl, shader_type, metadata);
+    annotate_uniforms(&mut annotated_glsl, metadata, shader_type)?;
+
+    Some(annotated_glsl)
+}
+
+fn annotate_input_outputs(
+    annotated_glsl: &mut String,
+    shader_type: &ShaderType,
+    metadata: &BinaryData,
+) {
+    match shader_type {
+        ShaderType::Vertex => {
+            // Vertex inputs have explicit locations.
+            for input in &metadata.inputs {
+                let glsl_name = format!("in_attr{}", input.location);
+                *annotated_glsl = annotated_glsl.replace(&glsl_name, &input.name);
+            }
+            // Vertex outputs appear in order.
+            // TODO: Skip builtins like gl_Position?
+            for (i, output) in metadata.outputs.iter().enumerate() {
+                let glsl_name = format!("out_attr{i}");
+                *annotated_glsl = annotated_glsl.replace(&glsl_name, &output.name);
+            }
+        }
+        ShaderType::Fragment => {
+            // Fragment inputs appear in order.
+            for (i, input) in metadata.inputs.iter().enumerate() {
+                let glsl_name = format!("in_attr{i}");
+                *annotated_glsl = annotated_glsl.replace(&glsl_name, &input.name);
+            }
+            // Fragment outputs have explicit locations.
+            for output in &metadata.outputs {
+                let glsl_name = format!("out_attr{}", output.location);
+                *annotated_glsl = annotated_glsl.replace(&glsl_name, &output.name);
+            }
+        }
+        _ => (),
+    }
+}
+
+fn annotate_uniforms(
+    annotated_glsl: &mut String,
+    metadata: &BinaryData,
+    shader_type: &ShaderType,
+) -> Option<()> {
     // TODO: is there a way to determine the binding index for a uniform buffer?
     // Just use known slots for buffer names for now.
     let per_material_slot = metadata
@@ -726,7 +772,6 @@ fn annotate_glsl(glsl: String, shader_type: &ShaderType, metadata: &BinaryData) 
         ShaderType::Compute => None,
     }?;
 
-    // Assign variables so this can still be compiled and used in RenderDoc.
     let mut assignments = Vec::new();
 
     for u in metadata
@@ -741,16 +786,16 @@ fn annotate_glsl(glsl: String, shader_type: &ShaderType, metadata: &BinaryData) 
             match u.data_type {
                 ssbh_data::shdr_data::DataType::Boolean => {
                     // Booleans offsets are accessed as floats and converted to booleans.
-                    let assignment = annotate_float(&mut annotated_glsl, u, buffer, vec4_index);
+                    let assignment = annotate_float(annotated_glsl, u, buffer, vec4_index);
                     assignments.push(assignment);
                 }
                 ssbh_data::shdr_data::DataType::Float => {
                     // Float offsets point to one of the vec4 components.
-                    let assignment = annotate_float(&mut annotated_glsl, u, buffer, vec4_index);
+                    let assignment = annotate_float(annotated_glsl, u, buffer, vec4_index);
                     assignments.push(assignment);
                 }
                 ssbh_data::shdr_data::DataType::Vector4 => {
-                    let assignment = annotate_vector4(&mut annotated_glsl, u, buffer, vec4_index);
+                    let assignment = annotate_vector4(annotated_glsl, u, buffer, vec4_index);
                     assignments.push(assignment);
                 }
                 _ => (),
@@ -758,9 +803,9 @@ fn annotate_glsl(glsl: String, shader_type: &ShaderType, metadata: &BinaryData) 
         }
     }
 
-    add_variable_assignments(&mut annotated_glsl, assignments);
+    add_variable_assignments(annotated_glsl, assignments);
 
-    Some(annotated_glsl)
+    Some(())
 }
 
 fn annotate_vector4(
@@ -815,7 +860,7 @@ mod tests {
     use super::*;
 
     use indoc::indoc;
-    use ssbh_data::shdr_data::{Buffer, DataType, Uniform};
+    use ssbh_data::shdr_data::{Attribute, Buffer, DataType, Uniform};
 
     #[test]
     fn is_premultiplied() {
@@ -901,11 +946,16 @@ mod tests {
     #[test]
     fn annotate_glsl_fragment() {
         let glsl = indoc! {"
+            layout (location = 0) in vec4 in_attr0;
+            layout (location = 1) in vec4 in_attr1;
+            layout (location = 0) out vec4 out_attr0;
+
             void main() 
             {
                 vec4 varVec4 = fp_c9_data[0];
                 float varFloat = fp_c9_data[5].y;
                 float varBool = 0 != floatBitsToInt(fp_c9_data[9].z);
+                out_attr0 = in_attr0 + in_attr1;
             }
         "}
         .to_string();
@@ -941,12 +991,31 @@ mod tests {
                     unk11: -1,
                 },
             ],
-            inputs: Vec::new(),
-            outputs: Vec::new(),
+            inputs: vec![
+                Attribute {
+                    name: "attribute0".to_string(),
+                    data_type: DataType::Vector4,
+                    location: -1,
+                },
+                Attribute {
+                    name: "attribute1".to_string(),
+                    data_type: DataType::Vector4,
+                    location: -1,
+                },
+            ],
+            outputs: vec![Attribute {
+                name: "outAttribute0".to_string(),
+                data_type: DataType::Vector4,
+                location: 0,
+            }],
         };
 
         pretty_assertions::assert_eq!(
             indoc! {"
+                layout (location = 0) in vec4 attribute0;
+                layout (location = 1) in vec4 attribute1;
+                layout (location = 0) out vec4 outAttribute0;
+
                 void main() 
                 {
                     float CustomBoolean0 = fp_c9_data[9].z;
@@ -955,9 +1024,109 @@ mod tests {
                     vec4 varVec4 = CustomVector0;
                     float varFloat = CustomFloat0;
                     float varBool = 0 != floatBitsToInt(CustomBoolean0);
+                    outAttribute0 = attribute0 + attribute1;
                 }"
             },
             annotate_glsl(glsl, &ShaderType::Fragment, &metadata).unwrap()
+        );
+    }
+
+    #[test]
+    fn annotate_glsl_vertex() {
+        let glsl = indoc! {"
+            layout (location = 2) in vec4 in_attr2;
+            layout (location = 7) in vec4 in_attr7;
+            layout (location = 0) out vec4 out_attr0;
+            layout (location = 1) out vec4 out_attr1;
+
+            void main() 
+            {
+                vec4 varVec4 = vp_c9_data[0];
+                float varFloat = vp_c9_data[5].y;
+                float varBool = 0 != floatBitsToInt(vp_c9_data[9].z);
+                out_attr0 = in_attr2;
+                out_attr1 = in_attr7;
+            }
+        "}
+        .to_string();
+
+        let metadata = BinaryData {
+            buffers: vec![Buffer {
+                name: "nuPerMaterial".to_string(),
+                used_size_in_bytes: 0,
+                uniform_count: 0,
+                unk4: 0,
+                unk5: 0,
+            }],
+            uniforms: vec![
+                Uniform {
+                    name: "CustomVector0".to_string(),
+                    data_type: DataType::Vector4,
+                    buffer_slot: 0,
+                    uniform_buffer_offset: 0,
+                    unk11: -1,
+                },
+                Uniform {
+                    name: "CustomFloat0".to_string(),
+                    data_type: DataType::Float,
+                    buffer_slot: 0,
+                    uniform_buffer_offset: 5 * VEC4_SIZE + 4,
+                    unk11: -1,
+                },
+                Uniform {
+                    name: "CustomBoolean0".to_string(),
+                    data_type: DataType::Boolean,
+                    buffer_slot: 0,
+                    uniform_buffer_offset: 9 * VEC4_SIZE + 8,
+                    unk11: -1,
+                },
+            ],
+            inputs: vec![
+                Attribute {
+                    name: "attribute2".to_string(),
+                    data_type: DataType::Vector4,
+                    location: 2,
+                },
+                Attribute {
+                    name: "attribute7".to_string(),
+                    data_type: DataType::Vector4,
+                    location: 7,
+                },
+            ],
+            outputs: vec![
+                Attribute {
+                    name: "outAttribute0".to_string(),
+                    data_type: DataType::Vector4,
+                    location: 0,
+                },
+                Attribute {
+                    name: "outAttribute1".to_string(),
+                    data_type: DataType::Vector4,
+                    location: 1,
+                },
+            ],
+        };
+
+        pretty_assertions::assert_eq!(
+            indoc! {"
+                layout (location = 2) in vec4 attribute2;
+                layout (location = 7) in vec4 attribute7;
+                layout (location = 0) out vec4 outAttribute0;
+                layout (location = 1) out vec4 outAttribute1;
+
+                void main() 
+                {
+                    float CustomBoolean0 = vp_c9_data[9].z;
+                    float CustomFloat0 = vp_c9_data[5].y;
+                    vec4 CustomVector0 = vp_c9_data[0];
+                    vec4 varVec4 = CustomVector0;
+                    float varFloat = CustomFloat0;
+                    float varBool = 0 != floatBitsToInt(CustomBoolean0);
+                    outAttribute0 = attribute2;
+                    outAttribute1 = attribute7;
+                }"
+            },
+            annotate_glsl(glsl, &ShaderType::Vertex, &metadata).unwrap()
         );
     }
 }
