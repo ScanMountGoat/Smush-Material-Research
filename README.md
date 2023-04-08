@@ -34,10 +34,14 @@ Generates a separate JSON metadata file for each of the shaders in the nushdb fi
 
 `cargo run --release -- nushdb_metadata </render/shader/bin folder> <export folder>`  
 
-## Decompiled Shaders - WIP
-First extract the shader binaries from the .nushdb files since each file contains multiple shaders.  
-`cargo run --release -- shader_binaries <render folder> <binary export folder>`
+## Shader Binaries
+Extracts the shader binaries from the .nushdb files since each file contains multiple shaders.  
+`cargo run --release -- shader_binaries </render/shader/bin folder> <binary export folder>`  
 
+For just outputting the program byte code, add the `--code` flag. This is necessary for analyzing the shader assembly or decompiling. In some cases, it may be necessary to manually strip the 64 (0x50) byte header from each file before dissassembling. The header should not be removed when decompiling with Ryujinx.ShaderTools.  
+`cargo run --release -- shader_binaries --code </render/shader/bin folder> <binary export folder>`
+
+## Decompiled Shaders - WIP
 Now the shaders can be decompiled using Ryujinx's ShaderTools. This currently requires a slightly modified build to start from offset 2896 of the binary.  
 `python batch_decompile_shaders.py <ShaderTools.exe> <binary export folder> <export folder>`  
 

@@ -2,14 +2,14 @@ use std::{
     collections::HashMap,
     error::Error,
     fs::File,
-    io::{BufWriter, Write},
+    io::{BufWriter, Cursor, Write},
     path::{Path, PathBuf},
 };
 
-use clap::{Arg, Command};
+use clap::{Arg, ArgAction, Command};
 use rayon::prelude::*;
 use serde::Serialize;
-use ssbh_data::{prelude::*, shdr_data::BinaryData};
+use ssbh_data::{prelude::*, shdr_data::MetaData};
 use ssbh_lib::formats::shdr::ShaderType;
 use xmb_lib::XmbFile;
 use xmltree::EmitterConfig;
@@ -80,7 +80,13 @@ fn main() {
             Command::new("shader_binaries")
                 .about("Export shader binaries")
                 .arg(input_arg.clone())
-                .arg(output_arg.clone()),
+                .arg(output_arg.clone())
+                .arg(
+                    Arg::new("code")
+                        .action(ArgAction::SetTrue)
+                        .long("code")
+                        .help("Only output the compiled program code"),
+                ),
         )
         .subcommand(
             Command::new("nushdb_metadata")
@@ -139,12 +145,10 @@ fn main() {
             "json",
             anim_data_to_json,
         ),
-        ("shader_binaries", sub_m) => batch_convert(
+        ("shader_binaries", sub_m) => export_shader_binaries(
             sub_m.value_of("input").unwrap(),
             sub_m.value_of("output").unwrap(),
-            "*.nushdb",
-            "bin",
-            shdrs_to_bin,
+            sub_m.get_flag("code"),
         ),
         ("shader_info", sub_m) => export_shader_info(
             sub_m.value_of("nufxlb").unwrap(),
@@ -311,9 +315,9 @@ fn export_shader_info(
 fn shader_binary_data(
     binary_folder: &str,
     shader: String,
-) -> Result<BinaryData, Box<dyn std::error::Error>> {
+) -> Result<MetaData, Box<dyn std::error::Error>> {
     let file = Path::new(binary_folder).join(&shader).with_extension("bin");
-    BinaryData::from_file(&file)
+    MetaData::from_file(&file)
 }
 
 fn shader_source(source_folder: &str, shader: &String) -> Result<String, std::io::Error> {
@@ -323,7 +327,7 @@ fn shader_source(source_folder: &str, shader: &String) -> Result<String, std::io
 
 fn vertex_attributes(
     program: &ssbh_lib::formats::nufx::ShaderProgramV1,
-    vertex_binary_data: Result<BinaryData, Box<dyn std::error::Error>>,
+    vertex_binary_data: Result<MetaData, Box<dyn std::error::Error>>,
     vertex_source: &Result<String, std::io::Error>,
 ) -> Vec<String> {
     program
@@ -371,8 +375,8 @@ fn input_attribute_color_channels(location: i32, source: &str) -> String {
 
 fn material_parameters(
     program: &ssbh_lib::formats::nufx::ShaderProgramV1,
-    vertex_binary_data: &Result<BinaryData, Box<dyn std::error::Error>>,
-    pixel_binary_data: &Result<BinaryData, Box<dyn std::error::Error>>,
+    vertex_binary_data: &Result<MetaData, Box<dyn std::error::Error>>,
+    pixel_binary_data: &Result<MetaData, Box<dyn std::error::Error>>,
     vertex_source: &Result<String, std::io::Error>,
     pixel_source: &Result<String, std::io::Error>,
 ) -> Vec<String> {
@@ -417,7 +421,7 @@ fn material_parameters(
 fn vector4_color_channels(
     name: &str,
     buffer_name: &str,
-    binary_data: &Result<BinaryData, Box<dyn Error>>,
+    binary_data: &Result<MetaData, Box<dyn Error>>,
     source: &Result<String, std::io::Error>,
 ) -> Option<[bool; 4]> {
     let uniform = binary_data
@@ -511,23 +515,6 @@ fn anim_data_to_json(path: &Path, output_full_path: PathBuf) {
             writer
                 .write_all(serde_json::to_string_pretty(&anim).unwrap().as_bytes())
                 .unwrap();
-        }
-        Err(e) => eprintln!("Error reading {:?}: {:?}", path, e),
-    }
-}
-
-fn shdrs_to_bin(path: &Path, output: PathBuf) {
-    match ssbh_lib::formats::shdr::Shdr::from_file(path) {
-        Ok(ssbh_lib::formats::shdr::Shdr::V12 { shaders }) => {
-            // TODO: Add a flag to just output the code portion?
-            // This allows using an unmodified version of ryujinx shadertools.
-            for shader in shaders.elements {
-                let output = output
-                    .with_file_name(shader.name.to_string_lossy())
-                    .with_extension("bin");
-                let mut writer = std::fs::File::create(output).unwrap();
-                writer.write_all(&shader.shader_binary.elements).unwrap();
-            }
         }
         Err(e) => eprintln!("Error reading {:?}: {:?}", path, e),
     }
@@ -669,7 +656,7 @@ fn annotate_decompiled_shaders(
         .par_iter()
         .filter_map(|path| ShdrData::from_file(path.path()).ok())
         .flat_map(|data| data.shaders)
-        .map(|shader| (shader.name, (shader.shader_type, shader.binary_data)))
+        .map(|shader| (shader.name, (shader.shader_type, shader.meta_data)))
         .collect();
 
     let shader_paths: Vec<_> =
@@ -689,7 +676,7 @@ fn annotate_decompiled_shaders(
 
 fn annotate_and_write_glsl(
     glsl_path: &Path,
-    metadata_by_name: &HashMap<String, (ShaderType, BinaryData)>,
+    metadata_by_name: &HashMap<String, (ShaderType, MetaData)>,
     output_folder: &Path,
 ) -> Option<()> {
     let glsl = std::fs::read_to_string(glsl_path).ok()?;
@@ -708,7 +695,7 @@ fn annotate_and_write_glsl(
     Some(())
 }
 
-fn annotate_glsl(glsl: String, shader_type: &ShaderType, metadata: &BinaryData) -> Option<String> {
+fn annotate_glsl(glsl: String, shader_type: &ShaderType, metadata: &MetaData) -> Option<String> {
     // TODO: The goal is to eventually annotate texture names as well.
     let mut annotated_glsl = glsl;
 
@@ -721,7 +708,7 @@ fn annotate_glsl(glsl: String, shader_type: &ShaderType, metadata: &BinaryData) 
 fn annotate_input_outputs(
     annotated_glsl: &mut String,
     shader_type: &ShaderType,
-    metadata: &BinaryData,
+    metadata: &MetaData,
 ) {
     match shader_type {
         ShaderType::Vertex => {
@@ -755,7 +742,7 @@ fn annotate_input_outputs(
 
 fn annotate_uniforms(
     annotated_glsl: &mut String,
-    metadata: &BinaryData,
+    metadata: &MetaData,
     shader_type: &ShaderType,
 ) -> Option<()> {
     // TODO: is there a way to determine the binding index for a uniform buffer?
@@ -853,6 +840,58 @@ fn add_variable_assignments(annotated_glsl: &mut String, assignments: Vec<String
         lines.insert(assignment_index, indented);
     }
     *annotated_glsl = lines.join("\n");
+}
+
+fn export_shader_binaries(source_folder: &str, destination_folder: &str, just_code: bool) -> usize {
+    // Make sure the output directory exists.
+    if !Path::new(destination_folder).exists() {
+        std::fs::create_dir(destination_folder).unwrap();
+    }
+
+    let paths: Vec<_> = globwalk::GlobWalkerBuilder::from_patterns(source_folder, &["*.nushdb"])
+        .build()
+        .unwrap()
+        .into_iter()
+        .filter_map(Result::ok)
+        .collect();
+
+    paths.par_iter().for_each(|path| {
+        let output_full_path =
+            flattened_output_path(path.path(), source_folder, destination_folder, "bin");
+
+        shdrs_to_bin(path.path(), output_full_path, just_code);
+    });
+
+    // Assume all files converted successfully.
+    paths.len()
+}
+
+fn shdrs_to_bin(path: &Path, output: PathBuf, just_code: bool) {
+    // Use the lower level API from ssbh_lib to access the actual code.
+    // The ssbh_data implementation is still a heavy WIP.
+    match ssbh_lib::formats::shdr::Shdr::from_file(path) {
+        Ok(ssbh_lib::formats::shdr::Shdr::V12 { shaders }) => {
+            for shader in shaders.elements {
+                let output = output
+                    .with_file_name(shader.name.to_string_lossy())
+                    .with_extension("bin");
+                let mut writer = std::fs::File::create(output).unwrap();
+
+                if just_code {
+                    // The actual assembly code starts after the header.
+                    // This allows using an unmodified Ryujinx.ShaderTools or a dissassembler.
+                    let mut reader = Cursor::new(&shader.shader_binary.elements);
+                    let binary = ssbh_data::shdr_data::ShaderBinary::read(&mut reader).unwrap();
+                    // TODO: Strip 0x50 bytes of header at the beginning for easier dissassembly.
+                    // TODO: This also helps with alignment requirements in certain tools.
+                    writer.write_all(&binary.program_code).unwrap();
+                } else {
+                    writer.write_all(&shader.shader_binary.elements).unwrap();
+                };
+            }
+        }
+        Err(e) => eprintln!("Error reading {:?}: {:?}", path, e),
+    }
 }
 
 #[cfg(test)]
@@ -960,7 +999,7 @@ mod tests {
         "}
         .to_string();
 
-        let metadata = BinaryData {
+        let metadata = MetaData {
             buffers: vec![Buffer {
                 name: "nuPerMaterial".to_string(),
                 used_size_in_bytes: 0,
@@ -1050,7 +1089,7 @@ mod tests {
         "}
         .to_string();
 
-        let metadata = BinaryData {
+        let metadata = MetaData {
             buffers: vec![Buffer {
                 name: "nuPerMaterial".to_string(),
                 used_size_in_bytes: 0,
