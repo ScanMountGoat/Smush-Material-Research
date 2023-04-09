@@ -42,7 +42,7 @@ For just outputting the program byte code, add the `--code` flag. This is necess
 `cargo run --release -- shader_binaries --code </render/shader/bin folder> <binary export folder>`
 
 ## Decompiled Shaders - WIP
-Now the shaders can be decompiled using Ryujinx's ShaderTools.  
+The shaders can be decompiled using Ryujinx's ShaderTools. Make sure to export the binaries with the `--code` flag.    
 `python batch_decompile_shaders.py <ShaderTools.exe> <binary export folder> <export folder>`  
 
 ## Annotated Decompiled Shaders
@@ -54,4 +54,4 @@ Replaces input and output attributes, textures, and uniforms in the decompiled s
 [xmb_lib](https://github.com/ultimate-research/xmb_lib) - Contains the `xmb` executable that can be used to convert XMB files to and from XML  
 [Ryujinx](https://ryujinx.org/) - Nintendo Switch emulator used for the research and documentation of in game rendering.  
 [Yuzu](https://yuzu-emu.org/) - Nintendo Switch emulator used for early research. Not recommended for research due to its decompiled shaders and rendering commands being structured differently than Ryujinx.  
-[RenderDoc](https://renderdoc.org/) - a powerful GPU debugging program that can be used with Ryujinx or RenderDoc to analyze in game rendering.
+[RenderDoc](https://renderdoc.org/) - a powerful GPU debugging program that can be used with Ryujinx or Yuzu to analyze in game rendering.
