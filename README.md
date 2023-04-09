@@ -38,20 +38,15 @@ Generates a separate JSON metadata file for each of the shaders in the nushdb fi
 Extracts the shader binaries from the .nushdb files since each file contains multiple shaders.  
 `cargo run --release -- shader_binaries </render/shader/bin folder> <binary export folder>`  
 
-For just outputting the program byte code, add the `--code` flag. This is necessary for analyzing the shader assembly or decompiling. In some cases, it may be necessary to manually strip the 64 (0x50) byte header from each file before dissassembling. The header should not be removed when decompiling with Ryujinx.ShaderTools.  
+For just outputting the program byte code, add the `--code` flag. This is necessary for analyzing the shader assembly or decompiling. In some cases, it may be necessary to manually strip the 80 (0x50) byte header from each file before dissassembling. The header should not be removed when decompiling with Ryujinx.ShaderTools.  
 `cargo run --release -- shader_binaries --code </render/shader/bin folder> <binary export folder>`
 
 ## Decompiled Shaders - WIP
-Now the shaders can be decompiled using Ryujinx's ShaderTools. This currently requires a slightly modified build to start from offset 2896 of the binary.  
+Now the shaders can be decompiled using Ryujinx's ShaderTools.  
 `python batch_decompile_shaders.py <ShaderTools.exe> <binary export folder> <export folder>`  
 
-The `shaders_discard.txt` file contains the shader labels without their render pass tags for shader programs that may support alpha testing. 
-This list is based on searching the decompiled shader dump for shaders with the `discard;` keyword. There may be some false positives in this list since it's possible 
-for the shader code to contain `discard;` and not perform alpha testing based on the model and texture alpha. There are unlikely to be any missing shaders since 
-alpha testing is always done in game using shader code rather than through a graphics API call to enable or disable alpha testing.
-
 ## Annotated Decompiled Shaders
-Replaces hardcoded offsets into uniform buffers in the decompiled shader dump using variable names from the nushdb metadata. See [shaders](https://github.com/ScanMountGoat/Smush-Material-Research/blob/master/Shaders.md) for details.  
+Replaces input and output attributes, textures, and uniforms in the decompiled shaders using variable names from the nushdb metadata. See [shaders](https://github.com/ScanMountGoat/Smush-Material-Research/blob/master/Shaders.md) for details.  
 `cargo run --release -- annotate_decompiled_shaders <decompiled shaders> </render/shader/bin folder> <export folder>`
 
 # Additional Tools
