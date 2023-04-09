@@ -798,21 +798,14 @@ fn annotate_uniforms(
     metadata: &MetaData,
     shader_type: &ShaderType,
 ) -> Option<()> {
-    // TODO: is there a way to determine the binding index for a uniform buffer?
-    // Just use known slots for buffer names for now.
-    let per_material_slot = metadata
-        .buffers
-        .iter()
-        .position(|b| b.name == "nuPerMaterial")?;
-
-    let buffer = match shader_type {
-        ShaderType::Vertex => Some("vp_c9_data"),
+    let buffer_prefix = match shader_type {
+        ShaderType::Vertex => Some("vp"),
         ShaderType::Geometry => None,
-        ShaderType::Fragment => Some("fp_c9_data"),
+        ShaderType::Fragment => Some("fp"),
         ShaderType::Compute => None,
     }?;
 
-    // TODO: Texture constant buffer?
+    // TODO: tcb is texture constant buffer?
     let texture = match shader_type {
         ShaderType::Vertex => Some("vp_tex_tcb"),
         ShaderType::Geometry => None,
@@ -823,27 +816,17 @@ fn annotate_uniforms(
     let mut assignments = Vec::new();
 
     for u in metadata.uniforms.iter() {
-        if u.uniform_buffer_offset != -1 {
-            if u.buffer_slot == per_material_slot as i32 {
-                // Assume all uniform buffers are of the form "vec4 data[0x1000];".
-                let vec4_index = u.uniform_buffer_offset / VEC4_SIZE;
-                match u.data_type {
-                    ssbh_data::shdr_data::DataType::Boolean => {
-                        // Booleans offsets are accessed as floats and converted to booleans.
-                        let assignment = annotate_float(annotated_glsl, u, buffer, vec4_index);
-                        assignments.push(assignment);
-                    }
-                    ssbh_data::shdr_data::DataType::Float => {
-                        // Float offsets point to one of the vec4 components.
-                        let assignment = annotate_float(annotated_glsl, u, buffer, vec4_index);
-                        assignments.push(assignment);
-                    }
-                    ssbh_data::shdr_data::DataType::Vector4 => {
-                        let assignment = annotate_vector4(annotated_glsl, u, buffer, vec4_index);
-                        assignments.push(assignment);
-                    }
-                    _ => (),
-                }
+        // Negative values  like -1 indicate that the entry is unused.
+        if u.buffer_index >= 0 && u.uniform_buffer_offset >= 0 {
+            // Uniforms are assigned to a particular entry in the buffer list.
+            if let Some(buffer_entry) = metadata.buffers.get(u.buffer_index as usize) {
+                annotate_buffer_uniform(
+                    annotated_glsl,
+                    &mut assignments,
+                    buffer_entry,
+                    u,
+                    buffer_prefix,
+                );
             }
         } else {
             match u.data_type {
@@ -862,6 +845,66 @@ fn annotate_uniforms(
     add_variable_assignments(annotated_glsl, assignments);
 
     Some(())
+}
+
+fn annotate_buffer_uniform(
+    annotated_glsl: &mut String,
+    assignments: &mut Vec<String>,
+    buffer_entry: &ssbh_data::shdr_data::Buffer,
+    u: &ssbh_data::shdr_data::Uniform,
+    buffer_prefix: &str,
+) {
+    // TODO: Handle the case where unk5 and unk6 are -1?
+    // Buffers are selected using an index in the shader code.
+    // This is also the binding in the decompiled code.
+    let binding = match buffer_entry.unk4 {
+        0 => 1, // TODO: how is fp_c1 handled?
+        1 => buffer_entry.unk5 + 3,
+        2 => buffer_entry.unk6 + 3,
+        _ => todo!(),
+    };
+    // TODO: Will multiple buffer names ever have the same binding?
+    // If not, we can replace the uniform buffer names as well.
+    let buffer_name = format!("{buffer_prefix}_c{binding}_data");
+
+    // Assume all uniform buffers are of the form "vec4 data[0x1000];".
+    let vec4_index = u.uniform_buffer_offset / VEC4_SIZE;
+
+    match u.data_type {
+        ssbh_data::shdr_data::DataType::Boolean => {
+            // Booleans offsets are accessed as floats and converted to booleans.
+            let assignment = annotate_float(
+                annotated_glsl,
+                u,
+                &buffer_name,
+                vec4_index,
+                &buffer_entry.name,
+            );
+            assignments.push(assignment);
+        }
+        ssbh_data::shdr_data::DataType::Float => {
+            // Float offsets point to one of the vec4 components.
+            let assignment = annotate_float(
+                annotated_glsl,
+                u,
+                &buffer_name,
+                vec4_index,
+                &buffer_entry.name,
+            );
+            assignments.push(assignment);
+        }
+        ssbh_data::shdr_data::DataType::Vector4 => {
+            let assignment = annotate_vector4(
+                annotated_glsl,
+                u,
+                &buffer_name,
+                vec4_index,
+                &buffer_entry.name,
+            );
+            assignments.push(assignment);
+        }
+        _ => (),
+    }
 }
 
 fn annotate_texture(annotated_glsl: &mut String, u: &ssbh_data::shdr_data::Uniform, texture: &str) {
@@ -883,11 +926,23 @@ fn annotate_vector4(
     u: &ssbh_data::shdr_data::Uniform,
     buffer: &str,
     vec4_index: i32,
+    buffer_name: &str,
 ) -> String {
     let pattern = format!("{buffer}[{vec4_index}]");
-    *annotated_glsl = annotated_glsl.replace(&pattern, &u.name);
 
-    format!("vec4 {} = {pattern};", &u.name)
+    let uniform_name = uniform_name(u, buffer_name);
+
+    *annotated_glsl = annotated_glsl.replace(&pattern, &uniform_name);
+
+    format!("vec4 {} = {pattern};", uniform_name)
+}
+
+fn uniform_name(u: &ssbh_data::shdr_data::Uniform, buffer_name: &str) -> String {
+    // Prevent collisions for uniforms with the same name.
+    // Also fix invalid characters like sun_shaft_blur_param[0].
+    format!("{buffer_name}_{}", u.name)
+        .replace('[', "_")
+        .replace(']', "_")
 }
 
 fn annotate_float(
@@ -895,6 +950,7 @@ fn annotate_float(
     u: &ssbh_data::shdr_data::Uniform,
     buffer: &str,
     vec4_index: i32,
+    buffer_name: &str,
 ) -> String {
     let component_offset = u.uniform_buffer_offset - vec4_index * VEC4_SIZE;
     let component = match component_offset {
@@ -904,10 +960,13 @@ fn annotate_float(
         12 => "w",
         _ => todo!(),
     };
-    let pattern = format!("{buffer}[{vec4_index}].{component}");
-    *annotated_glsl = annotated_glsl.replace(&pattern, &u.name);
 
-    format!("float {} = {pattern};", &u.name)
+    let uniform_name = uniform_name(u, buffer_name);
+
+    let pattern = format!("{buffer}[{vec4_index}].{component}");
+    *annotated_glsl = annotated_glsl.replace(&pattern, &uniform_name);
+
+    format!("float {} = {pattern};", uniform_name)
 }
 
 fn add_variable_assignments(annotated_glsl: &mut String, assignments: Vec<String>) {
@@ -1079,6 +1138,7 @@ mod tests {
             {
                 vec4 varVec4 = fp_c9_data[0];
                 float varFloat = fp_c9_data[5].y;
+                float varFloat2 = fp_c10_data[0].x;
                 float varBool = 0 != floatBitsToInt(fp_c9_data[9].z);
                 out_attr0 = in_attr0 + in_attr1;
             }
@@ -1086,46 +1146,66 @@ mod tests {
         .to_string();
 
         let metadata = MetaData {
-            buffers: vec![Buffer {
-                name: "nuPerMaterial".to_string(),
-                used_size_in_bytes: 0,
-                uniform_count: 0,
-                unk4: 0,
-                unk5: 0,
-            }],
+            buffers: vec![
+                Buffer {
+                    name: "nuPerMaterial".to_string(),
+                    used_size_in_bytes: 0,
+                    uniform_count: 0,
+                    unk4: 2,
+                    unk5: 0,
+                    unk6: 6,
+                    unk7: -1,
+                },
+                Buffer {
+                    name: "PerFrame".to_string(),
+                    used_size_in_bytes: 0,
+                    uniform_count: 0,
+                    unk4: 2,
+                    unk5: 0,
+                    unk6: 7,
+                    unk7: -1,
+                },
+            ],
             uniforms: vec![
                 Uniform {
                     name: "CustomVector0".to_string(),
                     data_type: DataType::Vector4,
-                    buffer_slot: 0,
+                    buffer_index: 0,
                     uniform_buffer_offset: 0,
                     unk11: -1,
                 },
                 Uniform {
                     name: "CustomFloat0".to_string(),
                     data_type: DataType::Float,
-                    buffer_slot: 0,
+                    buffer_index: 0,
                     uniform_buffer_offset: 5 * VEC4_SIZE + 4,
                     unk11: -1,
                 },
                 Uniform {
                     name: "CustomBoolean0".to_string(),
                     data_type: DataType::Boolean,
-                    buffer_slot: 0,
+                    buffer_index: 0,
                     uniform_buffer_offset: 9 * VEC4_SIZE + 8,
+                    unk11: -1,
+                },
+                Uniform {
+                    name: "sun_shaft_blur_param[0]".to_string(),
+                    data_type: DataType::Float,
+                    buffer_index: 1,
+                    uniform_buffer_offset: 0,
                     unk11: -1,
                 },
                 Uniform {
                     name: "Texture0".to_string(),
                     data_type: DataType::Sampler2d,
-                    buffer_slot: -1,
+                    buffer_index: -1,
                     uniform_buffer_offset: -1,
                     unk11: 0,
                 },
                 Uniform {
                     name: "Texture1".to_string(),
                     data_type: DataType::Sampler2d,
-                    buffer_slot: -1,
+                    buffer_index: -1,
                     uniform_buffer_offset: -1,
                     unk11: 5,
                 },
@@ -1160,12 +1240,14 @@ mod tests {
 
                 void main() 
                 {
-                    float CustomBoolean0 = fp_c9_data[9].z;
-                    float CustomFloat0 = fp_c9_data[5].y;
-                    vec4 CustomVector0 = fp_c9_data[0];
-                    vec4 varVec4 = CustomVector0;
-                    float varFloat = CustomFloat0;
-                    float varBool = 0 != floatBitsToInt(CustomBoolean0);
+                    float PerFrame_sun_shaft_blur_param_0_ = fp_c10_data[0].x;
+                    float nuPerMaterial_CustomBoolean0 = fp_c9_data[9].z;
+                    float nuPerMaterial_CustomFloat0 = fp_c9_data[5].y;
+                    vec4 nuPerMaterial_CustomVector0 = fp_c9_data[0];
+                    vec4 varVec4 = nuPerMaterial_CustomVector0;
+                    float varFloat = nuPerMaterial_CustomFloat0;
+                    float varFloat2 = PerFrame_sun_shaft_blur_param_0_;
+                    float varBool = 0 != floatBitsToInt(nuPerMaterial_CustomBoolean0);
                     outAttribute0 = attribute0 + attribute1;
                 }"
             },
@@ -1183,9 +1265,9 @@ mod tests {
 
             void main() 
             {
-                vec4 varVec4 = vp_c9_data[0];
-                float varFloat = vp_c9_data[5].y;
-                float varBool = 0 != floatBitsToInt(vp_c9_data[9].z);
+                vec4 varVec4 = vp_c15_data[0];
+                float varFloat = vp_c15_data[5].y;
+                float varBool = 0 != floatBitsToInt(vp_c15_data[9].z);
                 out_attr0 = in_attr2;
                 out_attr1 = in_attr7;
             }
@@ -1197,28 +1279,30 @@ mod tests {
                 name: "nuPerMaterial".to_string(),
                 used_size_in_bytes: 0,
                 uniform_count: 0,
-                unk4: 0,
-                unk5: 0,
+                unk4: 1,
+                unk5: 12,
+                unk6: -1,
+                unk7: -1,
             }],
             uniforms: vec![
                 Uniform {
                     name: "CustomVector0".to_string(),
                     data_type: DataType::Vector4,
-                    buffer_slot: 0,
+                    buffer_index: 0,
                     uniform_buffer_offset: 0,
                     unk11: -1,
                 },
                 Uniform {
                     name: "CustomFloat0".to_string(),
                     data_type: DataType::Float,
-                    buffer_slot: 0,
+                    buffer_index: 0,
                     uniform_buffer_offset: 5 * VEC4_SIZE + 4,
                     unk11: -1,
                 },
                 Uniform {
                     name: "CustomBoolean0".to_string(),
                     data_type: DataType::Boolean,
-                    buffer_slot: 0,
+                    buffer_index: 0,
                     uniform_buffer_offset: 9 * VEC4_SIZE + 8,
                     unk11: -1,
                 },
@@ -1258,12 +1342,12 @@ mod tests {
 
                 void main() 
                 {
-                    float CustomBoolean0 = vp_c9_data[9].z;
-                    float CustomFloat0 = vp_c9_data[5].y;
-                    vec4 CustomVector0 = vp_c9_data[0];
-                    vec4 varVec4 = CustomVector0;
-                    float varFloat = CustomFloat0;
-                    float varBool = 0 != floatBitsToInt(CustomBoolean0);
+                    float nuPerMaterial_CustomBoolean0 = vp_c15_data[9].z;
+                    float nuPerMaterial_CustomFloat0 = vp_c15_data[5].y;
+                    vec4 nuPerMaterial_CustomVector0 = vp_c15_data[0];
+                    vec4 varVec4 = nuPerMaterial_CustomVector0;
+                    float varFloat = nuPerMaterial_CustomFloat0;
+                    float varBool = 0 != floatBitsToInt(nuPerMaterial_CustomBoolean0);
                     outAttribute0 = attribute2;
                     outAttribute1 = attribute7;
                 }"
