@@ -316,13 +316,13 @@ fn shader_binary_data(
     binary_folder: &str,
     shader: String,
 ) -> Result<MetaData, Box<dyn std::error::Error>> {
-    let file = Path::new(binary_folder).join(&shader).with_extension("bin");
-    MetaData::from_file(&file)
+    let file = Path::new(binary_folder).join(shader).with_extension("bin");
+    MetaData::from_file(file)
 }
 
 fn shader_source(source_folder: &str, shader: &String) -> Result<String, std::io::Error> {
     let file = Path::new(source_folder).join(shader).with_extension("glsl");
-    std::fs::read_to_string(&file)
+    std::fs::read_to_string(file)
 }
 
 fn vertex_attributes(
@@ -338,9 +338,8 @@ fn vertex_attributes(
             let mut name = a.attribute_name.to_string_lossy();
 
             // Check the vertex shader since it uses the same naming conventions.
-            // TODO: This is overestimates used channels since we don't include the pixel shader.
             // Some attributes are combined before passing to the pixel shader.
-            // TODO: Figure out what the pixel shader naming conventions are?
+            // This may overestimate used channels since we don't include the pixel shader.
             let input_name = format!("IN_{name}");
             if let Some(location) = vertex_binary_data.as_ref().ok().and_then(|data| {
                 data.inputs
@@ -389,7 +388,20 @@ fn material_parameters(
 
             // TODO: Clean this up.
             if name.contains("Texture") {
-                // TODO: Check what color channels are used from textures (requires nushdb).
+                let pixel_channels = texture_color_channels(&name, pixel_binary_data, pixel_source)
+                    .unwrap_or_default();
+
+                let channels: String = "xyzw"
+                    .chars()
+                    .into_iter()
+                    .enumerate()
+                    .filter(|(i, _)| pixel_channels[*i])
+                    .map(|(_, c)| c)
+                    .collect();
+
+                if !channels.is_empty() {
+                    name = format!("{name}.{channels}")
+                }
             } else if name.contains("CustomVector") {
                 // Check what Vector4 color channels are used.
                 let pixel_channels =
@@ -416,6 +428,47 @@ fn material_parameters(
             name
         })
         .collect()
+}
+
+fn texture_color_channels(
+    name: &str,
+    binary_data: &Result<MetaData, Box<dyn Error>>,
+    source: &Result<String, std::io::Error>,
+) -> Option<[bool; 4]> {
+    let uniform = binary_data
+        .as_ref()
+        .ok()?
+        .uniforms
+        .iter()
+        .find(|u| u.name == name)?;
+
+    // Assume just fragment textures for now.
+    let handle_name = texture_handle_name("fp_tex_tcb", uniform.unk11);
+
+    // Check what color channels are used.
+    Some(texture_color_channels_from_source(
+        &handle_name,
+        source.as_ref().ok()?,
+    ))
+}
+
+fn texture_color_channels_from_source(handle_name: &str, source: &str) -> [bool; 4] {
+    // Assume accesses will be combined like xyzw or xw.
+    // TODO: regex?
+    let access = format!("({handle_name}");
+    let access_line = source.lines().find(|l| l.contains(&access)).unwrap();
+    let start = access_line.chars().position(|c| c == '.').unwrap();
+    let end = access_line.chars().position(|c| c == ';').unwrap();
+    let components = &access_line[start..end];
+
+    let mut channels = [false; 4];
+    for (channel, component) in channels.iter_mut().zip("xyzw".chars()) {
+        if components.contains(component) {
+            *channel = true;
+        }
+    }
+
+    channels
 }
 
 fn vector4_color_channels(
@@ -596,7 +649,7 @@ fn most_recent_assignment<'a>(source: &'a str, var: &str) -> Option<&'a str> {
     source
         .lines()
         .rfind(|l| l.contains(&format!("{var} = ")))
-        .and_then(|s| s.split_once("="))
+        .and_then(|s| s.split_once('='))
         .map(|(_, s)| s.trim().trim_end_matches(';'))
 }
 
@@ -684,10 +737,10 @@ fn annotate_and_write_glsl(
     let shader_name = shader_name.file_name()?.to_str()?;
 
     let (shader_type, metadata) = metadata_by_name.get(shader_name)?;
-    let annotated_glsl = annotate_glsl(glsl, shader_type, &metadata)?;
+    let annotated_glsl = annotate_glsl(glsl, shader_type, metadata)?;
 
     // TODO: Move this out of the function?
-    let output_path = output_folder.join(&shader_name).with_extension("glsl");
+    let output_path = output_folder.join(shader_name).with_extension("glsl");
     if let Err(e) = std::fs::write(&output_path, annotated_glsl) {
         println!("Error writing to {output_path:?}: {e}");
     }
@@ -759,31 +812,47 @@ fn annotate_uniforms(
         ShaderType::Compute => None,
     }?;
 
+    // TODO: Texture constant buffer?
+    let texture = match shader_type {
+        ShaderType::Vertex => Some("vp_tex_tcb"),
+        ShaderType::Geometry => None,
+        ShaderType::Fragment => Some("fp_tex_tcb"),
+        ShaderType::Compute => None,
+    }?;
+
     let mut assignments = Vec::new();
 
-    for u in metadata
-        .uniforms
-        .iter()
-        .filter(|u| u.buffer_slot == per_material_slot as i32)
-    {
+    for u in metadata.uniforms.iter() {
         if u.uniform_buffer_offset != -1 {
-            // Assume all uniform buffers are of the form "vec4 data[0x1000];".
-            let vec4_index = u.uniform_buffer_offset / VEC4_SIZE;
-            // TODO: Also convert bools and floats?
+            if u.buffer_slot == per_material_slot as i32 {
+                // Assume all uniform buffers are of the form "vec4 data[0x1000];".
+                let vec4_index = u.uniform_buffer_offset / VEC4_SIZE;
+                match u.data_type {
+                    ssbh_data::shdr_data::DataType::Boolean => {
+                        // Booleans offsets are accessed as floats and converted to booleans.
+                        let assignment = annotate_float(annotated_glsl, u, buffer, vec4_index);
+                        assignments.push(assignment);
+                    }
+                    ssbh_data::shdr_data::DataType::Float => {
+                        // Float offsets point to one of the vec4 components.
+                        let assignment = annotate_float(annotated_glsl, u, buffer, vec4_index);
+                        assignments.push(assignment);
+                    }
+                    ssbh_data::shdr_data::DataType::Vector4 => {
+                        let assignment = annotate_vector4(annotated_glsl, u, buffer, vec4_index);
+                        assignments.push(assignment);
+                    }
+                    _ => (),
+                }
+            }
+        } else {
             match u.data_type {
-                ssbh_data::shdr_data::DataType::Boolean => {
-                    // Booleans offsets are accessed as floats and converted to booleans.
-                    let assignment = annotate_float(annotated_glsl, u, buffer, vec4_index);
-                    assignments.push(assignment);
-                }
-                ssbh_data::shdr_data::DataType::Float => {
-                    // Float offsets point to one of the vec4 components.
-                    let assignment = annotate_float(annotated_glsl, u, buffer, vec4_index);
-                    assignments.push(assignment);
-                }
-                ssbh_data::shdr_data::DataType::Vector4 => {
-                    let assignment = annotate_vector4(annotated_glsl, u, buffer, vec4_index);
-                    assignments.push(assignment);
+                ssbh_data::shdr_data::DataType::Sampler2d
+                | ssbh_data::shdr_data::DataType::Sampler3d
+                | ssbh_data::shdr_data::DataType::SamplerCube
+                | ssbh_data::shdr_data::DataType::Sampler2dArray
+                | ssbh_data::shdr_data::DataType::Image2d => {
+                    annotate_texture(annotated_glsl, u, texture);
                 }
                 _ => (),
             }
@@ -793,6 +862,20 @@ fn annotate_uniforms(
     add_variable_assignments(annotated_glsl, assignments);
 
     Some(())
+}
+
+fn annotate_texture(annotated_glsl: &mut String, u: &ssbh_data::shdr_data::Uniform, texture: &str) {
+    // Textures are accessed using integer handles.
+    // TODO: Figure out the proper name for unk11.
+    // TODO: Why do handles in Ryujinx.ShaderTools not match Ryujinx itself?
+    let texture_name = texture_handle_name(texture, u.unk11);
+    *annotated_glsl = annotated_glsl.replace(&texture_name, &u.name);
+}
+
+fn texture_handle_name(base: &str, unk11: i32) -> String {
+    let handle = unk11 * 2 + 8;
+    let texture_name = format!("{base}_{handle:X}");
+    texture_name
 }
 
 fn annotate_vector4(
@@ -989,6 +1072,9 @@ mod tests {
             layout (location = 1) in vec4 in_attr1;
             layout (location = 0) out vec4 out_attr0;
 
+            layout (binding = 0) uniform sampler2D fp_tex_tcb_8;
+            layout (binding = 1) uniform sampler2D fp_tex_tcb_12;
+
             void main() 
             {
                 vec4 varVec4 = fp_c9_data[0];
@@ -1029,6 +1115,20 @@ mod tests {
                     uniform_buffer_offset: 9 * VEC4_SIZE + 8,
                     unk11: -1,
                 },
+                Uniform {
+                    name: "Texture0".to_string(),
+                    data_type: DataType::Sampler2d,
+                    buffer_slot: -1,
+                    uniform_buffer_offset: -1,
+                    unk11: 0,
+                },
+                Uniform {
+                    name: "Texture1".to_string(),
+                    data_type: DataType::Sampler2d,
+                    buffer_slot: -1,
+                    uniform_buffer_offset: -1,
+                    unk11: 5,
+                },
             ],
             inputs: vec![
                 Attribute {
@@ -1054,6 +1154,9 @@ mod tests {
                 layout (location = 0) in vec4 attribute0;
                 layout (location = 1) in vec4 attribute1;
                 layout (location = 0) out vec4 outAttribute0;
+
+                layout (binding = 0) uniform sampler2D Texture0;
+                layout (binding = 1) uniform sampler2D Texture1;
 
                 void main() 
                 {
@@ -1167,5 +1270,23 @@ mod tests {
             },
             annotate_glsl(glsl, &ShaderType::Vertex, &metadata).unwrap()
         );
+    }
+
+    #[test]
+    fn texture_color_channels_source_2d() {
+        let channels = texture_color_channels_from_source(
+            "fp_tex_tcb_10",
+            "temp_10 = texture(fp_tex_tcb_10, vec2(temp_2, temp_4)).zw;",
+        );
+        assert_eq!([false, false, true, true], channels);
+    }
+
+    #[test]
+    fn texture_color_channels_source_cube() {
+        let channels = texture_color_channels_from_source(
+            "fp_tex_tcb_10",
+            "temp_10 = textureLod(fp_tex_tcb_10, vec2(temp_2, temp_4)).xzw;",
+        );
+        assert_eq!([true, false, true, true], channels);
     }
 }
