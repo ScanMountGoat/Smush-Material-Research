@@ -10,7 +10,7 @@ use clap::{Arg, ArgAction, Command};
 use rayon::prelude::*;
 use serde::Serialize;
 use ssbh_data::{prelude::*, shdr_data::MetaData};
-use ssbh_lib::formats::shdr::ShaderType;
+use ssbh_lib::formats::shdr::ShaderStage;
 use xmb_lib::XmbFile;
 use xmltree::EmitterConfig;
 
@@ -709,7 +709,7 @@ fn annotate_decompiled_shaders(
         .par_iter()
         .filter_map(|path| ShdrData::from_file(path.path()).ok())
         .flat_map(|data| data.shaders)
-        .map(|shader| (shader.name, (shader.shader_type, shader.meta_data)))
+        .map(|shader| (shader.name, (shader.shader_stage, shader.meta_data)))
         .collect();
 
     let shader_paths: Vec<_> =
@@ -729,7 +729,7 @@ fn annotate_decompiled_shaders(
 
 fn annotate_and_write_glsl(
     glsl_path: &Path,
-    metadata_by_name: &HashMap<String, (ShaderType, MetaData)>,
+    metadata_by_name: &HashMap<String, (ShaderStage, MetaData)>,
     output_folder: &Path,
 ) -> Option<()> {
     let glsl = std::fs::read_to_string(glsl_path).ok()?;
@@ -748,7 +748,7 @@ fn annotate_and_write_glsl(
     Some(())
 }
 
-fn annotate_glsl(glsl: String, shader_type: &ShaderType, metadata: &MetaData) -> Option<String> {
+fn annotate_glsl(glsl: String, shader_type: &ShaderStage, metadata: &MetaData) -> Option<String> {
     // TODO: The goal is to eventually annotate texture names as well.
     let mut annotated_glsl = glsl;
 
@@ -760,11 +760,11 @@ fn annotate_glsl(glsl: String, shader_type: &ShaderType, metadata: &MetaData) ->
 
 fn annotate_input_outputs(
     annotated_glsl: &mut String,
-    shader_type: &ShaderType,
+    shader_type: &ShaderStage,
     metadata: &MetaData,
 ) {
     match shader_type {
-        ShaderType::Vertex => {
+        ShaderStage::Vertex => {
             // Vertex inputs have explicit locations.
             for input in &metadata.inputs {
                 let glsl_name = format!("in_attr{}", input.location);
@@ -777,7 +777,7 @@ fn annotate_input_outputs(
                 *annotated_glsl = annotated_glsl.replace(&glsl_name, &output.name);
             }
         }
-        ShaderType::Fragment => {
+        ShaderStage::Fragment => {
             // Fragment inputs appear in order.
             for (i, input) in metadata.inputs.iter().enumerate() {
                 let glsl_name = format!("in_attr{i}");
@@ -796,23 +796,24 @@ fn annotate_input_outputs(
 fn annotate_uniforms(
     annotated_glsl: &mut String,
     metadata: &MetaData,
-    shader_type: &ShaderType,
+    shader_type: &ShaderStage,
 ) -> Option<()> {
     let buffer_prefix = match shader_type {
-        ShaderType::Vertex => Some("vp"),
-        ShaderType::Geometry => None,
-        ShaderType::Fragment => Some("fp"),
-        ShaderType::Compute => None,
+        ShaderStage::Vertex => Some("vp"),
+        ShaderStage::Geometry => None,
+        ShaderStage::Fragment => Some("fp"),
+        ShaderStage::Compute => None,
     }?;
 
     // TODO: tcb is texture constant buffer?
     let texture = match shader_type {
-        ShaderType::Vertex => Some("vp_tex_tcb"),
-        ShaderType::Geometry => None,
-        ShaderType::Fragment => Some("fp_tex_tcb"),
-        ShaderType::Compute => None,
+        ShaderStage::Vertex => Some("vp_tex_tcb"),
+        ShaderStage::Geometry => None,
+        ShaderStage::Fragment => Some("fp_tex_tcb"),
+        ShaderStage::Compute => None,
     }?;
 
+    // TODO: Don't create assignments for unused parameters?
     let mut assignments = Vec::new();
 
     for u in metadata.uniforms.iter() {
@@ -1251,7 +1252,7 @@ mod tests {
                     outAttribute0 = attribute0 + attribute1;
                 }"
             },
-            annotate_glsl(glsl, &ShaderType::Fragment, &metadata).unwrap()
+            annotate_glsl(glsl, &ShaderStage::Fragment, &metadata).unwrap()
         );
     }
 
@@ -1352,7 +1353,7 @@ mod tests {
                     outAttribute1 = attribute7;
                 }"
             },
-            annotate_glsl(glsl, &ShaderType::Vertex, &metadata).unwrap()
+            annotate_glsl(glsl, &ShaderStage::Vertex, &metadata).unwrap()
         );
     }
 

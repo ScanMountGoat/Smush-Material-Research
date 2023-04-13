@@ -611,7 +611,7 @@ dependencies = [
 [[package]]
 name = "ssbh_data"
 version = "0.16.0"
-source = "git+https://github.com/ultimate-research/ssbh_lib#1df089404e4c6cc674544f1e2a5a53c5f142d166"
+source = "git+https://github.com/ultimate-research/ssbh_lib#23fb09d41eb32b9ed7f558bb0e2234409efbc1de"
 dependencies = [
  "ahash",
  "binrw",
@@ -630,7 +630,7 @@ dependencies = [
 [[package]]
 name = "ssbh_lib"
 version = "0.16.0"
-source = "git+https://github.com/ultimate-research/ssbh_lib#1df089404e4c6cc674544f1e2a5a53c5f142d166"
+source = "git+https://github.com/ultimate-research/ssbh_lib#23fb09d41eb32b9ed7f558bb0e2234409efbc1de"
 dependencies = [
  "arbitrary",
  "binrw",
@@ -644,7 +644,7 @@ dependencies = [
 [[package]]
 name = "ssbh_write"
 version = "0.16.0"
-source = "git+https://github.com/ultimate-research/ssbh_lib#1df089404e4c6cc674544f1e2a5a53c5f142d166"
+source = "git+https://github.com/ultimate-research/ssbh_lib#23fb09d41eb32b9ed7f558bb0e2234409efbc1de"
 dependencies = [
  "ssbh_write_derive",
 ]
@@ -652,7 +652,7 @@ dependencies = [
 [[package]]
 name = "ssbh_write_derive"
 version = "0.16.0"
-source = "git+https://github.com/ultimate-research/ssbh_lib#1df089404e4c6cc674544f1e2a5a53c5f142d166"
+source = "git+https://github.com/ultimate-research/ssbh_lib#23fb09d41eb32b9ed7f558bb0e2234409efbc1de"
 dependencies = [
  "proc-macro2",
  "quote",
