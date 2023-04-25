@@ -15,6 +15,7 @@ serde_json = "1.0.0"
 xmb_lib = { git = "https://github.com/ultimate-research/xmb_lib" }
 ssbh_lib = { git = "https://github.com/ultimate-research/ssbh_lib" }
 ssbh_data = { git = "https://github.com/ultimate-research/ssbh_lib", features=["serde"] }
+glsl = "6.0.2"
 
 [dev-dependencies]
 indoc = "2.0"
