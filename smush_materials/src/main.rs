@@ -8,14 +8,13 @@ use std::{
 
 use annotation::{annotate_glsl, texture_handle_name};
 use clap::{Arg, ArgAction, Command};
+use dependencies::source_dependencies;
 use rayon::prelude::*;
 use serde::Serialize;
 use ssbh_data::{prelude::*, shdr_data::MetaData};
 use ssbh_lib::formats::shdr::ShaderStage;
 use xmb_lib::XmbFile;
 use xmltree::EmitterConfig;
-
-use crate::dependencies::print_glsl_dependencies;
 
 const VEC4_SIZE: i32 = 16;
 
@@ -133,7 +132,7 @@ fn main() {
                 ),
         )
         .subcommand(
-            Command::new("print_glsl_dependencies")
+            Command::new("glsl_dependencies")
                 .about("Print relevant lines for a variable assignment")
                 .arg(
                     Arg::new("input")
@@ -143,8 +142,15 @@ fn main() {
                         .takes_value(true),
                 )
                 .arg(
-                    Arg::new("var")
+                    Arg::new("output")
                         .index(2)
+                        .help("The relevant GLSL code")
+                        .required(true)
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::new("var")
+                        .index(3)
                         .help("The variable name")
                         .required(true)
                         .takes_value(true),
@@ -154,7 +160,6 @@ fn main() {
 
     let start = std::time::Instant::now();
 
-    // TODO: Decompiled shaders?
     let count = match matches.subcommand().unwrap() {
         ("xmb", sub_m) => batch_convert(
             sub_m.value_of("input").unwrap(),
@@ -190,8 +195,9 @@ fn main() {
             sub_m.value_of("nushdb_folder").unwrap(),
             sub_m.value_of("output").unwrap(),
         ),
-        ("print_glsl_dependencies", sub_m) => print_glsl_dependencies(
+        ("glsl_dependencies", sub_m) => glsl_dependencies(
             sub_m.value_of("input").unwrap(),
+            sub_m.value_of("output").unwrap(),
             sub_m.value_of("var").unwrap(),
         ),
         _ => 0,
@@ -820,6 +826,13 @@ fn shdrs_to_bin(path: &Path, output: PathBuf, just_code: bool) {
         }
         Err(e) => eprintln!("Error reading {:?}: {:?}", path, e),
     }
+}
+
+fn glsl_dependencies(input_path: &str, output_path: &str, var: &str) -> usize {
+    let source = std::fs::read_to_string(input_path).unwrap();
+    let code = source_dependencies(&source, var);
+    std::fs::write(output_path, code).unwrap();
+    1
 }
 
 #[cfg(test)]
