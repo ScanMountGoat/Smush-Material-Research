@@ -54,7 +54,7 @@ Replaces input and output attributes, textures, and uniforms in the decompiled s
 Finds all the lines of a decompiled GLSL shader that contribute to the final assignment of the given variable. This is helpful when trying to analyze the source code related to a particular variable since only the relevant lines are added to the output file. This command works with any decompiled GLSL shader, but the annotated source files will be easier to interpret.
  
 `cargo run --release -- glsl_dependencies <GLSL input file> <GLSL output file> <var>`  
-`cargo run --release -- glsl_dependencies "SFX_PBS_0100000008000269_VS.glsl" "out.glsl" OUT_shLighting.x`  
+`cargo run --release -- glsl_dependencies "SunShaft1PS.glsl" "out.glsl" OUT_color.x`  
 
 # Additional Tools
 [ssbh_lib](https://github.com/ultimate-research/ssbh_lib) - Contains the `ssbh_lib_json` and `ssbh_data_json` executables for editing various rendering related file types as JSON  
