@@ -23,28 +23,31 @@ fn annotate_input_outputs(
     shader_type: &ShaderStage,
     metadata: &MetaData,
 ) {
+    // It's possible to have overlapping identifiers like in_attr1 and in_attr10.
+    // Replace names in reverse order to hopefully fix this.
+    // TODO: Investigate a more robust solution.
     match shader_type {
         ShaderStage::Vertex => {
             // Vertex inputs have explicit locations.
-            for input in &metadata.inputs {
+            for input in metadata.inputs.iter().rev() {
                 let glsl_name = format!("in_attr{}", input.location);
                 *annotated_glsl = annotated_glsl.replace(&glsl_name, &input.name);
             }
             // Vertex outputs appear in order.
             // TODO: Skip builtins like gl_Position?
-            for (i, output) in metadata.outputs.iter().enumerate() {
+            for (i, output) in metadata.outputs.iter().enumerate().rev() {
                 let glsl_name = format!("out_attr{i}");
                 *annotated_glsl = annotated_glsl.replace(&glsl_name, &output.name);
             }
         }
         ShaderStage::Fragment => {
             // Fragment inputs appear in order.
-            for (i, input) in metadata.inputs.iter().enumerate() {
+            for (i, input) in metadata.inputs.iter().enumerate().rev() {
                 let glsl_name = format!("in_attr{i}");
                 *annotated_glsl = annotated_glsl.replace(&glsl_name, &input.name);
             }
             // Fragment outputs have explicit locations.
-            for output in &metadata.outputs {
+            for output in metadata.outputs.iter().rev() {
                 let glsl_name = format!("out_attr{}", output.location);
                 *annotated_glsl = annotated_glsl.replace(&glsl_name, &output.name);
             }
@@ -386,8 +389,8 @@ mod tests {
     #[test]
     fn annotate_glsl_vertex() {
         let glsl = indoc! {"
-            layout (location = 2) in vec4 in_attr2;
-            layout (location = 7) in vec4 in_attr7;
+            layout (location = 1) in vec4 in_attr1;
+            layout (location = 10) in vec4 in_attr10;
             layout (location = 0) out vec4 out_attr0;
             layout (location = 1) out vec4 out_attr1;
 
@@ -396,8 +399,8 @@ mod tests {
                 vec4 varVec4 = vp_c15_data[0];
                 float varFloat = vp_c15_data[5].y;
                 float varBool = 0 != floatBitsToInt(vp_c15_data[9].z);
-                out_attr0 = in_attr2;
-                out_attr1 = in_attr7;
+                out_attr0 = in_attr1;
+                out_attr1 = in_attr10;
             }
         "}
         .to_string();
@@ -437,14 +440,14 @@ mod tests {
             ],
             inputs: vec![
                 Attribute {
-                    name: "attribute2".to_string(),
+                    name: "position".to_string(),
                     data_type: DataType::Vector4,
-                    location: 2,
+                    location: 1,
                 },
                 Attribute {
-                    name: "attribute7".to_string(),
+                    name: "normal".to_string(),
                     data_type: DataType::Vector4,
-                    location: 7,
+                    location: 10,
                 },
             ],
             outputs: vec![
@@ -463,8 +466,8 @@ mod tests {
 
         pretty_assertions::assert_eq!(
             indoc! {"
-                layout (location = 2) in vec4 attribute2;
-                layout (location = 7) in vec4 attribute7;
+                layout (location = 1) in vec4 position;
+                layout (location = 10) in vec4 normal;
                 layout (location = 0) out vec4 outAttribute0;
                 layout (location = 1) out vec4 outAttribute1;
 
@@ -476,8 +479,8 @@ mod tests {
                     vec4 varVec4 = nuPerMaterial_CustomVector0;
                     float varFloat = nuPerMaterial_CustomFloat0;
                     float varBool = 0 != floatBitsToInt(nuPerMaterial_CustomBoolean0);
-                    outAttribute0 = attribute2;
-                    outAttribute1 = attribute7;
+                    outAttribute0 = position;
+                    outAttribute1 = normal;
                 }"
             },
             annotate_glsl(glsl, &ShaderStage::Vertex, &metadata).unwrap()
