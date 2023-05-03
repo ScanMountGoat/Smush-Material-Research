@@ -96,3 +96,13 @@ The basic process for debugging is as follows.
 3. Open Smash Ultimate and find an scene to analyze.
 4. Hit the capture hotkey (F12) to record an API capture. It's recommended to save this to disk to save time later.
 5. Open the capture and investigate the the textures, meshes, shaders, API calls, etc. See the [RenderDoc guide](https://renderdoc.org/docs/getting_started/quick_start.html) for more information. 
+
+## Learning Resources
+The following links cover important compute graphics concepts in a more approachable manner for people with some level of programming experience.
+* https://learnopengl.com/
+* https://sotrh.github.io/learn-wgpu/
+
+
+Modern graphics APIs all use similar abstractions, so knowledge from one API tends to carry over to another. For example, a tutorial on shadowmapping may still be helpful for reverse engineering shadows in a game even if the tutorial uses MacOS's Metal API. Knowledge of at least one modern graphics API is critical for understanding the output of RenderDoc.
+
+The WGPU tutorial is helpful for people wanting to contribute to renderers like ssbh_wgpu written in Rust. LearnOpenGL is far more in depth but doesn't cover some more recent concepts. Vulkan tutorials tend to be more modern but often include more complex topics like memory management and synchronization that aren't always relevant to reverse engineering.
