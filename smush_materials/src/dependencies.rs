@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use glsl::{
     parser::Parse,
-    syntax::{Expr, ShaderStage, SimpleStatement},
+    syntax::{ArraySpecifierDimension, Expr, ShaderStage, SimpleStatement},
     transpiler::glsl::{show_expr, show_simple_statement},
     visitor::{Host, Visit, Visitor},
 };
@@ -71,7 +71,17 @@ fn add_vars(expr: &Expr, vars: &mut Vec<usize>, most_recent_assignment: &HashMap
             add_vars(c, vars, most_recent_assignment);
         }
         Expr::Assignment(_, _, _) => todo!(),
-        Expr::Bracket(e, _) => add_vars(e, vars, most_recent_assignment),
+        Expr::Bracket(e, specifier) => {
+            // Expressions like array[index] depend on index.
+            // TODO: Do we also need to depend on array itself?
+            add_vars(e, vars, most_recent_assignment);
+
+            for dim in &specifier.dimensions {
+                if let ArraySpecifierDimension::ExplicitlySized(e) = dim {
+                    add_vars(e, vars, most_recent_assignment);
+                }
+            }
+        }
         Expr::FunCall(_, es) => {
             for e in es {
                 add_vars(e, vars, most_recent_assignment);
@@ -223,6 +233,27 @@ mod tests {
             indoc! {"
                 float b = 2.;
                 float c = 2*b;
+            "},
+            source_dependencies(glsl, "c")
+        );
+    }
+
+    #[test]
+    fn source_dependencies_type_casts() {
+        let glsl = indoc! {"
+            void main() 
+            {
+                float a = 0.0;
+                uint b = uint(a) >> 2;
+                float c = data[int(b)];
+            }
+        "};
+
+        assert_eq!(
+            indoc! {"
+                float a = 0.;
+                uint b = uint(a)>>2;
+                float c = data[int(b)];
             "},
             source_dependencies(glsl, "c")
         );
