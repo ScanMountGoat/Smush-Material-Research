@@ -87,8 +87,9 @@ Ryujinx's OpenGL implementation won't work with RenderDoc out of the box and req
 1. Install the version of .NET used by Ryujinx. Visual Studio is recommended for editing but any text editor will work.
 2. Clone the repository from https://github.com/Ryujinx/Ryujinx
 3. Remove the calls to alpha testing by deleting or commenting out the lines in `Ryujinx.Graphics.OpenGL.Pipeline.SetAlphaTest`.
-4. Build Ryujinx.
-5. Point RenderDoc to this new executable in the Launch Application tab of RenderDoc.
+4. Remove the calls to `GL.Begin` and `GL.End` in `Ryujinx.Graphics.OpenGL.HwCapabilities`.
+5. Build Ryujinx.
+6. Point RenderDoc to this new executable in the Launch Application tab of RenderDoc.
 
 The basic process for debugging is as follows.
 1. Launch the emulator from RenderDoc
