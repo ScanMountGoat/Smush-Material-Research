@@ -1,2 +1,3 @@
 [workspace]
 members = ["smush_materials"]
+resolver = "2"
