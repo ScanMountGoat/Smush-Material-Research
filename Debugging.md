@@ -79,9 +79,7 @@ These tools also work for debugging but tend to be more focused towards applicat
 
 It's recommended to use Ryujinx with OpenGL instead of Vulkan. 
 The Vulkan renderer has had minor issues like incorrect alpha testing for shadow mapping. These issues tend to get resolved as the emulator evolves. 
-The main reason to use OpenGL is that the decompiled shaders can be easily edited in plaintext in RenderDoc. The shaders match the output of the decompiled shader dump produced by Ryujinx's shader tools.
-Yuzu also can be made to work, but the rendering commands and shaders in Yuzu are structured differently than Ryujinx and won't match up with the research on this repository.
-Ryujinx has also the benefit of currently working with [Arcropolis](https://github.com/Raytwo/ARCropolis) for loading mods.
+The main reason to use OpenGL is that the decompiled shaders can be easily edited in plaintext in RenderDoc. The shaders match the output of the decompiled shader dump produced by Ryujinx's shader tools. Ryujinx has the benefit of currently working with [Arcropolis](https://github.com/Raytwo/ARCropolis) for loading mods.
 
 Ryujinx's OpenGL implementation won't work with RenderDoc out of the box and requires a few tweaks. The steps are listed below.
 1. Install the version of .NET used by Ryujinx. Visual Studio is recommended for editing but any text editor will work.
