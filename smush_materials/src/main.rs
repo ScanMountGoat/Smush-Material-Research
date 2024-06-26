@@ -7,7 +7,7 @@ use std::{
 };
 
 use annotation::{annotate_glsl, texture_handle_name};
-use clap::{Arg, ArgAction, Command};
+use clap::{Parser, Subcommand};
 use dependencies::source_dependencies;
 use rayon::prelude::*;
 use serde::Serialize;
@@ -21,188 +21,115 @@ const VEC4_SIZE: i32 = 16;
 mod annotation;
 mod dependencies;
 
+/// Rendering data dumps for Smash Ultimate
+#[derive(Parser)]
+#[command(author, version, about, long_about = None)]
+#[command(propagate_version = true)]
+struct Cli {
+    #[command(subcommand)]
+    command: Commands,
+}
+
+#[derive(Subcommand)]
+enum Commands {
+    /// Batch convert XMB to XML
+    Xmb {
+        /// The source folder to search recursively for files
+        input: String,
+        /// The output folder
+        output: String,
+    },
+    /// Batch convert stage NUANMB lighting to JSON
+    StageLighting {
+        /// The source folder to search recursively for files
+        input: String,
+        /// The output folder
+        output: String,
+    },
+    /// Batch convert stage NUANMB lighting to JSON
+    ShaderInfo {
+        /// The input nufxlb file
+        nufxlb: String,
+        ///The folder of shader binaries
+        binary_folder: String,
+        ///The folder of decompiled GLSL shaders
+        source_folder: String,
+        ///The output shader info JSON
+        output_json: String,
+    },
+    /// Export shader binaries
+    ShaderBinaries {
+        /// The source folder to search recursively for files
+        input: String,
+        /// The output folder
+        output: String,
+        /// Only output the compiled program code
+        #[arg(long)]
+        code: bool,
+    },
+    /// Export shader binaries
+    NushdbMetadata {
+        /// The folder containing the nushdb files
+        nushdb_folder: String,
+        /// The output folder
+        output: String,
+    },
+    /// Annotate parameter names in decompiled shader code
+    AnnotateDecompiledShaders {
+        /// The folder of decompiled GLSL shaders
+        source_folder: String,
+        /// The folder containing the nushdb files
+        nushdb_folder: String,
+        /// The output folder
+        output: String,
+    },
+    /// Print relevant lines for a variable assignment
+    GlslDependencies {
+        /// The GLSL shader file
+        input: String,
+        /// The relevant GLSL code
+        output: String,
+        /// The variable name like "out_attr0.x"
+        var: String,
+    },
+}
+
 // TODO: split into modules
 fn main() {
-    let input_arg = Arg::new("input")
-        .index(1)
-        .help("The source folder to search recursively for files")
-        .required(true)
-        .takes_value(true);
-    let output_arg = Arg::new("output")
-        .index(2)
-        .help("The output folder")
-        .required(true)
-        .takes_value(true);
-
-    let matches = Command::new("smush_materials")
-        .version("0.1")
-        .author("SMG")
-        .about("Rendering data dumps for Smash Ultimate")
-        .subcommand(
-            Command::new("xmb")
-                .about("Batch convert XMB to XML")
-                .arg(input_arg.clone())
-                .arg(output_arg.clone()),
-        )
-        .subcommand(
-            Command::new("stage_lighting")
-                .about("Batch convert stage NUANMB lighting to JSON")
-                .arg(input_arg.clone())
-                .arg(output_arg.clone()),
-        )
-        .subcommand(
-            Command::new("shader_info")
-                .about("Export shader info JSON")
-                .arg(
-                    Arg::new("nufxlb")
-                        .index(1)
-                        .help("The input nufxlb file")
-                        .required(true)
-                        .takes_value(true),
-                )
-                .arg(
-                    Arg::new("binary_folder")
-                        .index(2)
-                        .help("The folder of shader binaries")
-                        .required(true)
-                        .takes_value(true),
-                )
-                .arg(
-                    Arg::new("source_folder")
-                        .index(3)
-                        .help("The folder of decompiled GLSL shaders")
-                        .required(true)
-                        .takes_value(true),
-                )
-                .arg(
-                    Arg::new("output_json")
-                        .index(4)
-                        .help("The output shader info JSON")
-                        .required(true)
-                        .takes_value(true),
-                ),
-        )
-        .subcommand(
-            Command::new("shader_binaries")
-                .about("Export shader binaries")
-                .arg(input_arg.clone())
-                .arg(output_arg.clone())
-                .arg(
-                    Arg::new("code")
-                        .action(ArgAction::SetTrue)
-                        .long("code")
-                        .help("Only output the compiled program code"),
-                ),
-        )
-        .subcommand(
-            Command::new("nushdb_metadata")
-                .about("Export nushdb shader metadata JSON")
-                .arg(
-                    Arg::new("nushdb_folder")
-                        .index(1)
-                        .help("The folder containing the nushdb files")
-                        .required(true)
-                        .takes_value(true),
-                )
-                .arg(output_arg.clone()),
-        )
-        .subcommand(
-            Command::new("annotate_decompiled_shaders")
-                .about("Annotate parameter names in decompiled shader code")
-                .arg(
-                    Arg::new("source_folder")
-                        .index(1)
-                        .help("The folder of decompiled GLSL shaders")
-                        .required(true)
-                        .takes_value(true),
-                )
-                .arg(
-                    Arg::new("nushdb_folder")
-                        .index(2)
-                        .help("The folder containing the nushdb files")
-                        .required(true)
-                        .takes_value(true),
-                )
-                .arg(
-                    Arg::new("output")
-                        .index(3)
-                        .help("The output folder")
-                        .required(true)
-                        .takes_value(true),
-                ),
-        )
-        .subcommand(
-            Command::new("glsl_dependencies")
-                .about("Print relevant lines for a variable assignment")
-                .arg(
-                    Arg::new("input")
-                        .index(1)
-                        .help("The GLSL shader file")
-                        .required(true)
-                        .takes_value(true),
-                )
-                .arg(
-                    Arg::new("output")
-                        .index(2)
-                        .help("The relevant GLSL code")
-                        .required(true)
-                        .takes_value(true),
-                )
-                .arg(
-                    Arg::new("var")
-                        .index(3)
-                        .help("The variable name")
-                        .required(true)
-                        .takes_value(true),
-                ),
-        )
-        .get_matches();
-
+    let cli = Cli::parse();
     let start = std::time::Instant::now();
 
-    let count = match matches.subcommand().unwrap() {
-        ("xmb", sub_m) => batch_convert(
-            sub_m.value_of("input").unwrap(),
-            sub_m.value_of("output").unwrap(),
-            "*.xmb",
-            "xml",
-            xmb_to_xml,
-        ),
-        ("stage_lighting", sub_m) => batch_convert(
-            sub_m.value_of("input").unwrap(),
-            sub_m.value_of("output").unwrap(),
+    let count = match cli.command {
+        Commands::Xmb { input, output } => xmb_to_xml(input, output),
+        Commands::StageLighting { input, output } => batch_convert(
+            input,
+            output,
             "{light,light_}[0-9]*.nuanmb",
             "json",
             anim_data_to_json,
         ),
-        ("shader_binaries", sub_m) => export_shader_binaries(
-            sub_m.value_of("input").unwrap(),
-            sub_m.value_of("output").unwrap(),
-            sub_m.get_flag("code"),
-        ),
-        ("shader_info", sub_m) => export_shader_info(
-            sub_m.value_of("nufxlb").unwrap(),
-            sub_m.value_of("binary_folder").unwrap(),
-            sub_m.value_of("source_folder").unwrap(),
-            sub_m.value_of("output_json").unwrap(),
-        ),
-        ("nushdb_metadata", sub_m) => export_nushdb_metadata(
-            sub_m.value_of("nushdb_folder").unwrap(),
-            sub_m.value_of("output").unwrap(),
-        ),
-        ("annotate_decompiled_shaders", sub_m) => annotate_decompiled_shaders(
-            sub_m.value_of("source_folder").unwrap(),
-            sub_m.value_of("nushdb_folder").unwrap(),
-            sub_m.value_of("output").unwrap(),
-        ),
-        ("glsl_dependencies", sub_m) => glsl_dependencies(
-            sub_m.value_of("input").unwrap(),
-            sub_m.value_of("output").unwrap(),
-            sub_m.value_of("var").unwrap(),
-        ),
-        _ => 0,
+        Commands::ShaderInfo {
+            nufxlb,
+            binary_folder,
+            source_folder,
+            output_json,
+        } => export_shader_info(nufxlb, binary_folder, source_folder, output_json),
+        Commands::ShaderBinaries {
+            input,
+            output,
+            code,
+        } => export_shader_binaries(input, output, code),
+        Commands::NushdbMetadata {
+            nushdb_folder,
+            output,
+        } => export_nushdb_metadata(nushdb_folder, output),
+        Commands::AnnotateDecompiledShaders {
+            source_folder,
+            nushdb_folder,
+            output,
+        } => annotate_decompiled_shaders(source_folder, nushdb_folder, output),
+        Commands::GlslDependencies { input, output, var } => glsl_dependencies(input, output, var),
     };
-
     println!("Converted {:?} files in {:?}", count, start.elapsed());
 }
 
@@ -225,13 +152,13 @@ struct ShaderProgram {
 }
 
 fn export_shader_info(
-    nufx_file: &str,
-    binary_folder: &str,
-    source_folder: &str,
-    output_file: &str,
+    nufx_file: String,
+    binary_folder: String,
+    source_folder: String,
+    output_file: String,
 ) -> usize {
     // Generate the shader info JSON for ssbh_wgpu.
-    match ssbh_lib::formats::nufx::Nufx::from_file(nufx_file) {
+    match ssbh_lib::formats::nufx::Nufx::from_file(&nufx_file) {
         Ok(ssbh_lib::formats::nufx::Nufx::V1(nufx)) => {
             // TODO: Make excluding duplicate render pass entries optional?
             // All "SFX_PBS..." programs support all render passes.
@@ -245,10 +172,10 @@ fn export_shader_info(
                     .map(|program| {
                         // We can infer information from the shader source using some basic heurstics.
                         let pixel_shader = program.shaders.pixel_shader.to_string_lossy();
-                        let pixel_source = shader_source(source_folder, &pixel_shader);
+                        let pixel_source = shader_source(&source_folder, &pixel_shader);
 
                         let vertex_shader = program.shaders.vertex_shader.to_string_lossy();
-                        let vertex_source = shader_source(source_folder, &vertex_shader);
+                        let vertex_source = shader_source(&source_folder, &vertex_shader);
 
                         // Alpha testing in Smash Ultimate is done in shader, so check for discard.
                         // There may be false positives if the discard code path is unused.
@@ -262,8 +189,8 @@ fn export_shader_info(
                             .map(|source| is_premultiplied_alpha(source).unwrap_or_default())
                             .unwrap_or_default();
 
-                        let pixel_binary_data = shader_binary_data(binary_folder, pixel_shader);
-                        let vertex_binary_data = shader_binary_data(binary_folder, vertex_shader);
+                        let pixel_binary_data = shader_binary_data(&binary_folder, pixel_shader);
+                        let vertex_binary_data = shader_binary_data(&binary_folder, vertex_shader);
 
                         let params = material_parameters(
                             &program,
@@ -543,28 +470,29 @@ fn vector4_color_channels_from_source(
 }
 
 fn batch_convert<F: Fn(&Path, PathBuf) + Send + Sync>(
-    source_folder: &str,
-    destination_folder: &str,
+    source_folder: String,
+    destination_folder: String,
     input_pattern: &str,
     output_extension: &str,
     convert: F,
 ) -> usize {
     // Make sure the output directory exists.
-    if !Path::new(destination_folder).exists() {
-        std::fs::create_dir(destination_folder).unwrap();
+    if !Path::new(&destination_folder).exists() {
+        std::fs::create_dir(&destination_folder).unwrap();
     }
 
-    let paths: Vec<_> = globwalk::GlobWalkerBuilder::from_patterns(source_folder, &[input_pattern])
-        .build()
-        .unwrap()
-        .filter_map(Result::ok)
-        .collect();
+    let paths: Vec<_> =
+        globwalk::GlobWalkerBuilder::from_patterns(&source_folder, &[input_pattern])
+            .build()
+            .unwrap()
+            .filter_map(Result::ok)
+            .collect();
 
     paths.par_iter().for_each(|path| {
         let output_full_path = flattened_output_path(
             path.path(),
-            source_folder,
-            destination_folder,
+            &source_folder,
+            &destination_folder,
             output_extension,
         );
 
@@ -575,8 +503,8 @@ fn batch_convert<F: Fn(&Path, PathBuf) + Send + Sync>(
     paths.len()
 }
 
-fn xmb_to_xml(path: &Path, output_full_path: PathBuf) {
-    match XmbFile::from_file(path) {
+fn xmb_to_xml(path: String, output_full_path: String) -> usize {
+    match XmbFile::from_file(&path) {
         Ok(xmb_file) => {
             let element = xmb_file.to_xml().unwrap();
 
@@ -588,8 +516,12 @@ fn xmb_to_xml(path: &Path, output_full_path: PathBuf) {
 
             let mut writer = BufWriter::new(File::create(output_full_path).unwrap());
             element.write_with_config(&mut writer, config).unwrap();
+            1
         }
-        Err(e) => eprintln!("Error reading {:?}: {:?}", path, e),
+        Err(e) => {
+            eprintln!("Error reading {:?}: {:?}", path, e);
+            0
+        }
     }
 }
 
@@ -685,9 +617,9 @@ fn most_recent_assignment<'a>(source: &'a str, var: &str) -> Option<&'a str> {
         .map(|(_, s)| s.trim().trim_end_matches(';'))
 }
 
-fn export_nushdb_metadata(nushdb_folder: &str, output_folder: &str) -> usize {
+fn export_nushdb_metadata(nushdb_folder: String, output_folder: String) -> usize {
     // Make sure the output directory exists.
-    let output_folder = Path::new(output_folder);
+    let output_folder = Path::new(&output_folder);
     if !output_folder.exists() {
         std::fs::create_dir(output_folder).unwrap();
     }
@@ -717,12 +649,12 @@ fn export_nushdb_metadata(nushdb_folder: &str, output_folder: &str) -> usize {
 }
 
 fn annotate_decompiled_shaders(
-    source_folder: &str,
-    nushdb_folder: &str,
-    output_folder: &str,
+    source_folder: String,
+    nushdb_folder: String,
+    output_folder: String,
 ) -> usize {
     // Make sure the output directory exists.
-    let output_folder = Path::new(output_folder);
+    let output_folder = Path::new(&output_folder);
     if !output_folder.exists() {
         std::fs::create_dir(output_folder).unwrap();
     }
@@ -777,13 +709,17 @@ fn annotate_and_write_glsl(
     Some(())
 }
 
-fn export_shader_binaries(source_folder: &str, destination_folder: &str, just_code: bool) -> usize {
+fn export_shader_binaries(
+    source_folder: String,
+    destination_folder: String,
+    just_code: bool,
+) -> usize {
     // Make sure the output directory exists.
-    if !Path::new(destination_folder).exists() {
-        std::fs::create_dir(destination_folder).unwrap();
+    if !Path::new(&destination_folder).exists() {
+        std::fs::create_dir(&destination_folder).unwrap();
     }
 
-    let paths: Vec<_> = globwalk::GlobWalkerBuilder::from_patterns(source_folder, &["*.nushdb"])
+    let paths: Vec<_> = globwalk::GlobWalkerBuilder::from_patterns(&source_folder, &["*.nushdb"])
         .build()
         .unwrap()
         .filter_map(Result::ok)
@@ -791,7 +727,7 @@ fn export_shader_binaries(source_folder: &str, destination_folder: &str, just_co
 
     paths.par_iter().for_each(|path| {
         let output_full_path =
-            flattened_output_path(path.path(), source_folder, destination_folder, "bin");
+            flattened_output_path(path.path(), &source_folder, &destination_folder, "bin");
 
         shdrs_to_bin(path.path(), output_full_path, just_code);
     });
@@ -828,9 +764,9 @@ fn shdrs_to_bin(path: &Path, output: PathBuf, just_code: bool) {
     }
 }
 
-fn glsl_dependencies(input_path: &str, output_path: &str, var: &str) -> usize {
+fn glsl_dependencies(input_path: String, output_path: String, var: String) -> usize {
     let source = std::fs::read_to_string(input_path).unwrap();
-    let code = source_dependencies(&source, var);
+    let code = source_dependencies(&source, &var);
     std::fs::write(output_path, code).unwrap();
     1
 }
