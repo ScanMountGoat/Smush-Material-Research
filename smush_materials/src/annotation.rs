@@ -1,7 +1,7 @@
 use ssbh_data::shdr_data::MetaData;
 use ssbh_lib::formats::shdr::ShaderStage;
 
-use crate::VEC4_SIZE;
+pub const VEC4_SIZE: i32 = 16;
 
 // Annotate the glsl with input and output names.
 // Use string replacement instead of the glsl crate to preserve formatting and comments.
