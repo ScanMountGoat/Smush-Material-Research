@@ -1,7 +1,9 @@
 use std::{error::Error, path::Path};
 
+use indoc::indoc;
 use serde::Serialize;
 use ssbh_data::shdr_data::MetaData;
+use xc3_shader::graph::glsl::shader_source_no_extensions;
 
 use crate::annotation::{texture_handle_name, VEC4_SIZE};
 
@@ -341,65 +343,30 @@ fn input_attribute_color_channels(location: i32, source: &str) -> String {
     channels
 }
 
-// TODO: use graph for this
 fn is_premultiplied_alpha(source: &str) -> Option<bool> {
-    // Identical shader code may have different variable names or whitespace.
-    // This is known in the literature as a "type-2 code clone".
-    // A proper solution would perform a structual match with a reference.
-    // This is possible using an AST graph with normalized identifiers.
-    // Replacing all variables with "var" allows for different variable names.
-    // The argument edges should be labeled so a*b and b*a are equivalent.
-    // The code matches the premultiplied reference if the graphs are isomorphic.
-
-    // Use a simple heuristic for now based on known premultiplied shaders.
-    // This basically hardcodes the graph traversal and isomorphism check.
-    // Each assignment or input to an operation is an edge in the graph.
-    // Checking all the shaders manually to validate this is infeasible.
-    // TODO: Is it worth trying to implement a better heuristic?
-
-    // Find the variable used to set the alpha output.
-    // Assume the relevant code is in the last lines.
-    let alpha_var = most_recent_assignment(source, "out_attr0.w")?;
-
-    // The multiplied alpha should be used to initialize the var above.
-    // Find the variable assigned to the alpha output.
-    let alpha_assignment = most_recent_assignment(source, alpha_var)?;
-
-    // Find the variable used for the premultiplied alpha.
-    let multiplied_alpha_var = alpha_assignment.get(
-        alpha_assignment.chars().position(|c| c == '(')? + 1
-            ..alpha_assignment.chars().position(|c| c == ',')?,
-    )?;
-
-    // Find the variables assigned to the RGB outputs.
-    // TODO: This doesn't correctly handle the BGRA condition.
-    let var_r = most_recent_assignment(source, "out_attr0.x")?;
-    let var_g = most_recent_assignment(source, "out_attr0.y")?;
-    let var_b = most_recent_assignment(source, "out_attr0.z")?;
+    let source = shader_source_no_extensions(source);
+    let graph = xc3_shader::graph::Graph::parse_glsl(source).unwrap();
+    let node = graph
+        .nodes
+        .iter()
+        .rfind(|n| n.output.name == "out_attr0" && n.output.channel == Some('w'))?;
 
     // Check if the RGB outputs are multiplied by alpha.
-    Some(
-        is_multiplied_by_alpha(source, var_r, multiplied_alpha_var)
-            && is_multiplied_by_alpha(source, var_g, multiplied_alpha_var)
-            && is_multiplied_by_alpha(source, var_b, multiplied_alpha_var),
-    )
-}
+    let query = indoc! {"
+        alpha_final = fma(alpha2, temp, alpha);
+        red = temp * alpha;
+        green = temp * alpha;
+        blue = temp * alpha;
+        result.x = red;
+        result.y = green;
+        result.z = blue;
+        result.w = alpha_final;
+    "};
 
-fn is_multiplied_by_alpha(source: &str, var: &str, alpha_var: &str) -> bool {
-    if let Some(assignment) = most_recent_assignment(source, var) {
-        assignment.contains(&format!("* {alpha_var}"))
-            || assignment.contains(&format!("{alpha_var} *"))
-    } else {
-        false
-    }
-}
+    // This handles changes in variable names and algebraic identities like a*b == b*a.
+    let result = xc3_shader::graph::query::query_nodes_glsl(&node.input, &graph.nodes, query)?;
 
-fn most_recent_assignment<'a>(source: &'a str, var: &str) -> Option<&'a str> {
-    source
-        .lines()
-        .rfind(|l| l.contains(&format!("{var} = ")))
-        .and_then(|s| s.split_once('='))
-        .map(|(_, s)| s.trim().trim_end_matches(';'))
+    Some(!result.is_empty())
 }
 
 #[cfg(test)]
@@ -409,39 +376,57 @@ mod tests {
     use indoc::indoc;
 
     #[test]
-    fn is_premultiplied() {
+    fn pixel_source_premultiplied() {
         let source = indoc! {"
-            temp_743 = fma(temp_736, temp_742, temp_736);
-            // 0x001850: 0x5C68100000570201 Fmul
-            temp_744 = temp_739 * temp_736;
-            // 0x001858: 0x5C68100000570000 Fmul
-            temp_745 = temp_740 * temp_736;
-            // 0x001868: 0x5C68100000570402 Fmul
-            temp_746 = temp_741 * temp_736;
-            // 0x001870: 0xE30000000007000F Exit
-            if (!s_is_bgra[0])
-            {
+            void main() {
+                temp_743 = fma(temp_736, temp_742, temp_736);
+                temp_744 = temp_739 * temp_736;
+                temp_745 = temp_740 * temp_736;
+                temp_746 = temp_741 * temp_736;
                 out_attr0.x = temp_745;
-                temp_747 = true;
-            }
-            else
-            {
-                out_attr0.z = temp_745;
-            }
-            temp_747 = false;
-            out_attr0.y = temp_744;
-            if (!s_is_bgra[0])
-            {
+                out_attr0.y = temp_744;
                 out_attr0.z = temp_746;
-                temp_748 = true;
+                out_attr0.w = temp_743;
             }
-            else
-            {
-                out_attr0.x = temp_746;
+        "};
+
+        assert!(is_premultiplied_alpha(source).unwrap_or_default());
+    }
+
+    #[test]
+    fn pixel_source_premultiplied_commutative() {
+        let source = indoc! {"
+            void main() {
+                temp_743 = fma(temp_736, temp_742, temp_736);
+                temp_744 = temp_736 * temp_739;
+                temp_745 = temp_736 * temp_740;
+                temp_746 = temp_736 * temp_741;
+                out_attr0.x = temp_745;
+                out_attr0.y = temp_744;
+                out_attr0.z = temp_746;
+                out_attr0.w = temp_743;
             }
-            temp_748 = false;
-            out_attr0.w = temp_743;"
-        };
+        "};
+
+        assert!(is_premultiplied_alpha(source).unwrap_or_default());
+    }
+
+    #[test]
+    fn pixel_source_premultiplied_different_fma_expr() {
+        // SFX_PBS_0d00000000090000
+        let source = indoc! {"
+            void main() {
+                temp_92 = 0.0 - temp_76;
+                temp_93 = fma(temp_86, temp_92, temp_76);
+                temp_94 = temp_89 * temp_76;
+                temp_95 = temp_90 * temp_76;
+                temp_96 = temp_91 * temp_76;
+                out_attr0.x = temp_94;
+                out_attr0.y = temp_95;
+                out_attr0.z = temp_96;
+                out_attr0.w = temp_93;
+            }
+        "};
 
         assert!(is_premultiplied_alpha(source).unwrap_or_default());
     }
@@ -449,36 +434,16 @@ mod tests {
     #[test]
     fn pixel_source_not_premultiplied() {
         let source = indoc! {"
-            temp_733 = temp_730 * temp_680;
-            // 0x0017F8: 0x49A002AC06870000 Ffma
-            temp_734 = fma(temp_722, fp_c11_data[26].x, temp_732);
-            // 0x001808: 0x49A002AC06870401 Ffma
-            temp_735 = fma(temp_724, fp_c11_data[26].x, temp_732);
-            // 0x001810: 0x49A002AC06870202 Ffma
-            temp_736 = fma(temp_726, fp_c11_data[26].x, temp_732);
-            // 0x001818: 0xE30000000007000F Exit
-            if (!s_is_bgra[0])
-            {
+            void main() {
+                temp_733 = temp_730 * temp_680;
+                temp_734 = fma(temp_722, fp_c11_data[26].x, temp_732);
+                temp_735 = fma(temp_724, fp_c11_data[26].x, temp_732);
+                temp_736 = fma(temp_726, fp_c11_data[26].x, temp_732);
                 out_attr0.x = temp_734;
-                temp_737 = true;
-            }
-            else
-            {
-                out_attr0.z = temp_734;
-            }
-            temp_737 = false;
-            out_attr0.y = temp_735;
-            if (!s_is_bgra[0])
-            {
+                out_attr0.y = temp_735;
                 out_attr0.z = temp_736;
-                temp_738 = true;
+                out_attr0.w = temp_733;
             }
-            else
-            {
-                out_attr0.x = temp_736;
-            }
-            temp_738 = false;
-            out_attr0.w = temp_733;
         "};
 
         assert!(!is_premultiplied_alpha(source).unwrap_or_default());

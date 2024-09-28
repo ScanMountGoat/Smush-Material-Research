@@ -14,9 +14,9 @@ xmb_lib = { git = "https://github.com/ultimate-research/xmb_lib" }
 ssbh_lib = { git = "https://github.com/ultimate-research/ssbh_lib" }
 ssbh_data = { git = "https://github.com/ultimate-research/ssbh_lib", features=["serde"] }
 glsl = "6.0.2"
+indoc = "2.0"
 # TODO: dedicated library without additional Xenoblade dependencies
 xc3_shader = { git = "https://github.com/ScanMountGoat/xc3_lib", default-features = false }
 
 [dev-dependencies]
-indoc = "2.0"
 pretty_assertions = "1.4.1"
