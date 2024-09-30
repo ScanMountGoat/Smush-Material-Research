@@ -3,7 +3,7 @@ use std::{error::Error, path::Path};
 use indoc::indoc;
 use serde::Serialize;
 use ssbh_data::shdr_data::MetaData;
-use xc3_shader::graph::glsl::shader_source_no_extensions;
+use xc3_shader::graph::{glsl::shader_source_no_extensions, Graph};
 
 use crate::annotation::{texture_handle_name, VEC4_SIZE};
 
@@ -20,6 +20,7 @@ struct ShaderProgram {
     receives_shadow: bool,
     sh: bool,
     lighting: bool,
+    anisotropic_rotation: bool,
     attrs: Vec<String>,
     params: Vec<String>,
     complexity: f64,
@@ -58,9 +59,35 @@ pub fn export_shader_database(
                             .map(|source| source.contains("discard;"))
                             .unwrap_or_default();
 
-                        let premultiplied = pixel_source
+                        let frag = pixel_source.as_ref().map(|source| {
+                            let glsl = shader_source_no_extensions(source);
+                            xc3_shader::graph::Graph::parse_glsl(glsl).unwrap()
+                        });
+
+                        let premultiplied = frag
                             .as_ref()
-                            .map(|source| is_premultiplied_alpha(source).unwrap_or_default())
+                            .map(|frag| is_premultiplied_alpha(frag).unwrap_or_default())
+                            .unwrap_or_default();
+
+                        let anisotropic_rotation = frag
+                            .as_ref()
+                            .map(|frag| {
+                                frag.nodes.iter().any(|n| {
+                                    // TODO: does this require a more specific query?
+                                    let query = indoc! {"
+                                        prm = prm;
+                                        alpha = prm.w;
+                                        result = fma(alpha, 2.0, -1.0);
+                                    "};
+
+                                    xc3_shader::graph::query::query_nodes_glsl(
+                                        &n.input,
+                                        &frag.nodes,
+                                        query,
+                                    )
+                                    .is_some()
+                                })
+                            })
                             .unwrap_or_default();
 
                         let pixel_binary_data = shader_binary_data(&binary_folder, pixel_shader);
@@ -116,6 +143,7 @@ pub fn export_shader_database(
                             receives_shadow,
                             sh,
                             lighting,
+                            anisotropic_rotation,
                             attrs,
                             params,
                             complexity: lines_of_code as f64,
@@ -343,9 +371,7 @@ fn input_attribute_color_channels(location: i32, source: &str) -> String {
     channels
 }
 
-fn is_premultiplied_alpha(source: &str) -> Option<bool> {
-    let source = shader_source_no_extensions(source);
-    let graph = xc3_shader::graph::Graph::parse_glsl(source).unwrap();
+fn is_premultiplied_alpha(graph: &Graph) -> Option<bool> {
     let node = graph
         .nodes
         .iter()
@@ -389,8 +415,8 @@ mod tests {
                 out_attr0.w = temp_743;
             }
         "};
-
-        assert!(is_premultiplied_alpha(source).unwrap_or_default());
+        let graph = Graph::parse_glsl(source).unwrap();
+        assert!(is_premultiplied_alpha(&graph).unwrap_or_default());
     }
 
     #[test]
@@ -407,8 +433,8 @@ mod tests {
                 out_attr0.w = temp_743;
             }
         "};
-
-        assert!(is_premultiplied_alpha(source).unwrap_or_default());
+        let graph = Graph::parse_glsl(source).unwrap();
+        assert!(is_premultiplied_alpha(&graph).unwrap_or_default());
     }
 
     #[test]
@@ -427,8 +453,8 @@ mod tests {
                 out_attr0.w = temp_93;
             }
         "};
-
-        assert!(is_premultiplied_alpha(source).unwrap_or_default());
+        let graph = Graph::parse_glsl(source).unwrap();
+        assert!(is_premultiplied_alpha(&graph).unwrap_or_default());
     }
 
     #[test]
@@ -445,13 +471,13 @@ mod tests {
                 out_attr0.w = temp_733;
             }
         "};
-
-        assert!(!is_premultiplied_alpha(source).unwrap_or_default());
+        let graph = Graph::parse_glsl(source).unwrap();
+        assert!(!is_premultiplied_alpha(&graph).unwrap_or_default());
     }
 
     #[test]
     fn pixel_source_not_premultiplied_empty() {
-        assert!(!is_premultiplied_alpha("").unwrap_or_default());
+        assert!(!is_premultiplied_alpha(&Graph::default()).unwrap_or_default());
     }
 
     #[test]
