@@ -36,14 +36,11 @@ Generates a separate JSON metadata file for each of the shaders in the nushdb fi
 
 ## Shader Binaries
 Extracts the shader binaries from the .nushdb files since each file contains multiple shaders.  
-`cargo run --release -- shader_binaries </render/shader/bin folder> <binary export folder>`  
+`cargo run --release -- shader-binaries </render/shader/bin folder> <binary export folder>`  
 
-For just outputting the program byte code, add the `--code` flag. This is necessary for analyzing the shader assembly or decompiling. In some cases, it may be necessary to manually strip the 80 (0x50) byte header from each file before dissassembling. The header should not be removed when decompiling with Ryujinx.ShaderTools.  
-`cargo run --release -- shader-binaries --code </render/shader/bin folder> <binary export folder>`
-
-## Decompiled Shaders - WIP
-The shaders can be decompiled using Ryujinx's ShaderTools. Make sure to export the binaries with the `--code` flag.    
-`python batch_decompile_shaders.py <ShaderTools.exe> <binary export folder> <export folder>`  
+## Decompiled Shaders
+The shaders can be decompiled using Ryujinx's ShaderTools.  
+`cargo run --release -- shader-binaries <binary export folder> <export folder> <ShaderTools.exe> `  
 
 ## Annotated Decompiled Shaders
 Replaces input and output attributes, textures, and uniforms in the decompiled shaders using variable names from the nushdb metadata. See [shaders](https://github.com/ScanMountGoat/Smush-Material-Research/blob/master/Shaders.md) for details. The start of the main function contains declarations for uniform parameters. Not all parameters are used in the actual code.  

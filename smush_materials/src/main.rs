@@ -10,7 +10,7 @@ use clap::{Parser, Subcommand};
 use database::export_shader_database;
 use dependencies::source_dependencies;
 use rayon::prelude::*;
-use ssbh_data::{prelude::*, shdr_data::MetaData};
+use ssbh_data::{prelude::*, shdr_data::Metadata};
 use ssbh_lib::formats::shdr::ShaderStage;
 use xmb_lib::XmbFile;
 use xmltree::EmitterConfig;
@@ -61,9 +61,15 @@ enum Commands {
         input: String,
         /// The output folder
         output: String,
-        /// Only output the compiled program code
-        #[arg(long)]
-        code: bool,
+    },
+    /// Decompile shader binaries
+    DecompileShaders {
+        /// The source folder to search recursively for files
+        input: String,
+        /// The output folder
+        output: String,
+        /// Ryujinx.ShaderTools executable
+        shader_tools: String,
     },
     /// Export shader binaries
     NushdbMetadata {
@@ -111,11 +117,12 @@ fn main() {
             source_folder,
             output_json,
         } => export_shader_database(nufxlb, binary_folder, source_folder, output_json),
-        Commands::ShaderBinaries {
+        Commands::ShaderBinaries { input, output } => export_shader_binaries(input, output),
+        Commands::DecompileShaders {
             input,
+            shader_tools,
             output,
-            code,
-        } => export_shader_binaries(input, output, code),
+        } => decompile_shaders(input, shader_tools, output),
         Commands::NushdbMetadata {
             nushdb_folder,
             output,
@@ -290,7 +297,7 @@ fn annotate_decompiled_shaders(
 
 fn annotate_and_write_glsl(
     glsl_path: &Path,
-    metadata_by_name: &HashMap<String, (ShaderStage, MetaData)>,
+    metadata_by_name: &HashMap<String, (ShaderStage, Metadata)>,
     output_folder: &Path,
 ) -> Option<()> {
     let glsl = std::fs::read_to_string(glsl_path).ok()?;
@@ -309,11 +316,7 @@ fn annotate_and_write_glsl(
     Some(())
 }
 
-fn export_shader_binaries(
-    source_folder: String,
-    destination_folder: String,
-    just_code: bool,
-) -> usize {
+fn export_shader_binaries(source_folder: String, destination_folder: String) -> usize {
     // Make sure the output directory exists.
     if !Path::new(&destination_folder).exists() {
         std::fs::create_dir(&destination_folder).unwrap();
@@ -329,14 +332,14 @@ fn export_shader_binaries(
         let output_full_path =
             flattened_output_path(path.path(), &source_folder, &destination_folder, "bin");
 
-        shdrs_to_bin(path.path(), output_full_path, just_code);
+        shdrs_to_bin(path.path(), output_full_path);
     });
 
     // Assume all files converted successfully.
     paths.len()
 }
 
-fn shdrs_to_bin(path: &Path, output: PathBuf, just_code: bool) {
+fn shdrs_to_bin(path: &Path, output: PathBuf) {
     // Use the lower level API from ssbh_lib to access the actual code.
     // The ssbh_data implementation is still a heavy WIP.
     match ssbh_lib::formats::shdr::Shdr::from_file(path) {
@@ -345,23 +348,55 @@ fn shdrs_to_bin(path: &Path, output: PathBuf, just_code: bool) {
                 let output = output
                     .with_file_name(shader.name.to_string_lossy())
                     .with_extension("bin");
-                let mut writer = std::fs::File::create(output).unwrap();
 
-                if just_code {
-                    // The actual assembly code starts after the header.
-                    // This allows using an unmodified Ryujinx.ShaderTools or a dissassembler.
-                    let mut reader = Cursor::new(&shader.shader_binary.elements);
-                    let binary = ssbh_data::shdr_data::ShaderBinary::read(&mut reader).unwrap();
-                    // TODO: Strip 0x50 bytes of header at the beginning for easier dissassembly.
-                    // TODO: This also helps with alignment requirements in certain tools.
-                    writer.write_all(&binary.program_code).unwrap();
-                } else {
-                    writer.write_all(&shader.shader_binary.elements).unwrap();
-                };
+                std::fs::write(output, &shader.shader_binary.elements).unwrap();
             }
         }
         Err(e) => eprintln!("Error reading {:?}: {:?}", path, e),
     }
+}
+
+fn decompile_shaders(
+    source_folder: String,
+    shader_tools: String,
+    destination_folder: String,
+) -> usize {
+    // Make sure the output directory exists.
+    if !Path::new(&destination_folder).exists() {
+        std::fs::create_dir(&destination_folder).unwrap();
+    }
+
+    let paths: Vec<_> = globwalk::GlobWalkerBuilder::from_patterns(&source_folder, &["*.bin"])
+        .build()
+        .unwrap()
+        .filter_map(Result::ok)
+        .collect();
+
+    paths.par_iter().for_each(|path| {
+        let output_path = Path::new(&destination_folder)
+            .join(path.path().with_extension("glsl").file_name().unwrap());
+
+        let mut reader = Cursor::new(std::fs::read(path.path()).unwrap());
+        let shader = ssbh_data::shdr_data::ShaderBinary::read(&mut reader).unwrap();
+
+        // Output just the program binary to work with Ryujinx.ShaderTools.
+        // TODO: Add option to strip the 80 (0x50) byte header to support dissassembly.
+        let binary_file = path.path().with_extension("temp");
+        std::fs::write(&binary_file, shader.program_code).unwrap();
+
+        let output = std::process::Command::new(&shader_tools)
+            .args([&binary_file])
+            .output()
+            .unwrap()
+            .stdout;
+        let glsl = String::from_utf8(output).unwrap();
+        std::fs::write(output_path, glsl).unwrap();
+
+        std::fs::remove_file(binary_file).unwrap();
+    });
+
+    // TODO: Don't assume all files converted successfully.
+    paths.len()
 }
 
 fn glsl_dependencies(input_path: String, output_path: String, var: String) -> usize {

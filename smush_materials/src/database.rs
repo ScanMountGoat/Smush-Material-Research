@@ -2,7 +2,7 @@ use std::{error::Error, path::Path};
 
 use indoc::indoc;
 use serde::Serialize;
-use ssbh_data::shdr_data::MetaData;
+use ssbh_data::shdr_data::Metadata;
 use xc3_shader::graph::{glsl::shader_source_no_extensions, Graph};
 
 use crate::annotation::{texture_handle_name, VEC4_SIZE};
@@ -179,9 +179,9 @@ pub fn export_shader_database(
 fn shader_binary_data(
     binary_folder: &str,
     shader: String,
-) -> Result<MetaData, Box<dyn std::error::Error>> {
+) -> Result<Metadata, Box<dyn std::error::Error>> {
     let file = Path::new(binary_folder).join(shader).with_extension("bin");
-    MetaData::from_file(file)
+    Metadata::from_file(file)
 }
 
 fn shader_source(source_folder: &str, shader: &String) -> Result<String, std::io::Error> {
@@ -191,8 +191,8 @@ fn shader_source(source_folder: &str, shader: &String) -> Result<String, std::io
 
 fn material_parameters(
     program: &ssbh_lib::formats::nufx::ShaderProgramV1,
-    vertex_binary_data: &Result<MetaData, Box<dyn std::error::Error>>,
-    pixel_binary_data: &Result<MetaData, Box<dyn std::error::Error>>,
+    vertex_binary_data: &Result<Metadata, Box<dyn std::error::Error>>,
+    pixel_binary_data: &Result<Metadata, Box<dyn std::error::Error>>,
     vertex_source: &Result<String, std::io::Error>,
     pixel_source: &Result<String, std::io::Error>,
 ) -> Vec<String> {
@@ -247,7 +247,7 @@ fn material_parameters(
 
 fn texture_color_channels(
     name: &str,
-    binary_data: &Result<MetaData, Box<dyn Error>>,
+    binary_data: &Result<Metadata, Box<dyn Error>>,
     source: &Result<String, std::io::Error>,
 ) -> Option<[bool; 4]> {
     let uniform = binary_data
@@ -289,7 +289,7 @@ fn texture_color_channels_from_source(handle_name: &str, source: &str) -> [bool;
 fn vector4_color_channels(
     name: &str,
     buffer_name: &str,
-    binary_data: &Result<MetaData, Box<dyn Error>>,
+    binary_data: &Result<Metadata, Box<dyn Error>>,
     source: &Result<String, std::io::Error>,
 ) -> Option<[bool; 4]> {
     let uniform = binary_data
@@ -326,7 +326,7 @@ fn vector4_color_channels_from_source(
 
 fn vertex_attributes(
     program: &ssbh_lib::formats::nufx::ShaderProgramV1,
-    vertex_binary_data: Result<MetaData, Box<dyn std::error::Error>>,
+    vertex_binary_data: Result<Metadata, Box<dyn std::error::Error>>,
     vertex_source: &Result<String, std::io::Error>,
 ) -> Vec<String> {
     program

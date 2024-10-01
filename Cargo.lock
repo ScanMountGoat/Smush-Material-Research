@@ -833,9 +833,12 @@ dependencies = [
 
 [[package]]
 name = "once_cell"
-version = "1.19.0"
+version = "1.20.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3fdb12b2476b595f9358c5161aa467c2438859caa136dec86c26fdd2efe17b92"
+checksum = "82881c4be219ab5faaf2ad5e5e5ecdff8c66bd7402ca3160975c93b24961afd1"
+dependencies = [
+ "portable-atomic",
+]
 
 [[package]]
 name = "owo-colors"
@@ -900,6 +903,12 @@ name = "pico-args"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5be167a7af36ee22fe3115051bc51f6e6c7054c9348e28deb4f49bd6f705a315"
+
+[[package]]
+name = "portable-atomic"
+version = "1.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cc9c68a3f6da06753e9335d63e27f6b9754dd1920d941135b7ea8224f141adb2"
 
 [[package]]
 name = "powerfmt"
@@ -1008,9 +1017,9 @@ dependencies = [
 
 [[package]]
 name = "redox_syscall"
-version = "0.5.6"
+version = "0.5.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "355ae415ccd3a04315d3f8246e86d67689ea74d88d915576e1589a351062a13b"
+checksum = "9b6dfecf2c74bce2466cabf93f6664d6998a69eb21e39f4207930065b27b771f"
 dependencies = [
  "bitflags",
 ]
@@ -1028,9 +1037,9 @@ dependencies = [
 
 [[package]]
 name = "regex"
-version = "1.10.6"
+version = "1.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4219d74c6b67a3654a9fbebc4b419e22126d13d2f3c4a07ee0cb61ff79a79619"
+checksum = "38200e5ee88914975b69f657f0801b6f6dccafd44fd9326302a4aaeecfacb1d8"
 dependencies = [
  "aho-corasick",
  "memchr",
@@ -1040,9 +1049,9 @@ dependencies = [
 
 [[package]]
 name = "regex-automata"
-version = "0.4.7"
+version = "0.4.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "38caf58cc5ef2fed281f89292ef23f6365465ed9a41b7a7754eb4e26496c92df"
+checksum = "368758f23274712b504848e9d5a6f010445cc8b87a7cdb4d7cbee666c1288da3"
 dependencies = [
  "aho-corasick",
  "memchr",
@@ -1051,9 +1060,9 @@ dependencies = [
 
 [[package]]
 name = "regex-syntax"
-version = "0.8.4"
+version = "0.8.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7a66a03ae7c801facd77a29370b4faec201768915ac14a721ba36f20bc9c209b"
+checksum = "2b15c43186be67a4fd63bee50d0303afffcef381492ebe2c5d87f324e1b8815c"
 
 [[package]]
 name = "rowan"
@@ -1196,7 +1205,7 @@ dependencies = [
 [[package]]
 name = "ssbh_data"
 version = "0.19.0"
-source = "git+https://github.com/ultimate-research/ssbh_lib#4bd4122636234b0bedbba1f441404399066faa99"
+source = "git+https://github.com/ultimate-research/ssbh_lib#227ffb421ba2776d3accc46e6b58f55b7bd7a8c5"
 dependencies = [
  "ahash",
  "binrw",
@@ -1215,7 +1224,7 @@ dependencies = [
 [[package]]
 name = "ssbh_lib"
 version = "0.19.0"
-source = "git+https://github.com/ultimate-research/ssbh_lib#4bd4122636234b0bedbba1f441404399066faa99"
+source = "git+https://github.com/ultimate-research/ssbh_lib#227ffb421ba2776d3accc46e6b58f55b7bd7a8c5"
 dependencies = [
  "binrw",
  "modular-bitfield",
@@ -1228,7 +1237,7 @@ dependencies = [
 [[package]]
 name = "ssbh_write"
 version = "0.19.0"
-source = "git+https://github.com/ultimate-research/ssbh_lib#4bd4122636234b0bedbba1f441404399066faa99"
+source = "git+https://github.com/ultimate-research/ssbh_lib#227ffb421ba2776d3accc46e6b58f55b7bd7a8c5"
 dependencies = [
  "ssbh_write_derive",
 ]
@@ -1236,7 +1245,7 @@ dependencies = [
 [[package]]
 name = "ssbh_write_derive"
 version = "0.19.0"
-source = "git+https://github.com/ultimate-research/ssbh_lib#4bd4122636234b0bedbba1f441404399066faa99"
+source = "git+https://github.com/ultimate-research/ssbh_lib#227ffb421ba2776d3accc46e6b58f55b7bd7a8c5"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1619,7 +1628,7 @@ dependencies = [
 [[package]]
 name = "xc3_shader"
 version = "0.13.0"
-source = "git+https://github.com/ScanMountGoat/xc3_lib#855c385cea7bcce60a4b29e376dba3333980b27a"
+source = "git+https://github.com/ScanMountGoat/xc3_lib#55da8d88a003c451273f73431a4a2bc14567a2fd"
 dependencies = [
  "bimap",
  "clap",

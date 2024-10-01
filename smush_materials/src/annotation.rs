@@ -1,19 +1,21 @@
-use ssbh_data::shdr_data::MetaData;
+use ssbh_data::shdr_data::Metadata;
 use ssbh_lib::formats::shdr::ShaderStage;
 
 pub const VEC4_SIZE: i32 = 16;
 
+// TODO: Replace this with xc3_shader eventually.
 // Annotate the glsl with input and output names.
 // Use string replacement instead of the glsl crate to preserve formatting and comments.
 pub fn annotate_glsl(
     glsl: String,
     shader_type: &ShaderStage,
-    metadata: &MetaData,
+    metadata: &Metadata,
 ) -> Option<String> {
     let mut annotated_glsl = glsl;
 
     annotate_input_outputs(&mut annotated_glsl, shader_type, metadata);
     annotate_uniforms(&mut annotated_glsl, metadata, shader_type)?;
+    annotate_constants(&mut annotated_glsl, metadata, shader_type)?;
 
     Some(annotated_glsl)
 }
@@ -21,7 +23,7 @@ pub fn annotate_glsl(
 fn annotate_input_outputs(
     annotated_glsl: &mut String,
     shader_type: &ShaderStage,
-    metadata: &MetaData,
+    metadata: &Metadata,
 ) {
     // It's possible to have overlapping identifiers like in_attr1 and in_attr10.
     // Replace names in reverse order to hopefully fix this.
@@ -58,7 +60,7 @@ fn annotate_input_outputs(
 
 fn annotate_uniforms(
     annotated_glsl: &mut String,
-    metadata: &MetaData,
+    metadata: &Metadata,
     shader_type: &ShaderStage,
 ) -> Option<()> {
     let buffer_prefix = match shader_type {
@@ -70,9 +72,9 @@ fn annotate_uniforms(
 
     // TODO: tcb is texture constant buffer?
     let texture = match shader_type {
-        ShaderStage::Vertex => Some("vp_tex_tcb"),
+        ShaderStage::Vertex => Some("vp_t_tcb"),
         ShaderStage::Geometry => None,
-        ShaderStage::Fragment => Some("fp_tex_tcb"),
+        ShaderStage::Fragment => Some("fp_t_tcb"),
         ShaderStage::Compute => None,
     }?;
 
@@ -129,7 +131,7 @@ fn annotate_buffer_uniform(
     };
     // TODO: Will multiple buffer names ever have the same binding?
     // If not, we can replace the uniform buffer names as well.
-    let buffer_name = format!("{buffer_prefix}_c{binding}_data");
+    let buffer_name = format!("{buffer_prefix}_c{binding}.data");
 
     // Assume all uniform buffers are of the form "vec4 data[0x1000];".
     let vec4_index = u.uniform_buffer_offset / VEC4_SIZE;
@@ -248,11 +250,35 @@ fn add_variable_assignments(annotated_glsl: &mut String, assignments: Vec<String
     *annotated_glsl = lines.join("\n");
 }
 
+fn annotate_constants(
+    annotated_glsl: &mut String,
+    metadata: &Metadata,
+    shader_type: &ShaderStage,
+) -> Option<()> {
+    let buffer_prefix = match shader_type {
+        ShaderStage::Vertex => Some("vp_c1.data"),
+        ShaderStage::Geometry => None,
+        ShaderStage::Fragment => Some("fp_c1.data"),
+        ShaderStage::Compute => None,
+    }?;
+
+    for (i, value) in metadata.constant_buffer.iter().enumerate() {
+        let vec4_index = i / 4;
+        let component_index = i % 4;
+        let c = ['x', 'y', 'z', 'w'][component_index];
+        let pattern = format!("{buffer_prefix}[{vec4_index}].{c}");
+        *annotated_glsl = annotated_glsl.replace(&pattern, &format!("{value:?}"))
+    }
+
+    Some(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     use indoc::indoc;
+    use pretty_assertions::assert_eq;
     use ssbh_data::shdr_data::{Attribute, Buffer, DataType, Uniform};
 
     #[test]
@@ -262,21 +288,22 @@ mod tests {
             layout (location = 1) in vec4 in_attr1;
             layout (location = 0) out vec4 out_attr0;
 
-            layout (binding = 0) uniform sampler2D fp_tex_tcb_8;
-            layout (binding = 1) uniform sampler2D fp_tex_tcb_12;
+            layout (binding = 0) uniform sampler2D fp_t_tcb_8;
+            layout (binding = 1) uniform sampler2D fp_t_tcb_12;
 
             void main() 
             {
-                vec4 varVec4 = fp_c9_data[0];
-                float varFloat = fp_c9_data[5].y;
-                float varFloat2 = fp_c10_data[0].x;
-                float varBool = 0 != floatBitsToInt(fp_c9_data[9].z);
+                vec4 varVec4 = fp_c9.data[0];
+                float varFloat = fp_c9.data[5].y;
+                float varFloat2 = fp_c10.data[0].x;
+                float varBool = 0 != floatBitsToInt(fp_c9.data[9].z);
+                float result = fp_c1.data[0].x;
                 out_attr0 = in_attr0 + in_attr1;
             }
         "}
         .to_string();
 
-        let metadata = MetaData {
+        let metadata = Metadata {
             buffers: vec![
                 Buffer {
                     name: "nuPerMaterial".to_string(),
@@ -358,9 +385,10 @@ mod tests {
                 data_type: DataType::Vector4,
                 location: 0,
             }],
+            constant_buffer: vec![1.0],
         };
 
-        pretty_assertions::assert_eq!(
+        assert_eq!(
             indoc! {"
                 layout (location = 0) in vec4 attribute0;
                 layout (location = 1) in vec4 attribute1;
@@ -371,14 +399,15 @@ mod tests {
 
                 void main() 
                 {
-                    float PerFrame_sun_shaft_blur_param_0_ = fp_c10_data[0].x;
-                    float nuPerMaterial_CustomBoolean0 = fp_c9_data[9].z;
-                    float nuPerMaterial_CustomFloat0 = fp_c9_data[5].y;
-                    vec4 nuPerMaterial_CustomVector0 = fp_c9_data[0];
+                    float PerFrame_sun_shaft_blur_param_0_ = fp_c10.data[0].x;
+                    float nuPerMaterial_CustomBoolean0 = fp_c9.data[9].z;
+                    float nuPerMaterial_CustomFloat0 = fp_c9.data[5].y;
+                    vec4 nuPerMaterial_CustomVector0 = fp_c9.data[0];
                     vec4 varVec4 = nuPerMaterial_CustomVector0;
                     float varFloat = nuPerMaterial_CustomFloat0;
                     float varFloat2 = PerFrame_sun_shaft_blur_param_0_;
                     float varBool = 0 != floatBitsToInt(nuPerMaterial_CustomBoolean0);
+                    float result = 1.0;
                     outAttribute0 = attribute0 + attribute1;
                 }"
             },
@@ -396,16 +425,17 @@ mod tests {
 
             void main() 
             {
-                vec4 varVec4 = vp_c15_data[0];
-                float varFloat = vp_c15_data[5].y;
-                float varBool = 0 != floatBitsToInt(vp_c15_data[9].z);
+                vec4 varVec4 = vp_c15.data[0];
+                float varFloat = vp_c15.data[5].y;
+                float varBool = 0 != floatBitsToInt(vp_c15.data[9].z);
+                float result = vp_c1.data[0].x;
                 out_attr0 = in_attr1;
                 out_attr1 = in_attr10;
             }
         "}
         .to_string();
 
-        let metadata = MetaData {
+        let metadata = Metadata {
             buffers: vec![Buffer {
                 name: "nuPerMaterial".to_string(),
                 used_size_in_bytes: 0,
@@ -462,9 +492,10 @@ mod tests {
                     location: 1,
                 },
             ],
+            constant_buffer: vec![1.0],
         };
 
-        pretty_assertions::assert_eq!(
+        assert_eq!(
             indoc! {"
                 layout (location = 1) in vec4 position;
                 layout (location = 10) in vec4 normal;
@@ -473,12 +504,13 @@ mod tests {
 
                 void main() 
                 {
-                    float nuPerMaterial_CustomBoolean0 = vp_c15_data[9].z;
-                    float nuPerMaterial_CustomFloat0 = vp_c15_data[5].y;
-                    vec4 nuPerMaterial_CustomVector0 = vp_c15_data[0];
+                    float nuPerMaterial_CustomBoolean0 = vp_c15.data[9].z;
+                    float nuPerMaterial_CustomFloat0 = vp_c15.data[5].y;
+                    vec4 nuPerMaterial_CustomVector0 = vp_c15.data[0];
                     vec4 varVec4 = nuPerMaterial_CustomVector0;
                     float varFloat = nuPerMaterial_CustomFloat0;
                     float varBool = 0 != floatBitsToInt(nuPerMaterial_CustomBoolean0);
+                    float result = 1.0;
                     outAttribute0 = position;
                     outAttribute1 = normal;
                 }"
