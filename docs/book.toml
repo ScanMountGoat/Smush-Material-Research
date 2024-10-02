@@ -1,0 +1,11 @@
+[book]
+authors = ["ScanMountGoat"]
+language = "en"
+multilingual = false
+src = "src"
+title = "Smash Ultimate Material Research"
+
+[output.html]
+default-theme = "light"
+no-section-label = true
+git-repository-url = "https://github.com/ScanMountGoat/Smush-Material-Research"
