@@ -1,7 +1,4 @@
-+++
-title = "Model Brightness"
-weight = 4
-+++
+# Model Brightness
 Custom models in Smash Ultimate often appear brighter than expected. 
 This page explains the main sources of overly bright models and potential fixes.
 

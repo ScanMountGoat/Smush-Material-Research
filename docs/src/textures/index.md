@@ -1,10 +1,4 @@
-+++
-title = "Textures"
-weight = 1
-insert_anchor_links = "right"
-sort_by = "weight"
-+++
-
+# Textures
 Textures are special image files used to render models and other effects in game such as UI elements. Compressed textures in Smash Ultimate use 
 the same compression as DDS files. Textures can do more than control the color of a model and enable a variety of effects in game liked baked lighting and shadows, environment reflections, and color grading. Most textures are 2D textures and depend on a model's [texture coordinates](../vertex_attributes/texturecoordinates) to map the 2D textures to the 3D geometry of the model.
 

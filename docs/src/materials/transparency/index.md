@@ -1,9 +1,4 @@
-+++
-title = "Transparency"
-aliases = ["transparency"]
-weight = 1
-+++
-
+# Transparency
 Smash Ultimate uses a number of different techniques to simulate transparent or translucent surfaces. 
 Transparency effects are controlled using the [BlendState0](https://github.com/ScanMountGoat/Smush-Material-Research/blob/master/Material%20Parameters.md#Blend-State) 
 and [CustomVector0](https://github.com/ScanMountGoat/Smush-Material-Research/blob/master/Material%20Parameters.md#Custom-Vectors) material parameters.

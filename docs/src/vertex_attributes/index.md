@@ -1,9 +1,4 @@
-+++
-title = "Vertex Attributes"
-weight = 2
-insert_anchor_links = "right"
-sort_by = "weight"
-+++
+# Vertex Attributes
 Vertices in Smash Ultimate contain multiple attributes. Every mesh requires Position0, Tangent0, and Normal0. 
 Additional attributes are required by some shaders for certain effects like texture mapping or baked lighting.
 For a brief overview of all the types of attributes, see the GitHub repository's [Vertex Attributes](https://github.com/ScanMountGoat/Smush-Material-Research/blob/master/Vertex%20Attributes.md)

@@ -1,7 +1,5 @@
-+++
-title = "Albedo Recoloring"
-weight = 0
-+++
+# Albedo Recoloring
+
 <style>
     #imgCanvas {
         width: 50%;
@@ -95,4 +93,4 @@ See Blender's <a href="https://docs.blender.org/manual/en/latest/render/layers/p
 for details. Remember to composite AOVs in 32 bit floating point with linear gamma (1.0) for proper blending and to
 avoid clipping!
 
-{{ demo(path="/javascript/albedo_recoloring.js")}}
+<script type="module" src="../../javascript/albedo_recoloring.js"></script>

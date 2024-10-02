@@ -1,8 +1,4 @@
-+++
-title = "Vertex Attributes"
-aliases = ["vertexattributes"]
-weight = 0
-+++
+# Vertex Attributes
 ## Position0
 ![position0](position0.png)
 The XYZ components of the Position0 attribute contain the positions of a vertex in object space. Displaying positions as RGB colors using the same technique used for displaying vertex normals creates a colorful visualization. Note how the colors meet at a single point for each object. Object space defines vertex positions relative to the origin point of the object. 

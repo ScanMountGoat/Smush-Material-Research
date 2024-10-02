@@ -1,7 +1,4 @@
-+++
-title = "Renormal Materials"
-weight = 5
-+++
+# Renormal Materials
 A small number of materials in game have material labels that begin with the "RENORMAL_" prefix like "RENORMAL_skin_pikachu_001". This special prefix instructs the game to recalculate the normals during animation for any meshes assigned to that material. Recalculating normals can reduce shading artifacts on meshes with heavy deformations such as eliminating shading artifacts on Pikachu's crawling animation. This technique isn't enabled for all meshes to save on performance. Recalculating normals will override any custom normals in the numshb file. Renormal materials have no benefits for meshes without vertex skinning such as most stage meshes.
 
 <figure class="figure">

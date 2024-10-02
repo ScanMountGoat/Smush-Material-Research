@@ -1,8 +1,4 @@
-+++
-title = "Emi (Texture5, Texture14)"
-weight = 3
-aliases = ["emi"]
-+++
+# Emi (Texture5, Texture14)
 Emissive maps (often abbreviated _emi in texture file names) are used for materials that emit their own light. 
 In Smash Ultimate, these materials don't actually emit light onto other objects, but emission textures can still be 
 used for lights, glowing patterns, or shadeless materials whose color shouldn't be affected by lighting. 

@@ -232,4 +232,4 @@ f0 = prmSpecular * 0.2
 ior = -(f0 + 1 + 2*sqrt(f0)) / (f0 - 1)
 ```
 
-{{ demo(path="/javascript/prm.js")}}
+<script type="module" src="../../javascript/prm.js"></script>

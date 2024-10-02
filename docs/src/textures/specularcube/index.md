@@ -1,7 +1,4 @@
-+++
-title = "Specular Cube (Texture7)"
-weight = 6
-+++
+# Specular Cube (Texture7)
 Specular cube maps simulate the specular reflections of a model's environment. 
 Each stage has its own cube map for specular reflections that can be accessed from materials as 
 the special value "#replace_cubemap". Specular cube maps can also use cube maps in the model folder 

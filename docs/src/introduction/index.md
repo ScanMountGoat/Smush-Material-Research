@@ -1,8 +1,4 @@
-+++
-title = "Introduction"
-weight = 0
-insert_anchor_links = "right"
-+++
+# Introduction
 The tutorials, demos, and other documentation for rendering in Smash Ultimate can be accessed from the navigation menu.
 Many of these pages contain interactive demos using WebGL, which should work on most computers, phones, and tablets. The [Col](../textures/col/), [PRM](../textures/prm/), and [NOR](../textures/nor/) texture pages are a good starting point. Click the search icon to search any of the pages on this site.
 
@@ -31,5 +27,4 @@ Report any bugs in [issues](https://github.com/ScanMountGoat/Smush-Material-Rese
 
 ## Credits
 - [three.js](https://threejs.org/) - WebGL rendering library
-- [Zola](https://www.getzola.org/) - static site generator
-- [book](https://www.getzola.org/themes/book/) - theme used to style this site
+- [mdBook](https://github.com/rust-lang/mdBook) - static site generator

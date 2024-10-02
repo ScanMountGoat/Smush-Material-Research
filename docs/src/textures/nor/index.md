@@ -1,8 +1,4 @@
-+++
-title = "NOR (Texture4)"
-weight=2
-aliases = ["nor"]
-+++
+# NOR (Texture4)
 Similar to PRM maps, NOR maps are actually composed of a few different textures.
 The red and green channels correspond to the X+ and Y+ direction of the normal map. 
 The blue channel is a transition blend map for material transitions. 

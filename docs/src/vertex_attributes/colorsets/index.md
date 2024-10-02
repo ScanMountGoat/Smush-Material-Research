@@ -1,9 +1,4 @@
-+++
-title = "Color Sets - WIP"
-aliases = ["colorsets"]
-weight = 2
-+++
-
+# Color Sets - WIP
 The attribute names with "colorSet" store vertex color data. Color set attribute data is stored as RGBA colors with unsigned integer values from 0 to 255. The integer values are then converted to floating point values in the range 0.0 to *scale* where *scale* depends on the type of color set. The [Vertex Attribute](https://github.com/ScanMountGoat/Smush-Material-Research/blob/master/Vertex%20Attributes.md#color-set-attributes) page on the main repository contains a table of color set attributes and their scale values.
 
 Whether or not the mesh's color set attribute data is used depends on the shader. For example, fighter meshes commonly contain data for a colorSet1 attribute but use a shader that never references colorSet1. The latest version of [SSBH Editor](https://github.com/ScanMountGoat/ssbh_editor/releases) enables or disables color set rendering based on the shader listed in the material. 

@@ -1,8 +1,5 @@
-+++
-title = "Color Grading Lut"
-aliases = ["colorgradinglut"]
-weight = 0
-+++
+# Color Grading Lut
+
 <style>
     .pixelated {
         image-rendering: pixelated;

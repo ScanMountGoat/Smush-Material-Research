@@ -1,8 +1,4 @@
-+++
-title = "Skin Materials"
-aliases = ["skin_materials"]
-weight = 2
-+++
+# Skin Materials
 Many fighters have separate materials for approximating the subsurface scattering of skin.
 The parameters can also be tweaked for more stylized diffuse shading, such as cel-shading or toon shading.
 
@@ -94,4 +90,4 @@ float finalDiffuseShading = mix(nDotL, skinShading, sssBlend);
 
 The third and fourth parameters are unused, despite having values set for some models.
 
-{{ demo(path="/javascript/skin_materials.js")}}
+<script type="module" src="../../javascript/skin_materials.js"></script>

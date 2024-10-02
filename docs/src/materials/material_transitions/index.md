@@ -1,8 +1,4 @@
-+++
-title = "Material Transitions"
-aliases = ["material_transitions"]
-weight = 0
-+++
+# Material Transitions
 Smash Ultimate contains a number of animated material transitions. The transitions happen quite quickly, so it's easy to miss the effect during normal gameplay. 
 Examples of material transitions include inkling's ink or the metal box item. An animated threshold value combined with the model's NOR map blue channel 
 enables models to smoothly transition between two completely different materials. The demo below demonstrates the effect of adjusting the threshold value.
@@ -73,4 +69,4 @@ shadingParameter = mix(originalParameter, transitionMaterialParameter, transitio
 
 ## Creating Transition Blend Maps - WIP
 
-{{ demo(path="/javascript/material_transitions.js")}}
+<script type="module" src="../../javascript/material_transitions.js"></script>

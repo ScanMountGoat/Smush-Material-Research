@@ -1,10 +1,4 @@
-+++
-title = "Materials"
-weight = 3
-insert_anchor_links = "right"
-sort_by = "weight"
-+++
-
+# Materials
 Models are rendered on the GPU using compiled programs called shaders. Shaders take multiple inputs such as 
 textures, geometry, lighting data, and other visual parameters to calculate the rendered color or "shading" for an object on screen. 
 The materials contained in the model.numatb helps determine some of the inputs passed to the shader program for drawing. The additional inputs for drawing come from the mesh parameters and other rendering configuration files. The required inputs for a shader program are hardcoded into the program code, so it is important that the material correctly specifies all the inputs needed by the shader listed in the shader label field of the material. Applications like SSBH Editor will give warnings if the material does not specify all required inputs for the shader.

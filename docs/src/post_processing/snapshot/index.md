@@ -1,8 +1,4 @@
-+++
-title = "Snapshot Filters - WIP"
-aliases = ["snapshot"]
-weight = 1
-+++
+# Snapshot Filters - WIP
 ## No Filter 
 <img src="no filter.jpg">
 

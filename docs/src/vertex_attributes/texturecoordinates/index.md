@@ -1,9 +1,4 @@
-+++
-title = "Texture Coordinates"
-aliases = ["texturecoordinates"]
-weight = 1
-+++
-
+# Texture Coordinates
 Texture coordinates or UV coordinates (often shortened to UVs) map the vertices to locations on the textures through a process called "UV Mapping". The UVs define a 2D position in texture space for each vertex in the mesh.
 
 <figure class="figure">

@@ -1,8 +1,4 @@
-+++
-title = "Gamma Correction"
-aliases = ["gamma"]
-weight = 20
-+++
+# Gamma Correction
 The shader programs used to draw the character models, stages, and even the UI elements perform almost all of their 
 calculations in floating point. Floating point numbers can store numbers with a range of intensities at high precision such as 
 0.5, 1.0003, etc. 
