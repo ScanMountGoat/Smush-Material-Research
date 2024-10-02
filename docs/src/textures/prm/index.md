@@ -1,8 +1,4 @@
-+++
-title = "PRM (Texture6)"
-weight = 1
-aliases = ["prm"]
-+++
+# PRM (Texture6)
 PRM maps control most of the important shading parameters for the more physically based materials introduced in Smash
 Ultimate.
 The different channels of the PRM maps correspond to four separate textures. 
