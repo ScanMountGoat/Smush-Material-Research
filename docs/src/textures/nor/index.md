@@ -34,7 +34,7 @@ float normalMapZ = z * 0.5 + 0.5;
 ```
 ### Transition Blend Map (<span style="color:blue">Blue</span>)
 The blue channel contains the transition blend map used for transitioning between materials. 
-See [Material Transitions](../../material_transitions) for details and an interactive demo. Some stage models store the z component of the normal map in the NOR blue channel instead of a transition blend map.
+See [Material Transitions](../../materials/material_transitions/) for details and an interactive demo. Some stage models store the z component of the normal map in the NOR blue channel instead of a transition blend map.
 
 ### Cavity Map (Alpha)
 ![cavity](mario_cavity.jpg)
