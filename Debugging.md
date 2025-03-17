@@ -16,20 +16,20 @@ For reverse engineering in game rendering, testing on actual hardware seems like
 
 Programmers very rarely issue hardware specific commands directly, so all rendering commands are issued through a graphics API. This provides an abstraction over the GPU hardware's internal state and rendering capabilities. The configured state of the GPU and the specified input data determine the final rendered result. **If all the graphics API calls and their inputs are known, it's possible to perfectly recreate the in game rendering of a single frame without needing to analyze any of the game's code.** GPU debugging programs like RenderDoc work by recording the API calls and their inputs and can even save them to disk to play back and analyze later. This is similar to analyzing the final HTML and CSS using developer tools in a web browser. This also allows investigating the rendering "in progress" by monitoring the GPU state at various events in the captured frame. This makes analyzing changes to rendering related input files far more accurate and repeatible compared to analyzing screenshots.
 
-It's not currently possible to debug the game running on the Switch itself with RenderDoc to inspect the actual API calls. Thankfully, emulators like Ryujinx and Yuzu run on a PC and can be easily debugged with RenderDoc. The Tegra X1 uses a modern GPU architecture similar to desktop GPUs. Most graphics APIs use very similar concepts with different names like "pixel shaders" instead of "fragment shaders". It's generally safe to assume that each OpenGL or Vulkan API call in the emulator has a corresponding call or set of calls in the game itself. This assumption does not hold for older consoles with non modern hardware like the Wii or Gameboy or consoles with hard to emulate features. While emulators don't perfectly emulate the Switch and have the occasional visual bug, the benefits of debugging tools on a PC far outweigh any minor potential inaccuracies.
+It's not possible to debug the game running on the Switch itself with RenderDoc to inspect the actual API calls. Thankfully, emulators like Ryujinx and Yuzu run on a PC and can be easily debugged with RenderDoc. 
+
+The Tegra X1 uses a modern GPU architecture similar to desktop GPUs. Most graphics APIs use very similar concepts with different names like "pixel shaders" instead of "fragment shaders". It's generally safe to assume that each OpenGL or Vulkan API call in the emulator has a corresponding call or set of calls in the game itself. This assumption does not hold for older consoles with non modern hardware like the Wii or Gameboy or consoles with hard to emulate features. While emulators don't perfectly emulate the Switch and have the occasional visual bug, the benefits of debugging tools on a PC far outweigh any minor potential inaccuracies.
 
 ## Debugging Process
 The basic process when investigating a particular visual effect or technique in game is to investigate the rendering calls in an unmodified scene or a scene with known behavior. This serves as the "control group" for comparing with the modified scene later.  
 
 The next step is to modify the scene such as changing the value of CustomVector13 for a particular material 
-and then record the rendering calls again. Ideally, only one file value in should be changed at a time. The scene should be easy to reproduce like a specific frame of an animation 
-in training mode with the same set of fighters. This helps avoid ambiguous cases where it is hard to tell which modified file caused which rendering call change. With experience, it's possible to perform multiple edits at a time and still confidently analyze the scene. This speeds up testing but can easily lead to incorrect or inconclusive results.  
+and then record the rendering calls again. Ideally, only one file value in should be changed at a time. The scene should be easy to reproduce like a specific frame of an animation in training mode with the same set of fighters. This helps avoid ambiguous cases where it is hard to tell which modified file caused which rendering call change. With experience, it's possible to perform multiple edits at a time and still confidently analyze the scene. This speeds up testing but can easily lead to incorrect or inconclusive results.  
 
 The final step is to anayze the changes in the rendering commands to determine what a particular value in the input files does. For example, checking "Alpha Sample to Coverage" in the material sets the setting with the same name in the pipeline's fragment state. Many of the researched field names for rendering related files come directly from these tests.
 
 ### Limitations
-It's important to note that some settings in the rendering pipeline state are affected by multiple values or only change in certain circumstances.
-This can make it seem like a value does nothing or does something unexpected. For example, not all material values required in the nufxlb are actually referenced anywhere in the shader code. It can be helpful to test multiple different models or scenes that use a particular value. Dumping all possible values for a parameter from the game files can help predict if a value is used or not since parameters with many unique values are likely important. It's not always the case that values that only use a single value in game are unused or values with many unique values actually do something in game, however. 
+It's important to note that some settings in the rendering pipeline state are affected by multiple values or only change in certain circumstances. This can make it seem like a value does nothing or does something unexpected. For example, not all material values required in the nufxlb are actually referenced anywhere in the shader code. It can be helpful to test multiple different models or scenes that use a particular value. Dumping all possible values for a parameter from the game files can help predict if a value is used or not since parameters with many unique values are likely important. It's not always the case that values that only use a single value in game are unused or values with many unique values actually do something in game, however. 
 
 It's generally not feasible or even valuable for modding to completely reverse engineer all of the game's rendering code or test every possible parameter combination. An efficient way to produce reasonably good understanding is to start with a basic guess of how something works, find cases that don't match up with in game, and try to find the value or values responsible for the difference via debugging. The initial guess can come from anywhere like a previous game or research paper that would have been available during the game's development. Many improvements in material and rendering research have been found by analyzing why the output of the renderer in applications like SSBH Editor does not match in game. It's important to discover why these discrepencies exist even if fixing them in the application code is deemed not worth the effort. It's necessary in some cases to sacrifice rendering accuracy to achieve better performance or compatibility on PC hardware.
 
@@ -39,17 +39,13 @@ Testing is a vital part of validating not only application code but also underst
 ### Image Output Comparison
 The most straightforward way to test rendering code is by comparing the final rendered output from a renderer like ssbh_wgpu with in game. 
 This would ideally use screenshots from the Nintendo Switch itself, but emulators can still do a good job at creating accurate output.
-This technique is an easy way to find obvious visual errors but has a number of flaws. Testing like this can be slow since the process of launching the game and recording images takes time. 
-The results are often unhelpful since spotting visual differences doesn't tell you *why* an issue is occurring. It can also be hard to isolate issues to a single part of the rendering process.
-If the application's lighting code is known to not be accurate yet, it can be hard to isolate the errors in material coloring.
+This technique is an easy way to find obvious visual errors but has a number of flaws. Testing like this can be slow since the process of launching the game and recording images takes time. The results are often unhelpful since spotting visual differences doesn't tell you *why* an issue is occurring. It can also be hard to isolate issues to a single part of the rendering process. If the application's lighting code is known to not be accurate yet, it can be hard to isolate the errors in material coloring.
 
 ### Graphical Debugger Captures
 ![image](https://user-images.githubusercontent.com/23301691/226055125-44453c88-af82-4d1a-bc8c-65fb2c11bfde.png)
 
 Another method for testing is to compare the application and an emulator using a debugger like RenderDoc. RenderDoc is similar to devtools available in modern browsers, and both are usually accessed by hitting F12. The advantage of using a debugger is that it's possible to easily spot differences in API calls that may not be discernible in screenshots. 
-Discovering which values affect certain state like alpha blending is trivial using this technique by simplying comparing the pipeline state for two meshes.
-RenderDoc also has the ability to edit shaders and observe the changes to the rendered image, which can be far faster than editing material files. 
-The sequence of API calls and shader code in the emulator can be used as a reference for the application. 
+Discovering which values affect certain state like alpha blending is trivial using this technique by simplying comparing the pipeline state for two meshes. RenderDoc also has the ability to edit shaders and observe the changes to the rendered image, which can be far faster than editing material files. The sequence of API calls and shader code in the emulator can be used as a reference for the application. 
 
 It can even be beneficial in some cases to translate sections of shader code or recreate sequences of API calls. Blindly copying API calls and shader code from RenderDoc can quickly create an unmaintainable mess in the application code. A perfect 1:1 creation of the in game code might produce accurate output, but it won't help modders or application developers make informed decisions if it can't be understood. There will always be tradeoffs between rendering accuracy, readability, and development effort.
 
@@ -77,17 +73,17 @@ A great tool for graphical debugging is [RenderDoc](https://renderdoc.org/). Ren
 Some hardware manufactures provide their own dedicated debugging tools like AMD, Nvidia, or Apple. 
 These tools also work for debugging but tend to be more focused towards application developers wanting to optimize their apps.
 
-It's recommended to use Ryujinx with OpenGL instead of Vulkan. 
-The Vulkan renderer has had minor issues like incorrect alpha testing for shadow mapping. These issues tend to get resolved as the emulator evolves. 
-The main reason to use OpenGL is that the decompiled shaders can be easily edited in plaintext in RenderDoc. The shaders match the output of the decompiled shader dump produced by Ryujinx's shader tools. Ryujinx has the benefit of currently working with [Arcropolis](https://github.com/Raytwo/ARCropolis) for loading mods.
+It's recommended to use Ryujinx with Vulkan. Ryujinx has the benefit of currently working with [Arcropolis](https://github.com/Raytwo/ARCropolis) for loading mods. The Vulkan renderer has good rendering accuracy and performance and doesn't require modifying the emulator. **Compile the Ryujinx.Gtk3 from source for use with RenderDoc to avoid issues attaching RenderDoc to the default Avalonia application.**
+
+The main reason to use OpenGL is that the shaders in RenderDoc match the output of the decompiled shader dump produced by Ryujinx.ShaderTools. Shader editing with Vulkan is still possible but has slightly different formatting in RenderDoc.
 
 Ryujinx's OpenGL implementation won't work with RenderDoc out of the box and requires a few tweaks. The steps are listed below.
 1. Install the version of .NET used by Ryujinx. Visual Studio is recommended for editing but any text editor will work.
-2. Clone the repository from https://github.com/Ryujinx/Ryujinx
+2. Clone the original repository from a trusted source.
 3. Remove the calls to alpha testing by deleting or commenting out the lines in `Ryujinx.Graphics.OpenGL.Pipeline.SetAlphaTest`.
 4. Remove the calls to `GL.Begin` and `GL.End` in `Ryujinx.Graphics.OpenGL.HwCapabilities`.
 5. Build Ryujinx.
-6. Point RenderDoc to this new executable in the Launch Application tab of RenderDoc.
+6. Point RenderDoc to the new Ryujinx.Gtk3 executable in the Launch Application tab of RenderDoc.
 
 The basic process for debugging is as follows.
 1. Launch the emulator from RenderDoc
@@ -100,7 +96,6 @@ The basic process for debugging is as follows.
 The following links cover important compute graphics concepts in a more approachable manner for people with some level of programming experience.
 * https://learnopengl.com/
 * https://sotrh.github.io/learn-wgpu/
-
 
 Modern graphics APIs all use similar abstractions, so knowledge from one API tends to carry over to another. For example, a tutorial on shadowmapping may still be helpful for reverse engineering shadows in a game even if the tutorial uses MacOS's Metal API. Knowledge of at least one modern graphics API is critical for understanding the output of RenderDoc.
 
