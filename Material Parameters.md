@@ -328,9 +328,9 @@ Material flags are separated into individual boolean parameters rather than bein
 | 234 (0xEA) | CustomBoolean2 | False | Alpha Override. True = set alpha to 0.0, False = preserve alpha |
 | 235 (0xEB) | CustomBoolean3 | True | Enables/disables the specular light contribution. |
 | 236 (0xEC) | CustomBoolean4 | True | Enables/disables the specular cube map contribution. |
-| 237 (0xED) | CustomBoolean5 | | Enables/disables the effect of CustomVector6 (UV Transform Layer 1). |
-| 238 (0xEE) | CustomBoolean6 | | Enables/disables the effect of CustomVector31 (UV Transform Layer 2). |
-| 239 (0xEF) | CustomBoolean7 | | Enables/disables the effect of CustomVector32 (UV Transform Layer 3). |
+| 237 (0xED) | CustomBoolean5 | | Enables/disables multiplying CustomVector6 (UV Transform Layer 1) translation by elapsed time. |
+| 238 (0xEE) | CustomBoolean6 | | Enables/disables multiplying CustomVector31 (UV Transform Layer 2) translation by elapsed time. |
+| 239 (0xEF) | CustomBoolean7 | | Enables/disables multiplying CustomVector32 (UV Transform Layer 3) translation by elapsed time. |
 | 240 (0xF0) | CustomBoolean8 | | Set to true for bossstage_final3 and poke_kalos interval wall. |
 | 241 (0xF1) | CustomBoolean9 | | Adjusts the effect of CustomVector18. Some shaders ignore CustomBoolean9. When enabled, CustomVector18.z selects the sprite in the texture to use. |
 | 242 (0xF2) | CustomBoolean10 | | Set to false for spirits_floor_model\damage for each stage. |
