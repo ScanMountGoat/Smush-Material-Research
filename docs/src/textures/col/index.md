@@ -8,7 +8,7 @@ Col maps contain color data, so they should be saved with sRGB formats. sRGB for
 When rendering in programs such as Maya or Blender, set the Col maps to Color, sRGB, etc to ensure they are properly
 gamma corrected. Failing to use an sRGB format will result in the textures being too bright and looking washed out.
 
-### Albedo/Base Color (<span style="color:red">R</span><span style="color:green">G</span><span style="color:blue">B</span>)
+### Albedo/Base Color (RGB)
 <img src="mario_albedo.jpg" height="auto" width="auto">
 Unlike diffuse maps, albedo maps don't contain any baked lighting or shadows. This means most models in game 
 will have albedo maps that are mostly solid colors. Details are typically baked into the NOR and PRM maps. 

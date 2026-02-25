@@ -57,7 +57,7 @@ sRGB formats. sRGB formats have names that end in _SRGB. When rendering in progr
 maps to raw, non color data, or linear to ensure
 the values aren't gamma corrected.
 
-### Metalness (<span style="color:red">Red</span>)
+### Metalness (Red)
 ![metalness](mario_metalness.jpg)
 Metalness determines whether a surface is metallic or not and affects both specular and diffuse shading.
 In general, materials should be either fully metallic (1.0) or non metallic (0.0).
@@ -71,7 +71,7 @@ closer in color to the albedo color as metalness increases.
 Skin materials are a special case and instead use the metalness map as a mask for the fake subsurface scattering effect. 
 See the [Skin Materials](../../skin_materials) page for details.
 
-### Roughness (<span style="color:green">Green</span>)
+### Roughness (Green)
 ![rougness](mario_roughness.jpg)
 Roughness affects the size of the specular highlight. Rougher surfaces have larger specular highlights than glossy
 surfaces.
@@ -86,7 +86,7 @@ highlight darker to preserve the overall amount of light being reflected. A roug
 that are much darker than a glossy screen. Compare roughness values of 0.0, 0.25, 0.5, and 1.0 in the demo above to see 
 the changes in both the size and brightness of the specular highlight.
 
-### Ambient Occlusion (<span style="color:blue">Blue</span>)
+### Ambient Occlusion (Blue)
 ![ao](mario_ao.jpg)
 Ambient occlusion maps are a baked approximation of shadows. The "ambient" refers to the soft lighting from the environment such as reflected light from the walls of a room or the sky. 
 The "occlusion" refers to the darkening effect when light is "occluded" or blocked from reaching the surface. Cracks, crevices, and the corners of walls appear darker than the surrounding surface due to 

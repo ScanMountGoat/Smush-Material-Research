@@ -11,7 +11,7 @@ sRGB formats. sRGB formats have names that end in _SRGB. When rendering in progr
 maps to raw, non color data, or linear to ensure
 the values aren't gamma corrected.
 
-### Normal Map X+, Y+ (<span style="color:red">Red</span>, <span style="color:green">Green</span>)
+### Normal Map X+, Y+ (Red, Green)
 <figure class="figure">
 <img src="mario_normal.jpg" height="auto" width="auto">
     <figcaption class="figure-caption text-center">The model with a blank NOR map (left), the XY channels from the NOR map and calculated z channel (center), and the model with the NOR map (right)</figcaption>
@@ -32,7 +32,7 @@ float z = sqrt(1 - (x * x) + (y * y));
 // Map back to 0 to 1 range to get the equivalent texture color.
 float normalMapZ = z * 0.5 + 0.5;
 ```
-### Transition Blend Map (<span style="color:blue">Blue</span>)
+### Transition Blend Map (Blue)
 The blue channel contains the transition blend map used for transitioning between materials. 
 See [Material Transitions](../../materials/material_transitions/) for details and an interactive demo. Some stage models store the z component of the normal map in the NOR blue channel instead of a transition blend map.
 

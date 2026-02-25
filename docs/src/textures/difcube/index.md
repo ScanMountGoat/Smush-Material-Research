@@ -29,7 +29,7 @@ to see the impact of different geometry on the resulting reflections.
 </div>
 
 ## Diffuse Cube Map Channels
-### Color (<span style="color:red">R</span><span style="color:green">G</span><span style="color:blue">B</span>)
+### Color (RGB)
 The RGB color of the diffuse cube map is used to determine the model's color. Diffuse cube map materials aren't completely shadeless, but the final color is mostly determined by the cube map color.
 
 <script type="module" src="../../javascript/difcube.js"></script>
