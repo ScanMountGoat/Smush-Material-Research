@@ -1,7 +1,6 @@
 [book]
 authors = ["ScanMountGoat"]
 language = "en"
-multilingual = false
 src = "src"
 title = "Smash Ultimate Material Research"
 
