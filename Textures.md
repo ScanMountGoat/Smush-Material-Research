@@ -91,7 +91,7 @@ uses the stage specific cube map from the `stage_name\render\` folder.
 Baked ambient occlusion used for stage models. Fighters use the PRM texture instead. The default_White texture is often used, which has no
 effect. The maps can also store colored lighting information. These maps use the bake1 UVs.
 
-## Baked Lighting Maps (Texture9)
+## [Baked Lighting Maps (Texture9)](https://scanmountgoat.github.io/Smush-Material-Research/textures/bakedlit/)
 Baked diffuse lighting and shadows for stages. Like ambient occlusion maps, these maps use the bake1 UVs. The RGB values are multiplied by 8.0, which allows storing lighting intensities 
 much higher than 1.0 in a standard 8 bits per channel image at the cost of precision. The alpha channel is not scaled like the RGB channels. The ambient lighting from the baked lighting maps 
 is not affected by ambient occlusion from PRM maps.  
