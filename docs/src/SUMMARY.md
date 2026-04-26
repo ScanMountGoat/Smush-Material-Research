@@ -7,6 +7,7 @@
     - [Emi (Texture5, Texture14)](./textures/emi/index.md)
     - [Diffuse Cube (Texture8)](./textures/difcube/index.md)
     - [Specular Cube (Texture7)](./textures/specularcube/index.md)
+    - [Baked Lighting (Texture9)](./textures/bakedlit/index.md)
     - [Gamma Correction](./textures/gamma/index.md)
 - [Vertex Attributes](./vertex_attributes/index.md)
     - [Vertex Attributes](./vertex_attributes/vertex_attributes/index.md)
