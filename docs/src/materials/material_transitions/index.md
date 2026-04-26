@@ -21,19 +21,19 @@ enables models to smoothly transition between two completely different materials
             <input type="text" value="0.4" name="threshold" id="thresholdText" class="col-md-2">
             <input type="range" value="0.4" min="0.0" max="1.0" step="0.001" name="threshold" id="thresholdRange" class="col">
         </div>
-        </br>
+        <br>
         <div>Render Mode</div>
         <div>
             <div>
-                <input type="radio" name="renderMode" id="shaded"value="shaded" checked>
+                <input type="radio" name="renderMode" id="shaded" value="shaded" checked>
                 <label for="shaded">Shaded</label>
             </div>
             <div>
-                <input type="radio" name="renderMode" id="norB"value="norB">
+                <input type="radio" name="renderMode" id="norB" value="norB">
                 <label for="norB">NOR.b</label>
             </div>
             <div>
-                <input type="radio" name="renderMode" id="transitionBlend"value="transitionBlend">
+                <input type="radio" name="renderMode" id="transitionBlend" value="transitionBlend">
                 <label for="transitionBlend">Transition Blend (Calculated)</label>
             </div>
         </div>
