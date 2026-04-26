@@ -9,6 +9,11 @@ When rendering in programs such as Maya or Blender, set the baked lighting maps 
 gamma corrected. Failing to use an sRGB format will result in the textures being too bright and looking washed out.
 
 ### Ambient Diffuse Lighting (RGB)
+<figure class="figure">
+    <img src="zelda_gerudo_texture9.jpg" height="auto" width="auto">
+    <figcaption class="figure-caption text-center">The baked lighting maps (Texture9) for Gerudo Desert's battlefield form.</figcaption>
+</figure>
+
 The RGB values are multiplied by 8.0, which allows storing lighting intensities 
 much higher than 1.0 in a standard 8 bits per channel image at the cost of precision. The ambient lighting from the baked lighting maps 
 is not affected by ambient occlusion from PRM maps.  
