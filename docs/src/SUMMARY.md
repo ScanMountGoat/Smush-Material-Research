@@ -18,6 +18,7 @@
     - [Transparency](./materials/transparency/index.md)
     - [Skin Materials](./materials/skin_materials/index.md)
     - [Hair Materials - WIP](./materials/hair_materials/index.md)
+    - [World of Light Materials - WIP](./materials/world_of_light/index.md)
     - [Model Brightness](./materials/model_brightness/index.md)
     - [Renormal Materials](./materials/renormal/index.md)
 - [Post Processing](./post_processing/index.md)
