@@ -79,8 +79,7 @@ vec3 albedoFinal = mix(col.rgb, CustomVector11.rgb, sssBlend);
 
 ### Diffuse Shading
 CustomVector30.y is multiplied by the diffuse shading to control the smoothness of the shading.
-Using a very high value for the second value of CustomVector30 creates a cel-shaded look because diffuse shading is clamped to 1.0.
-A very similar technique is used for Breath of the Wild's shaders, for example.
+Using a very high value for the second value of CustomVector30 creates a cel-shaded look because diffuse shading is clamped to 1.0. The metalness in the PRM red channel and CustomVector30.x must both be set to 1.0 for this to have full effect. A very similar technique is used for Breath of the Wild's shaders.
 
 ```glsl
 float skinShading = nDotL * CustomVector30.y * 0.5 + 0.5;
