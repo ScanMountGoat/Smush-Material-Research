@@ -3,9 +3,9 @@ use std::{error::Error, path::Path};
 use indoc::indoc;
 use serde::Serialize;
 use ssbh_data::shdr_data::Metadata;
-use xc3_shader::graph::{glsl::shader_source_no_extensions, Graph};
+use xc3_shader::graph::{Graph, glsl::shader_source_no_extensions, query::query_nodes_glsl};
 
-use crate::annotation::{texture_handle_name, VEC4_SIZE};
+use crate::annotation::{VEC4_SIZE, texture_handle_name};
 
 #[derive(Debug, Serialize)]
 struct ShaderDatabase {
@@ -80,12 +80,7 @@ pub fn export_shader_database(
                                         result = fma(alpha, 2.0, -1.0);
                                     "};
 
-                                    xc3_shader::graph::query::query_nodes_glsl(
-                                        &n.input,
-                                        &frag.nodes,
-                                        query,
-                                    )
-                                    .is_some()
+                                    query_nodes_glsl(&frag.exprs[n.input], &frag, query).is_some()
                                 })
                             })
                             .unwrap_or_default();
@@ -313,7 +308,7 @@ fn vector4_color_channels_from_source(
     buffer_name: &str,
 ) -> [bool; 4] {
     let mut channels = [false; 4];
-    let vec4_index = uniform.uniform_buffer_offset / VEC4_SIZE;
+    let vec4_index = uniform.uniform_buffer_offset / VEC4_SIZE as i32;
     for (channel, component) in channels.iter_mut().zip("xyzw".chars()) {
         let access = format!("{buffer_name}[{vec4_index}].{component}");
         if source.contains(&access) {
@@ -390,7 +385,7 @@ fn is_premultiplied_alpha(graph: &Graph) -> Option<bool> {
     "};
 
     // This handles changes in variable names and algebraic identities like a*b == b*a.
-    let result = xc3_shader::graph::query::query_nodes_glsl(&node.input, &graph.nodes, query)?;
+    let result = query_nodes_glsl(&graph.exprs[node.input], &graph, query)?;
 
     Some(!result.is_empty())
 }
