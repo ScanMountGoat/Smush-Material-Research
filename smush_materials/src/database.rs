@@ -1,11 +1,24 @@
-use std::{error::Error, path::Path};
+use std::{borrow::Cow, error::Error, path::Path};
 
+use indexmap::IndexMap;
 use indoc::indoc;
+use log::error;
 use serde::Serialize;
+use smol_str::{SmolStr, format_smolstr};
 use ssbh_data::shdr_data::Metadata;
-use xc3_shader::graph::{Graph, glsl::shader_source_no_extensions, query::query_nodes_glsl};
+use xc3_shader::{
+    expr::{ExprCache, OutputExpr, output_expr},
+    graph::{
+        BinaryOp, Graph, UnaryOp,
+        glsl::{GlslGraph, shader_source_no_extensions},
+        query::query_nodes_glsl,
+    },
+};
 
 use crate::annotation::{VEC4_SIZE, texture_handle_name};
+
+mod query;
+use query::*;
 
 #[derive(Debug, Serialize)]
 struct ShaderDatabase {
@@ -24,6 +37,117 @@ struct ShaderProgram {
     attrs: Vec<String>,
     params: Vec<String>,
     complexity: f64,
+    // TODO: add ShaderExprs here?
+}
+
+#[derive(Debug)]
+pub struct ShaderExprs {
+    pub output_dependencies: IndexMap<SmolStr, usize>,
+    pub exprs: Vec<OutputExpr<Operation>>,
+}
+
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Default)]
+pub enum Operation {
+    #[default]
+    Unk,
+    Add,
+    Sub,
+    Mul,
+    Div,
+    Fma,
+    Min,
+    Max,
+    Exp2,
+    Clamp,
+    Negate,
+    InverseSqrt,
+    Log2,
+    Abs,
+    Select,
+}
+
+impl std::fmt::Display for Operation {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{self:?}")
+    }
+}
+
+impl xc3_shader::expr::Operation for Operation {
+    fn query_operation_args<'a>(
+        graph: &'a Graph,
+        expr: &'a xc3_shader::graph::Expr,
+    ) -> Option<(Self, Vec<&'a xc3_shader::graph::Expr>)> {
+        // TODO: port basic operations from sm4sh_shader
+        // TODO: log errors
+        binary_op(graph, expr, BinaryOp::Add, Operation::Add)
+            .or_else(|| binary_op(graph, expr, BinaryOp::Sub, Operation::Sub))
+            .or_else(|| binary_op(graph, expr, BinaryOp::Mul, Operation::Mul))
+            .or_else(|| op_func(graph, expr, "fma", Operation::Fma))
+            .or_else(|| op_func(graph, expr, "min", Operation::Min))
+            .or_else(|| op_func(graph, expr, "max", Operation::Max))
+            .or_else(|| op_func(graph, expr, "exp2", Operation::Exp2))
+            .or_else(|| op_func(graph, expr, "clamp", Operation::Clamp))
+            .or_else(|| op_func(graph, expr, "inversesqrt", Operation::InverseSqrt))
+            .or_else(|| op_func(graph, expr, "log2", Operation::Log2))
+            .or_else(|| op_func(graph, expr, "abs", Operation::Abs))
+            .or_else(|| unary_op(graph, expr, UnaryOp::Negate, Operation::Negate))
+            .or_else(|| {
+                error!("Unsupported expression {expr:?}");
+                None
+            })
+    }
+
+    fn preprocess_expr<'a>(
+        _graph: &'a Graph,
+        expr: &'a xc3_shader::graph::Expr,
+    ) -> std::borrow::Cow<'a, xc3_shader::graph::Expr> {
+        Cow::Borrowed(expr)
+    }
+
+    fn preprocess_value_expr<'a>(
+        _graph: &'a Graph,
+        expr: &'a xc3_shader::graph::Expr,
+    ) -> std::borrow::Cow<'a, xc3_shader::graph::Expr> {
+        Cow::Borrowed(expr)
+    }
+}
+
+pub fn shader_from_glsl(_vertex: GlslGraph, fragment: GlslGraph) -> ShaderExprs {
+    // Create a combined graph that links vertex outputs to fragment inputs.
+    // This effectively moves all shader logic to the fragment shader.
+    // This simplifies generating shader code or material nodes in 3D applications.
+    let frag_attributes = fragment.attributes.clone();
+
+    // TODO: merge vertex/fragment or keep the named vertex outputs?
+    let graph = fragment.graph.simplify();
+
+    let mut exprs = ExprCache::<Operation>::default();
+
+    let mut output_dependencies = IndexMap::default();
+
+    for output_name in frag_attributes.output_locations.left_values() {
+        for c in "xyzw".chars() {
+            // Find the most recent assignment for the output variable.
+            let node = graph
+                .nodes
+                .iter()
+                .rfind(|n| &n.output.name == output_name && n.output.channel == Some(c))
+                .unwrap();
+            let expr = &graph.exprs[node.input];
+
+            let value = output_expr(expr, &graph, &mut exprs);
+            output_dependencies.insert(format_smolstr!("{output_name}.{c}"), value);
+        }
+    }
+
+    let exprs = exprs.into_exprs();
+
+    // TODO: Create a type for this and add it to the parent ShaderProgram type?
+    // TODO: This function shouldn't use any game specific data?
+    ShaderExprs {
+        output_dependencies,
+        exprs,
+    }
 }
 
 pub fn export_shader_database(
@@ -31,7 +155,7 @@ pub fn export_shader_database(
     binary_folder: String,
     source_folder: String,
     output_file: String,
-) -> usize {
+) -> anyhow::Result<usize> {
     // Generate the shader info JSON for ssbh_wgpu.
     match ssbh_lib::formats::nufx::Nufx::from_file(&nufx_file) {
         Ok(ssbh_lib::formats::nufx::Nufx::V1(nufx)) => {
@@ -80,7 +204,7 @@ pub fn export_shader_database(
                                         result = fma(alpha, 2.0, -1.0);
                                     "};
 
-                                    query_nodes_glsl(&frag.exprs[n.input], &frag, query).is_some()
+                                    query_nodes_glsl(&frag.exprs[n.input], frag, query).is_some()
                                 })
                             })
                             .unwrap_or_default();
@@ -168,7 +292,7 @@ pub fn export_shader_database(
         Ok(_) => eprintln!("Only NUFX version 1.1 is supported"),
         Err(e) => eprintln!("Error reading {:?}: {:?}", nufx_file, e),
     }
-    0
+    Ok(0)
 }
 
 fn shader_binary_data(
@@ -340,12 +464,11 @@ fn vertex_attributes(
                     .iter()
                     .find(|i| i.name == input_name)
                     .map(|i| i.location)
-            }) {
-                if let Ok(vertex) = &vertex_source {
-                    let channels = input_attribute_color_channels(location, vertex);
-                    if !channels.is_empty() {
-                        name = format!("{name}.{channels}")
-                    }
+            }) && let Ok(vertex) = &vertex_source
+            {
+                let channels = input_attribute_color_channels(location, vertex);
+                if !channels.is_empty() {
+                    name = format!("{name}.{channels}")
                 }
             }
             name
@@ -385,7 +508,7 @@ fn is_premultiplied_alpha(graph: &Graph) -> Option<bool> {
     "};
 
     // This handles changes in variable names and algebraic identities like a*b == b*a.
-    let result = query_nodes_glsl(&graph.exprs[node.input], &graph, query)?;
+    let result = query_nodes_glsl(&graph.exprs[node.input], graph, query)?;
 
     Some(!result.is_empty())
 }

@@ -333,62 +333,62 @@ impl VisitorMut for Annotator {
                 // TODO: Don't hard code the constant buffer name and field?
                 *expr = Expr::new(ExprData::FloatConst(*constant), None);
             } else {
-                if let ExprData::Bracket(var, specifier) = &mut e1.content {
-                    if let ExprData::IntConst(index) = &mut specifier.content {
-                        match &mut var.content {
-                            ExprData::Variable(_id) => {
-                                // buffer[index].x
-                                // TODO: How to handle this case?
-                            }
-                            ExprData::Dot(e, _c) => {
-                                // buffer.field[index].x
-                                if let ExprData::Variable(id) = &e.content
-                                    && let Some(buffer_name) = self.replacements.get(id.as_str())
-                                    && let Some(fields) = self.struct_fields.get(id.as_str())
-                                    && let Some(parameter) =
-                                        find_glsl_parameter(fields, *index as u32, c.as_str())
-                                {
-                                    // Assume the field is always "data" for now to match Ryujinx.
-                                    let variable = ExprData::Variable(Identifier::new(
-                                        buffer_name.as_str().into(),
-                                        None,
-                                    ));
-
-                                    // buffer.uniform
-                                    let new_expr = Expr::new(
-                                        ExprData::Dot(
-                                            Box::new(Expr::new(variable, None)),
-                                            Identifier::new(parameter.name.as_str().into(), None),
-                                        ),
-                                        None,
-                                    );
-
-                                    let new_expr = match parameter.array_index {
-                                        // buffer.uniform[array_index].x
-                                        Some(array_index) => Expr::new(
-                                            ExprData::Bracket(
-                                                Box::new(new_expr),
-                                                Box::new(Node::new(
-                                                    ExprData::IntConst(array_index as i32),
-                                                    None,
-                                                )),
-                                            ),
-                                            None,
-                                        ),
-                                        // buffer.uniform.x
-                                        None => new_expr,
-                                    };
-
-                                    *expr = match parameter.channel {
-                                        Some(c) => {
-                                            Expr::new(ExprData::Dot(Box::new(new_expr), c), None)
-                                        }
-                                        None => new_expr,
-                                    };
-                                }
-                            }
-                            _ => (),
+                if let ExprData::Bracket(var, specifier) = &mut e1.content
+                    && let ExprData::IntConst(index) = &mut specifier.content
+                {
+                    match &mut var.content {
+                        ExprData::Variable(_id) => {
+                            // buffer[index].x
+                            // TODO: How to handle this case?
                         }
+                        ExprData::Dot(e, _c) => {
+                            // buffer.field[index].x
+                            if let ExprData::Variable(id) = &e.content
+                                && let Some(buffer_name) = self.replacements.get(id.as_str())
+                                && let Some(fields) = self.struct_fields.get(id.as_str())
+                                && let Some(parameter) =
+                                    find_glsl_parameter(fields, *index as u32, c.as_str())
+                            {
+                                // Assume the field is always "data" for now to match Ryujinx.
+                                let variable = ExprData::Variable(Identifier::new(
+                                    buffer_name.as_str().into(),
+                                    None,
+                                ));
+
+                                // buffer.uniform
+                                let new_expr = Expr::new(
+                                    ExprData::Dot(
+                                        Box::new(Expr::new(variable, None)),
+                                        Identifier::new(parameter.name.as_str().into(), None),
+                                    ),
+                                    None,
+                                );
+
+                                let new_expr = match parameter.array_index {
+                                    // buffer.uniform[array_index].x
+                                    Some(array_index) => Expr::new(
+                                        ExprData::Bracket(
+                                            Box::new(new_expr),
+                                            Box::new(Node::new(
+                                                ExprData::IntConst(array_index as i32),
+                                                None,
+                                            )),
+                                        ),
+                                        None,
+                                    ),
+                                    // buffer.uniform.x
+                                    None => new_expr,
+                                };
+
+                                *expr = match parameter.channel {
+                                    Some(c) => {
+                                        Expr::new(ExprData::Dot(Box::new(new_expr), c), None)
+                                    }
+                                    None => new_expr,
+                                };
+                            }
+                        }
+                        _ => (),
                     }
                 }
             }

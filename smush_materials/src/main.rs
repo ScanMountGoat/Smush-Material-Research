@@ -1,5 +1,5 @@
 use std::{
-    collections::HashMap,
+    collections::{BTreeSet, HashMap},
     fs::File,
     io::{BufWriter, Cursor, Write},
     path::{Path, PathBuf},
@@ -12,8 +12,11 @@ use dependencies::source_dependencies;
 use rayon::prelude::*;
 use ssbh_data::{prelude::*, shdr_data::Metadata};
 use ssbh_lib::formats::shdr::ShaderStage;
+use xc3_shader::graph::glsl::GlslGraph;
 use xmb_lib::XmbFile;
 use xmltree::EmitterConfig;
+
+use crate::database::shader_from_glsl;
 
 mod annotation;
 mod database;
@@ -87,6 +90,13 @@ enum Commands {
         /// The output folder
         output: String,
     },
+    /// Find output dependencies for the given GLSL shader program.
+    GlslOutputDependencies {
+        /// The input fragment GLSL file.
+        frag: String,
+        /// The output txt file.
+        output: String,
+    },
     /// Print relevant lines for a variable assignment
     GlslDependencies {
         /// The GLSL shader file
@@ -98,7 +108,11 @@ enum Commands {
     },
 }
 
-fn main() {
+fn main() -> anyhow::Result<()> {
+    simple_logger::SimpleLogger::new()
+        .with_level(log::LevelFilter::Warn)
+        .init()?;
+
     let cli = Cli::parse();
     let start = std::time::Instant::now();
 
@@ -132,9 +146,11 @@ fn main() {
             nushdb_folder,
             output,
         } => annotate_decompiled_shaders(source_folder, nushdb_folder, output),
+        Commands::GlslOutputDependencies { frag, output } => glsl_output_dependencies(frag, output),
         Commands::GlslDependencies { input, output, var } => glsl_dependencies(input, output, var),
     };
     println!("Converted {:?} files in {:?}", count, start.elapsed());
+    Ok(())
 }
 
 fn batch_convert<F: Fn(&Path, PathBuf) + Send + Sync>(
@@ -143,16 +159,15 @@ fn batch_convert<F: Fn(&Path, PathBuf) + Send + Sync>(
     input_pattern: &str,
     output_extension: &str,
     convert: F,
-) -> usize {
+) -> anyhow::Result<usize> {
     // Make sure the output directory exists.
     if !Path::new(&destination_folder).exists() {
-        std::fs::create_dir(&destination_folder).unwrap();
+        std::fs::create_dir(&destination_folder)?;
     }
 
     let paths: Vec<_> =
         globwalk::GlobWalkerBuilder::from_patterns(&source_folder, &[input_pattern])
-            .build()
-            .unwrap()
+            .build()?
             .filter_map(Result::ok)
             .collect();
 
@@ -168,13 +183,13 @@ fn batch_convert<F: Fn(&Path, PathBuf) + Send + Sync>(
     });
 
     // Assume all files converted successfully.
-    paths.len()
+    Ok(paths.len())
 }
 
-fn xmb_to_xml(path: String, output_full_path: String) -> usize {
+fn xmb_to_xml(path: String, output_full_path: String) -> anyhow::Result<usize> {
     match XmbFile::from_file(&path) {
         Ok(xmb_file) => {
-            let element = xmb_file.to_xml().unwrap();
+            let element = xmb_file.to_xml()?;
 
             // Match the output of the original Python script where possible.
             let config = EmitterConfig::new()
@@ -182,13 +197,13 @@ fn xmb_to_xml(path: String, output_full_path: String) -> usize {
                 .indent_string("    ")
                 .pad_self_closing(false);
 
-            let mut writer = BufWriter::new(File::create(output_full_path).unwrap());
-            element.write_with_config(&mut writer, config).unwrap();
-            1
+            let mut writer = BufWriter::new(File::create(output_full_path)?);
+            element.write_with_config(&mut writer, config)?;
+            Ok(1)
         }
         Err(e) => {
             eprintln!("Error reading {:?}: {:?}", path, e);
-            0
+            Ok(0)
         }
     }
 }
@@ -224,52 +239,51 @@ fn flattened_output_path(
         .with_extension(extension)
 }
 
-fn export_nushdb_metadata(nushdb_folder: String, output_folder: String) -> usize {
+fn export_nushdb_metadata(nushdb_folder: String, output_folder: String) -> anyhow::Result<usize> {
     // Make sure the output directory exists.
     let output_folder = Path::new(&output_folder);
     if !output_folder.exists() {
-        std::fs::create_dir(output_folder).unwrap();
+        std::fs::create_dir(output_folder)?;
     }
 
     let paths: Vec<_> = globwalk::GlobWalkerBuilder::from_patterns(nushdb_folder, &["*.nushdb"])
-        .build()
-        .unwrap()
+        .build()?
         .filter_map(Result::ok)
         .collect();
 
     // Each nushdb file can contain multiple shader entry.
     // The shader entry contains the compiled code and metadata.
     // Split into separate files to match the binary/decompiled dumps.
-    paths
+    let count = paths
         .par_iter()
         .filter_map(|path| ShdrData::from_file(path.path()).ok())
         .flat_map(|data| data.shaders)
         .map(|shader| {
             let output_path = output_folder.join(&shader.name).with_extension("json");
-            if let Ok(json) = serde_json::to_string_pretty(&shader) {
-                if let Err(e) = std::fs::write(&output_path, json) {
-                    println!("Error writing to {output_path:?}: {e}");
-                }
+            if let Ok(json) = serde_json::to_string_pretty(&shader)
+                && let Err(e) = std::fs::write(&output_path, json)
+            {
+                println!("Error writing to {output_path:?}: {e}");
             }
         })
-        .count()
+        .count();
+    Ok(count)
 }
 
 fn annotate_decompiled_shaders(
     source_folder: String,
     nushdb_folder: String,
     output_folder: String,
-) -> usize {
+) -> anyhow::Result<usize> {
     // Make sure the output directory exists.
     let output_folder = Path::new(&output_folder);
     if !output_folder.exists() {
-        std::fs::create_dir(output_folder).unwrap();
+        std::fs::create_dir(output_folder)?;
     }
 
     let nushdb_paths: Vec<_> =
         globwalk::GlobWalkerBuilder::from_patterns(nushdb_folder, &["*.nushdb"])
-            .build()
-            .unwrap()
+            .build()?
             .filter_map(Result::ok)
             .collect();
 
@@ -278,21 +292,28 @@ fn annotate_decompiled_shaders(
         .par_iter()
         .filter_map(|path| ShdrData::from_file(path.path()).ok())
         .flat_map(|data| data.shaders)
-        .map(|shader| (shader.name, (shader.shader_stage, shader.meta_data)))
+        .map(|shader| {
+            if shader.shader_stage == ShaderStage::Vertex {
+                for o in &shader.meta_data.outputs {
+                    println!("{}", o.name);
+                }
+            }
+            (shader.name, (shader.shader_stage, shader.meta_data))
+        })
         .collect();
 
     let shader_paths: Vec<_> =
         globwalk::GlobWalkerBuilder::from_patterns(source_folder, &["*.glsl"])
-            .build()
-            .unwrap()
+            .build()?
             .filter_map(Result::ok)
             .collect();
 
     // Don't count decompiled shaders that can't be annotated.
-    shader_paths
+    let count = shader_paths
         .par_iter()
         .filter_map(|e| annotate_and_write_glsl(e.path(), &metadata_by_name, output_folder))
-        .count()
+        .count();
+    Ok(count)
 }
 
 fn annotate_and_write_glsl(
@@ -316,15 +337,17 @@ fn annotate_and_write_glsl(
     Some(())
 }
 
-fn export_shader_binaries(source_folder: String, destination_folder: String) -> usize {
+fn export_shader_binaries(
+    source_folder: String,
+    destination_folder: String,
+) -> anyhow::Result<usize> {
     // Make sure the output directory exists.
     if !Path::new(&destination_folder).exists() {
-        std::fs::create_dir(&destination_folder).unwrap();
+        std::fs::create_dir(&destination_folder)?;
     }
 
     let paths: Vec<_> = globwalk::GlobWalkerBuilder::from_patterns(&source_folder, &["*.nushdb"])
-        .build()
-        .unwrap()
+        .build()?
         .filter_map(Result::ok)
         .collect();
 
@@ -336,7 +359,7 @@ fn export_shader_binaries(source_folder: String, destination_folder: String) -> 
     });
 
     // Assume all files converted successfully.
-    paths.len()
+    Ok(paths.len())
 }
 
 fn shdrs_to_bin(path: &Path, output: PathBuf) {
@@ -360,15 +383,14 @@ fn decompile_shaders(
     source_folder: String,
     shader_tools: String,
     destination_folder: String,
-) -> usize {
+) -> anyhow::Result<usize> {
     // Make sure the output directory exists.
     if !Path::new(&destination_folder).exists() {
-        std::fs::create_dir(&destination_folder).unwrap();
+        std::fs::create_dir(&destination_folder)?;
     }
 
     let paths: Vec<_> = globwalk::GlobWalkerBuilder::from_patterns(&source_folder, &["*.bin"])
-        .build()
-        .unwrap()
+        .build()?
         .filter_map(Result::ok)
         .collect();
 
@@ -396,12 +418,73 @@ fn decompile_shaders(
     });
 
     // TODO: Don't assume all files converted successfully.
-    paths.len()
+    Ok(paths.len())
 }
 
-fn glsl_dependencies(input_path: String, output_path: String, var: String) -> usize {
-    let source = std::fs::read_to_string(input_path).unwrap();
+fn glsl_output_dependencies(frag: String, output: String) -> anyhow::Result<usize> {
+    // TODO: make an argument for the vertex path?
+    let vert_glsl = std::fs::read_to_string(Path::new(&frag.replace("_PS", "_VS")))?;
+    let vert = GlslGraph::parse_glsl(&vert_glsl)?;
+
+    let frag_glsl = std::fs::read_to_string(frag)?;
+    let fragment = GlslGraph::parse_glsl(&frag_glsl)?;
+
+    let shader = shader_from_glsl(vert, fragment);
+    std::fs::write(output, shader_str(&shader)?)?;
+    Ok(1)
+}
+
+fn glsl_dependencies(
+    input_path: String,
+    output_path: String,
+    var: String,
+) -> anyhow::Result<usize> {
+    let source = std::fs::read_to_string(input_path)?;
     let code = source_dependencies(&source, &var);
-    std::fs::write(output_path, code).unwrap();
-    1
+    std::fs::write(output_path, code)?;
+    Ok(1)
+}
+
+fn shader_str(s: &crate::database::ShaderExprs) -> anyhow::Result<String> {
+    use std::fmt::Write;
+
+    // Use a condensed representation similar to GLSL for nicer diffs.
+    let mut output = String::new();
+    for (k, v) in &s.output_dependencies {
+        let mut visited = BTreeSet::new();
+        write_expr_dependencies_recursive(&mut output, s, *v, &mut visited)?;
+        writeln!(&mut output, "{k} = var{v};")?;
+        writeln!(&mut output)?;
+    }
+
+    Ok(output)
+}
+
+fn write_expr_dependencies_recursive(
+    output: &mut String,
+    s: &crate::database::ShaderExprs,
+    i: usize,
+    visited: &mut BTreeSet<usize>,
+) -> anyhow::Result<()> {
+    use std::fmt::Write;
+
+    // Write all values that this value depends on first.
+    if visited.insert(i) {
+        let expr = &s.exprs[i];
+        match expr {
+            xc3_shader::expr::OutputExpr::Value(xc3_shader::expr::Value::Texture(t)) => {
+                for arg in &t.texcoords {
+                    write_expr_dependencies_recursive(output, s, *arg, visited)?;
+                }
+            }
+            xc3_shader::expr::OutputExpr::Func { args, .. } => {
+                for arg in args {
+                    write_expr_dependencies_recursive(output, s, *arg, visited)?;
+                }
+            }
+            xc3_shader::expr::OutputExpr::Value(_) => (),
+        }
+        writeln!(output, "var{i} = {expr};")?;
+    }
+    Ok(())
 }
