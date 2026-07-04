@@ -11,8 +11,8 @@ xmltree = { version = "0.10.3", features = ["attribute-order"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.0"
 xmb_lib = { git = "https://github.com/ultimate-research/xmb_lib", rev = "86470a7" }
-ssbh_lib = { git = "https://github.com/ultimate-research/ssbh_lib", rev = "68ce450" }
-ssbh_data = { git = "https://github.com/ultimate-research/ssbh_lib", features=["serde"], rev = "68ce450" }
+ssbh_lib = { git = "https://github.com/ultimate-research/ssbh_lib", rev = "4205418" }
+ssbh_data = { git = "https://github.com/ultimate-research/ssbh_lib", features=["serde"], rev = "4205418" }
 glsl-lang = "0.8.0"
 indoc = "2.0"
 # TODO: dedicated library without additional Xenoblade dependencies

@@ -6,6 +6,7 @@ use std::{
 };
 
 use annotation::annotate_glsl;
+use anyhow::anyhow;
 use clap::{Parser, Subcommand};
 use database::export_shader_database;
 use dependencies::source_dependencies;
@@ -153,13 +154,16 @@ fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-fn batch_convert<F: Fn(&Path, PathBuf) + Send + Sync>(
+fn batch_convert<F>(
     source_folder: String,
     destination_folder: String,
     input_pattern: &str,
     output_extension: &str,
     convert: F,
-) -> anyhow::Result<usize> {
+) -> anyhow::Result<usize>
+where
+    F: Fn(&Path, PathBuf) -> anyhow::Result<()> + Send + Sync,
+{
     // Make sure the output directory exists.
     if !Path::new(&destination_folder).exists() {
         std::fs::create_dir(&destination_folder)?;
@@ -171,7 +175,7 @@ fn batch_convert<F: Fn(&Path, PathBuf) + Send + Sync>(
             .filter_map(Result::ok)
             .collect();
 
-    paths.par_iter().for_each(|path| {
+    paths.par_iter().try_for_each(|path| {
         let output_full_path = flattened_output_path(
             path.path(),
             &source_folder,
@@ -179,8 +183,8 @@ fn batch_convert<F: Fn(&Path, PathBuf) + Send + Sync>(
             output_extension,
         );
 
-        convert(path.path(), output_full_path);
-    });
+        convert(path.path(), output_full_path)
+    })?;
 
     // Assume all files converted successfully.
     Ok(paths.len())
@@ -208,16 +212,12 @@ fn xmb_to_xml(path: String, output_full_path: String) -> anyhow::Result<usize> {
     }
 }
 
-fn anim_data_to_json(path: &Path, output_full_path: PathBuf) {
-    match ssbh_data::anim_data::AnimData::from_file(path) {
-        Ok(anim) => {
-            let mut writer = std::fs::File::create(output_full_path).unwrap();
-            writer
-                .write_all(serde_json::to_string_pretty(&anim).unwrap().as_bytes())
-                .unwrap();
-        }
-        Err(e) => eprintln!("Error reading {:?}: {:?}", path, e),
-    }
+fn anim_data_to_json(path: &Path, output_full_path: PathBuf) -> anyhow::Result<()> {
+    let anim = ssbh_data::anim_data::AnimData::from_file(path)
+        .map_err(|e| anyhow!("Error reading {:?}: {:?}", path, e))?;
+    let mut writer = std::fs::File::create(output_full_path)?;
+    writer.write_all(serde_json::to_string_pretty(&anim)?.as_bytes())?;
+    Ok(())
 }
 
 fn flattened_output_path(
@@ -351,32 +351,30 @@ fn export_shader_binaries(
         .filter_map(Result::ok)
         .collect();
 
-    paths.par_iter().for_each(|path| {
+    paths.par_iter().try_for_each(|path| {
         let output_full_path =
             flattened_output_path(path.path(), &source_folder, &destination_folder, "bin");
 
-        shdrs_to_bin(path.path(), output_full_path);
-    });
+        shdrs_to_bin(path.path(), output_full_path)
+    })?;
 
     // Assume all files converted successfully.
     Ok(paths.len())
 }
 
-fn shdrs_to_bin(path: &Path, output: PathBuf) {
+fn shdrs_to_bin(path: &Path, output: PathBuf) -> anyhow::Result<()> {
     // Use the lower level API from ssbh_lib to access the actual code.
     // The ssbh_data implementation is still a heavy WIP.
-    match ssbh_lib::formats::shdr::Shdr::from_file(path) {
-        Ok(ssbh_lib::formats::shdr::Shdr::V12 { shaders }) => {
-            for shader in shaders.elements {
-                let output = output
-                    .with_file_name(shader.name.to_string_lossy())
-                    .with_extension("bin");
+    let ssbh_lib::formats::shdr::Shdr::V12 { shaders } =
+        ssbh_lib::formats::shdr::Shdr::from_file(path)?;
+    for shader in shaders.elements {
+        let output = output
+            .with_file_name(shader.name.to_string_lossy())
+            .with_extension("bin");
 
-                std::fs::write(output, &shader.shader_binary.elements).unwrap();
-            }
-        }
-        Err(e) => eprintln!("Error reading {:?}: {:?}", path, e),
+        std::fs::write(output, &shader.shader_binary.elements)?;
     }
+    Ok(())
 }
 
 fn decompile_shaders(
@@ -394,28 +392,28 @@ fn decompile_shaders(
         .filter_map(Result::ok)
         .collect();
 
-    paths.par_iter().for_each(|path| {
+    paths.par_iter().try_for_each(|path| {
         let output_path = Path::new(&destination_folder)
             .join(path.path().with_extension("glsl").file_name().unwrap());
 
-        let mut reader = Cursor::new(std::fs::read(path.path()).unwrap());
-        let shader = ssbh_data::shdr_data::ShaderBinary::read(&mut reader).unwrap();
+        let mut reader = Cursor::new(std::fs::read(path.path())?);
+        let shader = ssbh_data::shdr_data::ShaderBinary::read(&mut reader)?;
 
         // Output just the program binary to work with Ryujinx.ShaderTools.
         // TODO: Add option to strip the 80 (0x50) byte header to support dissassembly.
         let binary_file = path.path().with_extension("temp");
-        std::fs::write(&binary_file, shader.program_code).unwrap();
+        std::fs::write(&binary_file, shader.program_code)?;
 
         let output = std::process::Command::new(&shader_tools)
             .args([&binary_file])
-            .output()
-            .unwrap()
+            .output()?
             .stdout;
-        let glsl = String::from_utf8(output).unwrap();
-        std::fs::write(output_path, glsl).unwrap();
+        let glsl = String::from_utf8(output)?;
+        std::fs::write(output_path, glsl)?;
 
-        std::fs::remove_file(binary_file).unwrap();
-    });
+        std::fs::remove_file(binary_file)?;
+        anyhow::Result::<()>::Ok(())
+    })?;
 
     // TODO: Don't assume all files converted successfully.
     Ok(paths.len())
