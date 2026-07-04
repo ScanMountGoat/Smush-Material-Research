@@ -16,9 +16,9 @@ ssbh_data = { git = "https://github.com/ultimate-research/ssbh_lib", features=["
 glsl-lang = "0.8.0"
 indoc = "2.0"
 # TODO: dedicated library without additional Xenoblade dependencies
-xc3_shader = { git = "https://github.com/ScanMountGoat/xc3_lib", default-features = false, features = ["glsl"], rev = "a03d88b9" }
-indexmap = "2.14.0"
-smol_str = "0.3.6"
+xc3_shader = { git = "https://github.com/ScanMountGoat/xc3_lib", default-features = false, features = ["glsl", "serde"], rev = "a03d88b9" }
+indexmap = { version = "2.14.0", features = ["serde"] }
+smol_str = { version = "0.3.6", features = ["serde"] }
 log = "0.4.33"
 simple_logger = "5.2.0"
 anyhow = "1.0"

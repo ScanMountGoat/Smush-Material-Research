@@ -48,7 +48,7 @@ enum Commands {
         output: String,
     },
     /// Export decompiled shader info database as JSON.
-    ShaderInfo {
+    ShaderDatabase {
         /// The input nufxlb file
         nufxlb: String,
         ///The folder of shader binaries
@@ -125,7 +125,7 @@ fn main() -> anyhow::Result<()> {
             "json",
             anim_data_to_json,
         ),
-        Commands::ShaderInfo {
+        Commands::ShaderDatabase {
             nufxlb,
             binary_folder,
             source_folder,
@@ -148,8 +148,8 @@ fn main() -> anyhow::Result<()> {
         } => annotate_decompiled_shaders(source_folder, nushdb_folder, output),
         Commands::GlslOutputDependencies { frag, output } => glsl_output_dependencies(frag, output),
         Commands::GlslDependencies { input, output, var } => glsl_dependencies(input, output, var),
-    };
-    println!("Converted {:?} files in {:?}", count, start.elapsed());
+    }?;
+    println!("Converted {} files in {:?}", count, start.elapsed());
     Ok(())
 }
 

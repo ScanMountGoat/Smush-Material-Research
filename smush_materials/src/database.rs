@@ -1,33 +1,31 @@
-use std::{borrow::Cow, error::Error, path::Path};
-
+use crate::annotation::VEC4_SIZE;
 use indexmap::IndexMap;
 use indoc::indoc;
 use log::error;
+use rayon::prelude::*;
 use serde::Serialize;
 use smol_str::{SmolStr, format_smolstr};
 use ssbh_data::shdr_data::Metadata;
+use std::{borrow::Cow, collections::BTreeMap, error::Error, path::Path};
 use xc3_shader::{
     expr::{ExprCache, OutputExpr, output_expr},
     graph::{
         BinaryOp, Graph, UnaryOp,
-        glsl::{GlslGraph, shader_source_no_extensions},
+        glsl::{GlslGraph, merge_vertex_fragment, shader_source_no_extensions},
         query::query_nodes_glsl,
     },
 };
-
-use crate::annotation::{VEC4_SIZE, texture_handle_name};
 
 mod query;
 use query::*;
 
 #[derive(Debug, Serialize)]
 struct ShaderDatabase {
-    shaders: Vec<ShaderProgram>,
+    shaders: BTreeMap<String, ShaderProgram>,
 }
 
 #[derive(Debug, Serialize)]
 struct ShaderProgram {
-    name: String,
     discard: bool,
     premultiplied: bool,
     receives_shadow: bool,
@@ -38,15 +36,16 @@ struct ShaderProgram {
     params: Vec<String>,
     complexity: f64,
     // TODO: add ShaderExprs here?
+    exprs: ShaderExprs,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default, Serialize)]
 pub struct ShaderExprs {
     pub output_dependencies: IndexMap<SmolStr, usize>,
     pub exprs: Vec<OutputExpr<Operation>>,
 }
 
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Default)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Default, Serialize)]
 pub enum Operation {
     #[default]
     Unk,
@@ -82,6 +81,7 @@ impl xc3_shader::expr::Operation for Operation {
         binary_op(graph, expr, BinaryOp::Add, Operation::Add)
             .or_else(|| binary_op(graph, expr, BinaryOp::Sub, Operation::Sub))
             .or_else(|| binary_op(graph, expr, BinaryOp::Mul, Operation::Mul))
+            .or_else(|| binary_op(graph, expr, BinaryOp::Div, Operation::Div))
             .or_else(|| op_func(graph, expr, "fma", Operation::Fma))
             .or_else(|| op_func(graph, expr, "min", Operation::Min))
             .or_else(|| op_func(graph, expr, "max", Operation::Max))
@@ -91,6 +91,7 @@ impl xc3_shader::expr::Operation for Operation {
             .or_else(|| op_func(graph, expr, "log2", Operation::Log2))
             .or_else(|| op_func(graph, expr, "abs", Operation::Abs))
             .or_else(|| unary_op(graph, expr, UnaryOp::Negate, Operation::Negate))
+            .or_else(|| ternary(graph, expr))
             .or_else(|| {
                 error!("Unsupported expression {expr:?}");
                 None
@@ -112,14 +113,22 @@ impl xc3_shader::expr::Operation for Operation {
     }
 }
 
-pub fn shader_from_glsl(_vertex: GlslGraph, fragment: GlslGraph) -> ShaderExprs {
+pub fn shader_from_glsl(vertex: GlslGraph, fragment: GlslGraph) -> ShaderExprs {
     // Create a combined graph that links vertex outputs to fragment inputs.
     // This effectively moves all shader logic to the fragment shader.
     // This simplifies generating shader code or material nodes in 3D applications.
     let frag_attributes = fragment.attributes.clone();
 
-    // TODO: merge vertex/fragment or keep the named vertex outputs?
-    let graph = fragment.graph.simplify();
+    // TODO: keep the named vertex outputs?
+    let graph = merge_vertex_fragment(
+        GlslGraph {
+            graph: vertex.graph.simplify(),
+            attributes: vertex.attributes,
+        },
+        fragment,
+        |_, e| e.clone(),
+    );
+    let graph = graph.simplify();
 
     let mut exprs = ExprCache::<Operation>::default();
 
@@ -157,106 +166,125 @@ pub fn export_shader_database(
     output_file: String,
 ) -> anyhow::Result<usize> {
     // Generate the shader info JSON for ssbh_wgpu.
-    match ssbh_lib::formats::nufx::Nufx::from_file(&nufx_file) {
-        Ok(ssbh_lib::formats::nufx::Nufx::V1(nufx)) => {
-            // TODO: Make excluding duplicate render pass entries optional?
-            // All "SFX_PBS..." programs support all render passes.
-            // Only consider one render pass per program since the entries are identical.
-            let mut database = ShaderDatabase {
-                shaders: nufx
-                    .programs
-                    .elements
-                    .into_iter()
-                    .filter(|program| program.render_pass.to_str() == Some("nu::Final"))
-                    .map(|program| {
-                        // We can infer information from the shader source using some basic heurstics.
-                        let pixel_shader = program.shaders.pixel_shader.to_string_lossy();
-                        let pixel_source = shader_source(&source_folder, &pixel_shader);
+    let nufx = ssbh_lib::formats::nufx::Nufx::from_file(&nufx_file)?;
+    if let ssbh_lib::formats::nufx::Nufx::V1(nufx) = nufx {
+        // TODO: Make excluding duplicate render pass entries optional?
+        // All "SFX_PBS..." programs support all render passes.
+        // Only consider one render pass per program since the entries are identical.
+        let mut database = ShaderDatabase {
+            shaders: nufx
+                .programs
+                .elements
+                .par_iter()
+                .filter(|program| program.render_pass.to_str() == Some("nu::Final"))
+                .map(|program| {
+                    // We can infer information from the shader source using some basic heurstics.
+                    let pixel_shader = program.shaders.pixel_shader.to_string_lossy();
+                    let pixel_source = shader_source(&source_folder, &pixel_shader);
 
-                        let vertex_shader = program.shaders.vertex_shader.to_string_lossy();
-                        let vertex_source = shader_source(&source_folder, &vertex_shader);
+                    let vertex_shader = program.shaders.vertex_shader.to_string_lossy();
+                    let vertex_source = shader_source(&source_folder, &vertex_shader);
 
-                        // Alpha testing in Smash Ultimate is done in shader, so check for discard.
-                        // There may be false positives if the discard code path is unused.
-                        let discard = pixel_source
-                            .as_ref()
-                            .map(|source| source.contains("discard;"))
-                            .unwrap_or_default();
+                    // Alpha testing in Smash Ultimate is done in shader, so check for discard.
+                    // There may be false positives if the discard code path is unused.
+                    let discard = pixel_source
+                        .as_ref()
+                        .map(|source| source.contains("discard;"))
+                        .unwrap_or_default();
 
-                        let frag = pixel_source.as_ref().map(|source| {
-                            let glsl = shader_source_no_extensions(source);
-                            xc3_shader::graph::Graph::parse_glsl(glsl).unwrap()
-                        });
+                    // TODO: Perform operations using the parsed graphs instead of source strings.
+                    let vert = vertex_source.as_ref().map(|source| {
+                        let glsl = shader_source_no_extensions(source);
+                        GlslGraph::parse_glsl(glsl).unwrap()
+                    });
 
-                        let premultiplied = frag
-                            .as_ref()
-                            .map(|frag| is_premultiplied_alpha(frag).unwrap_or_default())
-                            .unwrap_or_default();
+                    let frag = pixel_source.as_ref().map(|source| {
+                        let glsl = shader_source_no_extensions(source);
+                        GlslGraph::parse_glsl(glsl).unwrap()
+                    });
 
-                        let anisotropic_rotation = frag
-                            .as_ref()
-                            .map(|frag| {
-                                frag.nodes.iter().any(|n| {
-                                    // TODO: does this require a more specific query?
-                                    let query = indoc! {"
+                    let premultiplied = frag
+                        .as_ref()
+                        .map(|frag| is_premultiplied_alpha(&frag.graph).unwrap_or_default())
+                        .unwrap_or_default();
+
+                    let anisotropic_rotation = frag
+                        .as_ref()
+                        .map(|frag| {
+                            frag.graph.nodes.iter().any(|n| {
+                                // TODO: does this require a more specific query?
+                                let query = indoc! {"
                                         prm = prm;
                                         alpha = prm.w;
                                         result = fma(alpha, 2.0, -1.0);
                                     "};
 
-                                    query_nodes_glsl(&frag.exprs[n.input], frag, query).is_some()
-                                })
+                                query_nodes_glsl(&frag.graph.exprs[n.input], &frag.graph, query)
+                                    .is_some()
                             })
+                        })
+                        .unwrap_or_default();
+
+                    let pixel_metadata = shader_metadata(&binary_folder, pixel_shader);
+                    let vertex_metadata = shader_metadata(&binary_folder, vertex_shader);
+
+                    let params = material_parameters(
+                        program,
+                        &vertex_metadata,
+                        &pixel_metadata,
+                        &vertex_source,
+                        &pixel_source,
+                    );
+
+                    let attrs = vertex_attributes(program, vertex_metadata, &vertex_source);
+
+                    // TODO: Don't count comment lines?
+                    // This assumes each line of code takes has the same cost.
+                    // Some lines will cost more in practice like texture loads.
+                    let lines_of_code = pixel_source
+                        .as_ref()
+                        .map(|s| s.lines().count())
+                        .unwrap_or_default()
+                        + vertex_source
+                            .as_ref()
+                            .map(|s| s.lines().count())
                             .unwrap_or_default();
 
-                        let pixel_binary_data = shader_binary_data(&binary_folder, pixel_shader);
-                        let vertex_binary_data = shader_binary_data(&binary_folder, vertex_shader);
+                    // Texture15 is always the shadow map texture.
+                    // Shaders with Texture15 also have IN_ShadowMap.
+                    // Just check if the shadow map is present for now.
+                    // Checking shadow map usage requires mapping decompiled texture handles to uniforms.
+                    let receives_shadow = pixel_metadata
+                        .as_ref()
+                        .map(|p| p.uniforms.iter().any(|u| u.name == "Texture15"))
+                        .unwrap_or_default();
 
-                        let params = material_parameters(
-                            &program,
-                            &vertex_binary_data,
-                            &pixel_binary_data,
-                            &vertex_source,
-                            &pixel_source,
-                        );
+                    // Spherical harmonic ambient lighting is passed from the vertex shader.
+                    let sh = pixel_metadata
+                        .as_ref()
+                        .map(|p| p.inputs.iter().any(|i| i.name == "IN_shLighting"))
+                        .unwrap_or_default();
 
-                        let attrs = vertex_attributes(&program, vertex_binary_data, &vertex_source);
-
-                        // TODO: Don't count comment lines?
-                        // This assumes each line of code takes has the same cost.
-                        // Some lines will cost more in practice like texture loads.
-                        let lines_of_code =
-                            pixel_source.map(|s| s.lines().count()).unwrap_or_default()
-                                + vertex_source.map(|s| s.lines().count()).unwrap_or_default();
-
-                        // Texture15 is always the shadow map texture.
-                        // Shaders with Texture15 also have IN_ShadowMap.
-                        // Just check if the shadow map is present for now.
-                        // Checking shadow map usage requires mapping decompiled texture handles to uniforms.
-                        let receives_shadow = pixel_binary_data
-                            .as_ref()
-                            .map(|p| p.uniforms.iter().any(|u| u.name == "Texture15"))
-                            .unwrap_or_default();
-
-                        // Spherical harmonic ambient lighting is passed from the vertex shader.
-                        let sh = pixel_binary_data
-                            .as_ref()
-                            .map(|p| p.inputs.iter().any(|i| i.name == "IN_shLighting"))
-                            .unwrap_or_default();
-
-                        // Some models with baked lighting don't use the light set.
-                        // A negative offset means that the buffer doesn't contain the uniform.
-                        let lighting = pixel_binary_data
-                            .as_ref()
-                            .map(|p| {
-                                p.uniforms.iter().any(|u| {
-                                    u.name == "lightDirColor1" && u.uniform_buffer_offset != -1
-                                })
+                    // Some models with baked lighting don't use the light set.
+                    // A negative offset means that the buffer doesn't contain the uniform.
+                    let lighting = pixel_metadata
+                        .as_ref()
+                        .map(|p| {
+                            p.uniforms.iter().any(|u| {
+                                u.name == "lightDirColor1" && u.uniform_buffer_offset != -1
                             })
-                            .unwrap_or_default();
+                        })
+                        .unwrap_or_default();
 
+                    let exprs = if let (Ok(vert), Ok(frag)) = (vert, frag) {
+                        shader_from_glsl(vert, frag)
+                    } else {
+                        ShaderExprs::default()
+                    };
+
+                    (
+                        program.name.to_string_lossy(),
                         ShaderProgram {
-                            name: program.name.to_string_lossy(),
                             discard,
                             premultiplied,
                             receives_shadow,
@@ -266,36 +294,37 @@ pub fn export_shader_database(
                             attrs,
                             params,
                             complexity: lines_of_code as f64,
-                        }
-                    })
-                    .collect(),
-            };
+                            exprs,
+                        },
+                    )
+                })
+                .collect(),
+        };
 
-            // Normalize shader complexity so the highest complexity is 1.0.
-            // Prevent a potential division by zero.
-            let total_lines_of_code = database
-                .shaders
-                .iter()
-                .map(|s| s.complexity)
-                .reduce(f64::max)
-                .unwrap_or_default()
-                .max(1.0);
+        // Normalize shader complexity so the highest complexity is 1.0.
+        // Prevent a potential division by zero.
+        let total_lines_of_code = database
+            .shaders
+            .values()
+            .map(|s| s.complexity)
+            .reduce(f64::max)
+            .unwrap_or_default()
+            .max(1.0);
 
-            for s in &mut database.shaders {
-                s.complexity /= total_lines_of_code;
-            }
-
-            // TODO: Make pretty printing optional.
-            let json = serde_json::to_string_pretty(&database).unwrap();
-            std::fs::write(output_file, json).unwrap();
+        for s in database.shaders.values_mut() {
+            s.complexity /= total_lines_of_code;
         }
-        Ok(_) => eprintln!("Only NUFX version 1.1 is supported"),
-        Err(e) => eprintln!("Error reading {:?}: {:?}", nufx_file, e),
+
+        // TODO: Make pretty printing optional.
+        let json = serde_json::to_string_pretty(&database).unwrap();
+        std::fs::write(output_file, json).unwrap();
+    } else {
+        error!("Unsupported NUFX version");
     }
     Ok(0)
 }
 
-fn shader_binary_data(
+fn shader_metadata(
     binary_folder: &str,
     shader: String,
 ) -> Result<Metadata, Box<dyn std::error::Error>> {
@@ -376,20 +405,17 @@ fn texture_color_channels(
         .iter()
         .find(|u| u.name == name)?;
 
-    // Assume just fragment textures for now.
-    let handle_name = texture_handle_name("fp_tex_tcb", uniform.unk11);
-
     // Check what color channels are used.
     Some(texture_color_channels_from_source(
-        &handle_name,
+        &uniform.name,
         source.as_ref().ok()?,
     ))
 }
 
-fn texture_color_channels_from_source(handle_name: &str, source: &str) -> [bool; 4] {
+fn texture_color_channels_from_source(texture_name: &str, source: &str) -> [bool; 4] {
     // Assume accesses will be combined like xyzw or xw.
     // TODO: regex?
-    let access = format!("({handle_name}");
+    let access = format!("({texture_name}");
     let access_line = source.lines().find(|l| l.contains(&access)).unwrap();
     let start = access_line.chars().position(|c| c == '.').unwrap();
     let end = access_line.chars().position(|c| c == ';').unwrap();
