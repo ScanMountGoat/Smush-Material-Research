@@ -64,7 +64,29 @@ pub enum Operation {
     InverseSqrt,
     Log2,
     Abs,
+    Sqrt,
+    Floor,
+    Trunc,
+    Sin,
+    Cos,
     Select,
+    IntBitsToFloat,
+    UintBitsToFloat,
+    FloatBitsToInt,
+    FloatBitsToUint,
+    Int,
+    Uint,
+    Float,
+    Equal,
+    NotEqual,
+    GreaterEqual,
+    LessEqual,
+    Not,
+    LeftShift,
+    RightShift,
+    BitAnd,
+    Pack2Float16,
+    Unpack2Float16,
 }
 
 impl ShaderDatabase {
@@ -105,12 +127,18 @@ impl xc3_shader::expr::Operation for Operation {
         graph: &'a Graph,
         expr: &'a xc3_shader::graph::Expr,
     ) -> Option<(Self, Vec<&'a xc3_shader::graph::Expr>)> {
-        // TODO: port basic operations from sm4sh_shader
-        // TODO: log errors
+        // TODO: how to handle bitfieldExtract to be compatible with WGSL?
         binary_op(graph, expr, BinaryOp::Add, Operation::Add)
             .or_else(|| binary_op(graph, expr, BinaryOp::Sub, Operation::Sub))
             .or_else(|| binary_op(graph, expr, BinaryOp::Mul, Operation::Mul))
             .or_else(|| binary_op(graph, expr, BinaryOp::Div, Operation::Div))
+            .or_else(|| binary_op(graph, expr, BinaryOp::Equal, Operation::Equal))
+            .or_else(|| binary_op(graph, expr, BinaryOp::NotEqual, Operation::NotEqual))
+            .or_else(|| binary_op(graph, expr, BinaryOp::GreaterEqual, Operation::GreaterEqual))
+            .or_else(|| binary_op(graph, expr, BinaryOp::LessEqual, Operation::LessEqual))
+            .or_else(|| binary_op(graph, expr, BinaryOp::LeftShift, Operation::LeftShift))
+            .or_else(|| binary_op(graph, expr, BinaryOp::RightShift, Operation::RightShift))
+            .or_else(|| binary_op(graph, expr, BinaryOp::BitAnd, Operation::BitAnd))
             .or_else(|| op_func(graph, expr, "fma", Operation::Fma))
             .or_else(|| op_func(graph, expr, "min", Operation::Min))
             .or_else(|| op_func(graph, expr, "max", Operation::Max))
@@ -119,7 +147,22 @@ impl xc3_shader::expr::Operation for Operation {
             .or_else(|| op_func(graph, expr, "inversesqrt", Operation::InverseSqrt))
             .or_else(|| op_func(graph, expr, "log2", Operation::Log2))
             .or_else(|| op_func(graph, expr, "abs", Operation::Abs))
+            .or_else(|| op_func(graph, expr, "sqrt", Operation::Sqrt))
+            .or_else(|| op_func(graph, expr, "floor", Operation::Floor))
+            .or_else(|| op_func(graph, expr, "trunc", Operation::Trunc))
+            .or_else(|| op_func(graph, expr, "sin", Operation::Sin))
+            .or_else(|| op_func(graph, expr, "cos", Operation::Cos))
+            .or_else(|| op_func(graph, expr, "intBitsToFloat", Operation::IntBitsToFloat))
+            .or_else(|| op_func(graph, expr, "uintBitsToFloat", Operation::UintBitsToFloat))
+            .or_else(|| op_func(graph, expr, "floatBitsToInt", Operation::FloatBitsToInt))
+            .or_else(|| op_func(graph, expr, "floatBitsToUint", Operation::FloatBitsToUint))
+            .or_else(|| op_func(graph, expr, "int", Operation::Int))
+            .or_else(|| op_func(graph, expr, "uint", Operation::Uint))
+            .or_else(|| op_func(graph, expr, "float", Operation::Float))
+            .or_else(|| op_func(graph, expr, "unpackHalf2x16", Operation::Unpack2Float16))
+            .or_else(|| pack_half(graph, expr))
             .or_else(|| unary_op(graph, expr, UnaryOp::Negate, Operation::Negate))
+            .or_else(|| unary_op(graph, expr, UnaryOp::Not, Operation::Not))
             .or_else(|| ternary(graph, expr))
             .or_else(|| {
                 error!("Unsupported expression {expr:?}");

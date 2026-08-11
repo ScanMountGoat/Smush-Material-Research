@@ -1,4 +1,7 @@
-use xc3_shader::graph::{BinaryOp, Expr, Graph, UnaryOp};
+use std::sync::LazyLock;
+
+use indoc::indoc;
+use xc3_shader::graph::{BinaryOp, Expr, Graph, UnaryOp, query::query_nodes};
 
 use crate::database::Operation;
 
@@ -29,6 +32,24 @@ pub fn ternary<'a>(graph: &'a Graph, expr: &'a Expr) -> Option<(Operation, Vec<&
     } else {
         None
     }
+}
+
+static PACK_HALF: LazyLock<Graph> = LazyLock::new(|| {
+    let query = indoc! {"
+        void main() {
+            result = packHalf2x16(vec2(a, b));
+        }
+    "};
+    Graph::parse_glsl(&query).unwrap().simplify()
+});
+
+pub fn pack_half<'a>(graph: &'a Graph, expr: &'a Expr) -> Option<(Operation, Vec<&'a Expr>)> {
+    // Convert the vec2 argument into two scalar arguments.
+    let result = query_nodes(expr, graph, &PACK_HALF)?;
+    Some((
+        Operation::Pack2Float16,
+        vec![result.get("a")?, result.get("b")?],
+    ))
 }
 
 pub fn binary_op<'a>(
