@@ -1,12 +1,14 @@
 use crate::annotation::VEC4_SIZE;
+use binrw::BinResult;
 use indexmap::IndexMap;
 use indoc::indoc;
 use log::error;
+use query::*;
 use rayon::prelude::*;
-use serde::Serialize;
 use smol_str::{SmolStr, format_smolstr};
 use ssbh_data::shdr_data::Metadata;
 use std::{borrow::Cow, collections::BTreeMap, path::Path};
+use strum::FromRepr;
 use xc3_shader::{
     expr::{ExprCache, OutputExpr, output_expr},
     graph::{
@@ -16,16 +18,15 @@ use xc3_shader::{
     },
 };
 
+mod io;
 mod query;
-use query::*;
 
-// TODO: port binary IO from sm4sh_shader
-#[derive(Debug, Serialize)]
+#[derive(Debug)]
 struct ShaderDatabase {
-    shaders: BTreeMap<String, ShaderProgram>,
+    programs: BTreeMap<SmolStr, ShaderProgram>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug)]
 struct ShaderProgram {
     discard: bool,
     premultiplied: bool,
@@ -33,20 +34,20 @@ struct ShaderProgram {
     sh: bool,
     lighting: bool,
     anisotropic_rotation: bool,
-    attrs: Vec<String>,
-    params: Vec<String>,
+    attrs: Vec<SmolStr>,
+    params: Vec<SmolStr>,
     complexity: f64,
-    // TODO: add ShaderExprs here?
+
     exprs: ShaderExprs,
 }
 
-#[derive(Debug, Default, Serialize)]
+#[derive(Debug, Default)]
 pub struct ShaderExprs {
     pub output_dependencies: IndexMap<SmolStr, usize>,
     pub exprs: Vec<OutputExpr<Operation>>,
 }
 
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Default, Serialize)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Default, FromRepr)]
 pub enum Operation {
     #[default]
     Unk,
@@ -64,6 +65,33 @@ pub enum Operation {
     Log2,
     Abs,
     Select,
+}
+
+impl ShaderDatabase {
+    /// Load the database data from `path`.
+    pub fn from_file<P: AsRef<Path>>(path: P) -> BinResult<Self> {
+        // Store non indexed programs to avoid converting an indexed program more than once.
+        let indexed = io::ShaderDatabaseIndexed::from_file(path)?;
+        Ok(Self {
+            programs: indexed.programs(),
+        })
+    }
+
+    /// Serialize and save the database data to `path`.
+    pub fn save<P: AsRef<Path>>(&self, path: P) -> BinResult<()> {
+        let indexed = io::ShaderDatabaseIndexed::from_programs(&self.programs);
+        indexed.save(path)?;
+        Ok(())
+    }
+
+    pub fn get_shader(&self, shader_id: &str) -> Option<&ShaderProgram> {
+        self.programs.get(shader_id)
+    }
+
+    /// Create the internal database representation from non indexed data.
+    pub fn from_programs(programs: BTreeMap<SmolStr, ShaderProgram>) -> Self {
+        Self { programs }
+    }
 }
 
 impl std::fmt::Display for Operation {
@@ -173,7 +201,7 @@ pub fn export_shader_database(
         // All "SFX_PBS..." programs support all render passes.
         // Only consider one render pass per program since the entries are identical.
         let mut database = ShaderDatabase {
-            shaders: nufx
+            programs: nufx
                 .programs
                 .elements
                 .par_iter()
@@ -284,7 +312,7 @@ pub fn export_shader_database(
                     };
 
                     (
-                        program.name.to_string_lossy(),
+                        program.name.to_string_lossy().into(),
                         ShaderProgram {
                             discard,
                             premultiplied,
@@ -305,20 +333,18 @@ pub fn export_shader_database(
         // Normalize shader complexity so the highest complexity is 1.0.
         // Prevent a potential division by zero.
         let total_lines_of_code = database
-            .shaders
+            .programs
             .values()
             .map(|s| s.complexity)
             .reduce(f64::max)
             .unwrap_or_default()
             .max(1.0);
 
-        for s in database.shaders.values_mut() {
+        for s in database.programs.values_mut() {
             s.complexity /= total_lines_of_code;
         }
 
-        // TODO: Make pretty printing optional.
-        let json = serde_json::to_string_pretty(&database).unwrap();
-        std::fs::write(output_file, json).unwrap();
+        database.save(&output_file)?;
     } else {
         error!("Unsupported NUFX version");
     }
@@ -341,7 +367,7 @@ fn material_parameters(
     pixel_binary_data: &anyhow::Result<Metadata>,
     vertex_source: &Result<String, std::io::Error>,
     pixel_source: &Result<String, std::io::Error>,
-) -> Vec<String> {
+) -> Vec<SmolStr> {
     program
         .material_parameters
         .elements
@@ -386,7 +412,7 @@ fn material_parameters(
                 }
             }
 
-            name
+            name.into()
         })
         .collect()
 }
@@ -471,7 +497,7 @@ fn vertex_attributes(
     program: &ssbh_lib::formats::nufx::ShaderProgramV1,
     vertex_binary_data: anyhow::Result<Metadata>,
     vertex_source: &Result<String, std::io::Error>,
-) -> Vec<String> {
+) -> Vec<SmolStr> {
     program
         .vertex_attributes
         .elements
@@ -495,7 +521,7 @@ fn vertex_attributes(
                     name = format!("{name}.{channels}")
                 }
             }
-            name
+            name.into()
         })
         .collect()
 }

@@ -22,6 +22,11 @@ smol_str = { version = "0.3.6", features = ["serde"] }
 log = "0.4.33"
 simple_logger = "5.2.0"
 anyhow = "1.0"
+binrw = "0.15.2"
+ahash = "0.8.12"
+ordered-float = "5.0.0"
+varint-rs = "2.2.0"
+strum = { version = "0.27.2", features = ["derive"] }
 
 [dev-dependencies]
 pretty_assertions = "1.4.1"
