@@ -92,11 +92,11 @@ struct ShaderProgramIndexed {
 
     #[br(parse_with = parse_vec)]
     #[bw(write_with = write_vec)]
-    attrs: Vec<VarInt>,
+    attributes: Vec<VarInt>,
 
     #[br(parse_with = parse_vec)]
     #[bw(write_with = write_vec)]
-    params: Vec<VarInt>,
+    parameters: Vec<VarInt>,
 
     complexity: f64,
 
@@ -255,13 +255,13 @@ impl ShaderDatabaseIndexed {
             sh: p.sh,
             lighting: p.lighting,
             anisotropic_rotation: p.anisotropic_rotation,
-            attrs: p
-                .attrs
+            attributes: p
+                .attributes
                 .iter()
                 .map(|s| add_string(&mut self.attribute_names, s.clone()))
                 .collect(),
-            params: p
-                .params
+            parameters: p
+                .parameters
                 .iter()
                 .map(|s| add_string(&mut self.buffer_field_names, s.clone()))
                 .collect(),
@@ -344,13 +344,13 @@ impl ShaderDatabaseIndexed {
             sh: p.sh,
             lighting: p.lighting,
             anisotropic_rotation: p.anisotropic_rotation,
-            attrs: p
-                .attrs
+            attributes: p
+                .attributes
                 .iter()
                 .map(|s| self.attribute_names[s.0].clone())
                 .collect(),
-            params: p
-                .params
+            parameters: p
+                .parameters
                 .iter()
                 .map(|s| self.buffer_field_names[s.0].clone())
                 .collect(),

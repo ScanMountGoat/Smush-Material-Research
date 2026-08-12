@@ -1,4 +1,3 @@
-use crate::annotation::VEC4_SIZE;
 use indexmap::IndexMap;
 use indoc::indoc;
 use log::error;
@@ -230,6 +229,7 @@ pub fn export_shader_database(
                     let pixel_metadata = shader_metadata(&binary_folder, pixel_shader);
                     let vertex_metadata = shader_metadata(&binary_folder, vertex_shader);
 
+                    // TODO: Calculate these fields using the graph instead.
                     let params = material_parameters(
                         program,
                         &vertex_metadata,
@@ -293,8 +293,8 @@ pub fn export_shader_database(
                             sh,
                             lighting,
                             anisotropic_rotation,
-                            attrs,
-                            params,
+                            attributes: attrs,
+                            parameters: params,
                             complexity: lines_of_code as f64,
                             exprs,
                         },
@@ -366,11 +366,15 @@ fn material_parameters(
             } else if name.contains("CustomVector") {
                 // Check what Vector4 color channels are used.
                 let pixel_channels =
-                    vector4_color_channels(&name, "fp_c9_data", pixel_binary_data, pixel_source)
+                    vector4_color_channels(&name, "nuPerMaterial", pixel_binary_data, pixel_source)
                         .unwrap_or_default();
-                let vertex_channels =
-                    vector4_color_channels(&name, "vp_c9_data", vertex_binary_data, vertex_source)
-                        .unwrap_or_default();
+                let vertex_channels = vector4_color_channels(
+                    &name,
+                    "nuPerMaterial",
+                    vertex_binary_data,
+                    vertex_source,
+                )
+                .unwrap_or_default();
 
                 // Channels may be accessed in either shader.
                 let channels: String = "xyzw"
@@ -455,9 +459,8 @@ fn vector4_color_channels_from_source(
     buffer_name: &str,
 ) -> [bool; 4] {
     let mut channels = [false; 4];
-    let vec4_index = uniform.uniform_buffer_offset / VEC4_SIZE as i32;
     for (channel, component) in channels.iter_mut().zip("xyzw".chars()) {
-        let access = format!("{buffer_name}[{vec4_index}].{component}");
+        let access = format!("{buffer_name}.{}.{component}", &uniform.name);
         if source.contains(&access) {
             *channel = true;
         }
