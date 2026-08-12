@@ -3,7 +3,8 @@ use indexmap::IndexMap;
 use smol_str::SmolStr;
 use std::{collections::BTreeMap, io::Cursor, path::Path};
 use strum::FromRepr;
-use xc3_shader::expr::OutputExpr;
+
+pub use xc3_shader::expr::{Attribute, OutputExpr, Parameter, Texture, Value};
 
 mod io;
 
