@@ -1,14 +1,13 @@
 use crate::annotation::VEC4_SIZE;
-use binrw::BinResult;
 use indexmap::IndexMap;
 use indoc::indoc;
 use log::error;
 use query::*;
 use rayon::prelude::*;
 use smol_str::{SmolStr, format_smolstr};
+use smush_shader::{ShaderDatabase, ShaderExprs, ShaderProgram};
 use ssbh_data::shdr_data::Metadata;
-use std::{borrow::Cow, collections::BTreeMap, path::Path};
-use strum::FromRepr;
+use std::{borrow::Cow, path::Path};
 use xc3_shader::{
     expr::{ExprCache, OutputExpr, output_expr},
     graph::{
@@ -18,107 +17,28 @@ use xc3_shader::{
     },
 };
 
-mod io;
+use smush_shader::Operation as Op;
+
 mod query;
 
-#[derive(Debug)]
-struct ShaderDatabase {
-    programs: BTreeMap<SmolStr, ShaderProgram>,
-}
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Default)]
+pub struct Operation(smush_shader::Operation);
 
-#[derive(Debug)]
-struct ShaderProgram {
-    discard: bool,
-    premultiplied: bool,
-    receives_shadow: bool,
-    sh: bool,
-    lighting: bool,
-    anisotropic_rotation: bool,
-    attrs: Vec<SmolStr>,
-    params: Vec<SmolStr>,
-    complexity: f64,
-
-    exprs: ShaderExprs,
-}
-
-#[derive(Debug, Default)]
-pub struct ShaderExprs {
-    pub output_dependencies: IndexMap<SmolStr, usize>,
-    pub exprs: Vec<OutputExpr<Operation>>,
-}
-
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Default, FromRepr)]
-pub enum Operation {
-    #[default]
-    Unk,
-    Add,
-    Sub,
-    Mul,
-    Div,
-    Fma,
-    Min,
-    Max,
-    Exp2,
-    Clamp,
-    Negate,
-    InverseSqrt,
-    Log2,
-    Abs,
-    Sqrt,
-    Floor,
-    Trunc,
-    Sin,
-    Cos,
-    Select,
-    IntBitsToFloat,
-    UintBitsToFloat,
-    FloatBitsToInt,
-    FloatBitsToUint,
-    Int,
-    Uint,
-    Float,
-    Equal,
-    NotEqual,
-    GreaterEqual,
-    LessEqual,
-    Not,
-    LeftShift,
-    RightShift,
-    BitAnd,
-    Pack2Float16,
-    Unpack2Float16,
-}
-
-impl ShaderDatabase {
-    /// Load the database data from `path`.
-    pub fn from_file<P: AsRef<Path>>(path: P) -> BinResult<Self> {
-        // Store non indexed programs to avoid converting an indexed program more than once.
-        let indexed = io::ShaderDatabaseIndexed::from_file(path)?;
-        Ok(Self {
-            programs: indexed.programs(),
-        })
+impl From<Operation> for smush_shader::Operation {
+    fn from(value: Operation) -> Self {
+        value.0
     }
+}
 
-    /// Serialize and save the database data to `path`.
-    pub fn save<P: AsRef<Path>>(&self, path: P) -> BinResult<()> {
-        let indexed = io::ShaderDatabaseIndexed::from_programs(&self.programs);
-        indexed.save(path)?;
-        Ok(())
-    }
-
-    pub fn get_shader(&self, shader_id: &str) -> Option<&ShaderProgram> {
-        self.programs.get(shader_id)
-    }
-
-    /// Create the internal database representation from non indexed data.
-    pub fn from_programs(programs: BTreeMap<SmolStr, ShaderProgram>) -> Self {
-        Self { programs }
+impl From<smush_shader::Operation> for Operation {
+    fn from(value: smush_shader::Operation) -> Self {
+        Self(value)
     }
 }
 
 impl std::fmt::Display for Operation {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{self:?}")
+        write!(f, "{}", self.0)
     }
 }
 
@@ -128,41 +48,41 @@ impl xc3_shader::expr::Operation for Operation {
         expr: &'a xc3_shader::graph::Expr,
     ) -> Option<(Self, Vec<&'a xc3_shader::graph::Expr>)> {
         // TODO: how to handle bitfieldExtract to be compatible with WGSL?
-        binary_op(graph, expr, BinaryOp::Add, Operation::Add)
-            .or_else(|| binary_op(graph, expr, BinaryOp::Sub, Operation::Sub))
-            .or_else(|| binary_op(graph, expr, BinaryOp::Mul, Operation::Mul))
-            .or_else(|| binary_op(graph, expr, BinaryOp::Div, Operation::Div))
-            .or_else(|| binary_op(graph, expr, BinaryOp::Equal, Operation::Equal))
-            .or_else(|| binary_op(graph, expr, BinaryOp::NotEqual, Operation::NotEqual))
-            .or_else(|| binary_op(graph, expr, BinaryOp::GreaterEqual, Operation::GreaterEqual))
-            .or_else(|| binary_op(graph, expr, BinaryOp::LessEqual, Operation::LessEqual))
-            .or_else(|| binary_op(graph, expr, BinaryOp::LeftShift, Operation::LeftShift))
-            .or_else(|| binary_op(graph, expr, BinaryOp::RightShift, Operation::RightShift))
-            .or_else(|| binary_op(graph, expr, BinaryOp::BitAnd, Operation::BitAnd))
-            .or_else(|| op_func(graph, expr, "fma", Operation::Fma))
-            .or_else(|| op_func(graph, expr, "min", Operation::Min))
-            .or_else(|| op_func(graph, expr, "max", Operation::Max))
-            .or_else(|| op_func(graph, expr, "exp2", Operation::Exp2))
-            .or_else(|| op_func(graph, expr, "clamp", Operation::Clamp))
-            .or_else(|| op_func(graph, expr, "inversesqrt", Operation::InverseSqrt))
-            .or_else(|| op_func(graph, expr, "log2", Operation::Log2))
-            .or_else(|| op_func(graph, expr, "abs", Operation::Abs))
-            .or_else(|| op_func(graph, expr, "sqrt", Operation::Sqrt))
-            .or_else(|| op_func(graph, expr, "floor", Operation::Floor))
-            .or_else(|| op_func(graph, expr, "trunc", Operation::Trunc))
-            .or_else(|| op_func(graph, expr, "sin", Operation::Sin))
-            .or_else(|| op_func(graph, expr, "cos", Operation::Cos))
-            .or_else(|| op_func(graph, expr, "intBitsToFloat", Operation::IntBitsToFloat))
-            .or_else(|| op_func(graph, expr, "uintBitsToFloat", Operation::UintBitsToFloat))
-            .or_else(|| op_func(graph, expr, "floatBitsToInt", Operation::FloatBitsToInt))
-            .or_else(|| op_func(graph, expr, "floatBitsToUint", Operation::FloatBitsToUint))
-            .or_else(|| op_func(graph, expr, "int", Operation::Int))
-            .or_else(|| op_func(graph, expr, "uint", Operation::Uint))
-            .or_else(|| op_func(graph, expr, "float", Operation::Float))
-            .or_else(|| op_func(graph, expr, "unpackHalf2x16", Operation::Unpack2Float16))
+        binary_op(graph, expr, BinaryOp::Add, Op::Add.into())
+            .or_else(|| binary_op(graph, expr, BinaryOp::Sub, Op::Sub.into()))
+            .or_else(|| binary_op(graph, expr, BinaryOp::Mul, Op::Mul.into()))
+            .or_else(|| binary_op(graph, expr, BinaryOp::Div, Op::Div.into()))
+            .or_else(|| binary_op(graph, expr, BinaryOp::Equal, Op::Equal.into()))
+            .or_else(|| binary_op(graph, expr, BinaryOp::NotEqual, Op::NotEqual.into()))
+            .or_else(|| binary_op(graph, expr, BinaryOp::GreaterEqual, Op::GreaterEqual.into()))
+            .or_else(|| binary_op(graph, expr, BinaryOp::LessEqual, Op::LessEqual.into()))
+            .or_else(|| binary_op(graph, expr, BinaryOp::LeftShift, Op::LeftShift.into()))
+            .or_else(|| binary_op(graph, expr, BinaryOp::RightShift, Op::RightShift.into()))
+            .or_else(|| binary_op(graph, expr, BinaryOp::BitAnd, Op::BitAnd.into()))
+            .or_else(|| op_func(graph, expr, "fma", Op::Fma.into()))
+            .or_else(|| op_func(graph, expr, "min", Op::Min.into()))
+            .or_else(|| op_func(graph, expr, "max", Op::Max.into()))
+            .or_else(|| op_func(graph, expr, "exp2", Op::Exp2.into()))
+            .or_else(|| op_func(graph, expr, "clamp", Op::Clamp.into()))
+            .or_else(|| op_func(graph, expr, "inversesqrt", Op::InverseSqrt.into()))
+            .or_else(|| op_func(graph, expr, "log2", Op::Log2.into()))
+            .or_else(|| op_func(graph, expr, "abs", Op::Abs.into()))
+            .or_else(|| op_func(graph, expr, "sqrt", Op::Sqrt.into()))
+            .or_else(|| op_func(graph, expr, "floor", Op::Floor.into()))
+            .or_else(|| op_func(graph, expr, "trunc", Op::Trunc.into()))
+            .or_else(|| op_func(graph, expr, "sin", Op::Sin.into()))
+            .or_else(|| op_func(graph, expr, "cos", Op::Cos.into()))
+            .or_else(|| op_func(graph, expr, "intBitsToFloat", Op::IntBitsToFloat.into()))
+            .or_else(|| op_func(graph, expr, "uintBitsToFloat", Op::UintBitsToFloat.into()))
+            .or_else(|| op_func(graph, expr, "floatBitsToInt", Op::FloatBitsToInt.into()))
+            .or_else(|| op_func(graph, expr, "floatBitsToUint", Op::FloatBitsToUint.into()))
+            .or_else(|| op_func(graph, expr, "int", Op::Int.into()))
+            .or_else(|| op_func(graph, expr, "uint", Op::Uint.into()))
+            .or_else(|| op_func(graph, expr, "float", Op::Float.into()))
+            .or_else(|| op_func(graph, expr, "unpackHalf2x16", Op::Unpack2Float16.into()))
             .or_else(|| pack_half(graph, expr))
-            .or_else(|| unary_op(graph, expr, UnaryOp::Negate, Operation::Negate))
-            .or_else(|| unary_op(graph, expr, UnaryOp::Not, Operation::Not))
+            .or_else(|| unary_op(graph, expr, UnaryOp::Negate, Op::Negate.into()))
+            .or_else(|| unary_op(graph, expr, UnaryOp::Not, Op::Not.into()))
             .or_else(|| ternary(graph, expr))
             .or_else(|| {
                 error!("Unsupported expression {expr:?}");
@@ -221,7 +141,17 @@ pub fn shader_from_glsl(vertex: GlslGraph, fragment: GlslGraph) -> ShaderExprs {
         }
     }
 
-    let exprs = exprs.into_exprs();
+    let exprs = exprs
+        .into_exprs()
+        .into_iter()
+        .map(|e| match e {
+            OutputExpr::Value(value) => OutputExpr::Value(value),
+            OutputExpr::Func { op, args } => OutputExpr::Func {
+                op: op.into(),
+                args,
+            },
+        })
+        .collect();
 
     // TODO: Create a type for this and add it to the parent ShaderProgram type?
     // TODO: This function shouldn't use any game specific data?

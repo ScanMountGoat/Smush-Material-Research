@@ -6,7 +6,7 @@ use ordered_float::OrderedFloat;
 use smol_str::{SmolStr, ToSmolStr};
 use varint_rs::{VarintReader, VarintWriter};
 
-use crate::database::ShaderExprs;
+use crate::ShaderExprs;
 
 use super::{Operation, ShaderProgram};
 use xc3_shader::expr::{Attribute, OutputExpr, Parameter, Texture, Value};

@@ -1,0 +1,15 @@
+[package]
+name = "smush_shader"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+xc3_shader.workspace = true
+binrw = "0.15.2"
+ahash = "0.8.12"
+ordered-float = "5.0.0"
+varint-rs = "2.2.0"
+log.workspace = true
+smol_str.workspace = true
+indexmap.workspace = true
+strum = { version = "0.27.2", features = ["derive"] }

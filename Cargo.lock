@@ -680,8 +680,6 @@ checksum = "d466e9454f08e4a911e14806c24e16fba1b4c121d1ea474396f396069cf949d9"
 dependencies = [
  "equivalent",
  "hashbrown 0.17.1",
- "serde",
- "serde_core",
 ]
 
 [[package]]
@@ -1242,29 +1240,40 @@ dependencies = [
 name = "smush_materials"
 version = "0.1.0"
 dependencies = [
- "ahash",
  "anyhow",
- "binrw",
  "clap",
  "globwalk",
  "glsl-lang",
  "indexmap 2.14.0",
  "indoc",
  "log",
- "ordered-float",
  "pretty_assertions",
  "rayon",
  "serde",
  "serde_json",
  "simple_logger",
  "smol_str",
+ "smush_shader",
  "ssbh_data",
  "ssbh_lib",
- "strum",
- "varint-rs",
  "xc3_shader",
  "xmb_lib",
  "xmltree 0.10.3",
+]
+
+[[package]]
+name = "smush_shader"
+version = "0.1.0"
+dependencies = [
+ "ahash",
+ "binrw",
+ "indexmap 2.14.0",
+ "log",
+ "ordered-float",
+ "smol_str",
+ "strum",
+ "varint-rs",
+ "xc3_shader",
 ]
 
 [[package]]

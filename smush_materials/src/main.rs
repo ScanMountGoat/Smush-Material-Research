@@ -11,6 +11,7 @@ use clap::{Parser, Subcommand};
 use database::export_shader_database;
 use dependencies::source_dependencies;
 use rayon::prelude::*;
+use smush_shader::ShaderExprs;
 use ssbh_data::{prelude::*, shdr_data::Metadata};
 use ssbh_lib::formats::shdr::ShaderStage;
 use xc3_shader::graph::glsl::GlslGraph;
@@ -443,7 +444,7 @@ fn glsl_dependencies(
     Ok(1)
 }
 
-fn shader_str(s: &crate::database::ShaderExprs) -> anyhow::Result<String> {
+fn shader_str(s: &ShaderExprs) -> anyhow::Result<String> {
     use std::fmt::Write;
 
     // Use a condensed representation similar to GLSL for nicer diffs.
@@ -460,7 +461,7 @@ fn shader_str(s: &crate::database::ShaderExprs) -> anyhow::Result<String> {
 
 fn write_expr_dependencies_recursive(
     output: &mut String,
-    s: &crate::database::ShaderExprs,
+    s: &ShaderExprs,
     i: usize,
     visited: &mut BTreeSet<usize>,
 ) -> anyhow::Result<()> {
