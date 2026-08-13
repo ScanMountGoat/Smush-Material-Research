@@ -252,19 +252,24 @@ fn uniform_item_size(ty: ssbh_data::shdr_data::DataType) -> u32 {
 fn annotate_texture(
     replacements: &mut BTreeMap<String, String>,
     u: &ssbh_data::shdr_data::Uniform,
-    texture: &str,
+    base: &str,
 ) {
     // Textures are accessed using integer handles.
     // TODO: Figure out the proper name for unk11.
     // TODO: Why do handles in Ryujinx.ShaderTools not match Ryujinx itself?
-    let texture_name = texture_handle_name(texture, u.unk11);
-    replacements.insert(texture_name, u.name.clone());
+    if u.unk11 >= 0 {
+        let texture_name = texture_handle_name(base, u.unk11);
+        replacements.insert(texture_name, u.name.clone());
+    } else if u.unk10 >= 0 {
+        // TODO: is this value always used for vertex textures?
+        let texture_name = texture_handle_name(base, u.unk10);
+        replacements.insert(texture_name, u.name.clone());
+    }
 }
 
 pub fn texture_handle_name(base: &str, unk11: i32) -> String {
     let handle = unk11 * 2 + 8;
-    let texture_name = format!("{base}_{handle:X}");
-    texture_name
+    format!("{base}_{handle:X}")
 }
 
 fn annotate_constants(

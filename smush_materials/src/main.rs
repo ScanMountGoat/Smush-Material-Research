@@ -293,14 +293,7 @@ fn annotate_decompiled_shaders(
         .par_iter()
         .filter_map(|path| ShdrData::from_file(path.path()).ok())
         .flat_map(|data| data.shaders)
-        .map(|shader| {
-            if shader.shader_stage == ShaderStage::Vertex {
-                for o in &shader.meta_data.outputs {
-                    println!("{}", o.name);
-                }
-            }
-            (shader.name, (shader.shader_stage, shader.meta_data))
-        })
+        .map(|shader| (shader.name, (shader.shader_stage, shader.meta_data)))
         .collect();
 
     let shader_paths: Vec<_> =
