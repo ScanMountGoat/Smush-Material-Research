@@ -4,9 +4,9 @@ use log::error;
 use query::*;
 use rayon::prelude::*;
 use smol_str::{SmolStr, format_smolstr};
-use smush_shader::{ShaderDatabase, ShaderExprs, ShaderProgram};
+use smush_shader::{ShaderDatabase, ShaderExprs, ShaderProgram, Value};
 use ssbh_data::shdr_data::Metadata;
-use std::{borrow::Cow, path::Path};
+use std::{borrow::Cow, collections::BTreeSet, path::Path};
 use xc3_shader::{
     expr::{ExprCache, OutputExpr, output_expr},
     graph::{
@@ -193,13 +193,12 @@ pub fn export_shader_database(
                         .map(|source| source.contains("discard;"))
                         .unwrap_or_default();
 
-                    // TODO: Perform operations using the parsed graphs instead of source strings.
-                    let vert = vertex_source.as_ref().map(|source| {
+                    let vert = vertex_source.as_ref().ok().map(|source| {
                         let glsl = shader_source_no_extensions(source);
                         GlslGraph::parse_glsl(glsl).unwrap()
                     });
 
-                    let frag = pixel_source.as_ref().map(|source| {
+                    let frag = pixel_source.as_ref().ok().map(|source| {
                         let glsl = shader_source_no_extensions(source);
                         GlslGraph::parse_glsl(glsl).unwrap()
                     });
@@ -227,18 +226,8 @@ pub fn export_shader_database(
                         .unwrap_or_default();
 
                     let pixel_metadata = shader_metadata(&binary_folder, pixel_shader);
-                    let vertex_metadata = shader_metadata(&binary_folder, vertex_shader);
 
-                    // TODO: Calculate these fields using the graph instead.
-                    let params = material_parameters(
-                        program,
-                        &vertex_metadata,
-                        &pixel_metadata,
-                        &vertex_source,
-                        &pixel_source,
-                    );
-
-                    let attrs = vertex_attributes(program, vertex_metadata, &vertex_source);
+                    let attrs = vert.as_ref().map(vertex_attributes).unwrap_or_default();
 
                     // TODO: Don't count comment lines?
                     // This assumes each line of code takes has the same cost.
@@ -278,11 +267,13 @@ pub fn export_shader_database(
                         })
                         .unwrap_or_default();
 
-                    let exprs = if let (Ok(vert), Ok(frag)) = (vert, frag) {
+                    let exprs = if let (Some(vert), Some(frag)) = (vert, frag) {
                         shader_from_glsl(vert, frag)
                     } else {
                         ShaderExprs::default()
                     };
+
+                    let params = material_parameters(program, &exprs.exprs);
 
                     (
                         program.name.to_string_lossy().into(),
@@ -336,183 +327,98 @@ fn shader_source(source_folder: &str, shader: &String) -> Result<String, std::io
 
 fn material_parameters(
     program: &ssbh_lib::formats::nufx::ShaderProgramV1,
-    vertex_binary_data: &anyhow::Result<Metadata>,
-    pixel_binary_data: &anyhow::Result<Metadata>,
-    vertex_source: &Result<String, std::io::Error>,
-    pixel_source: &Result<String, std::io::Error>,
+    exprs: &[OutputExpr<Op>],
 ) -> Vec<SmolStr> {
     program
         .material_parameters
         .elements
         .iter()
         .map(|p| {
-            let mut name = p.parameter_name.to_string_lossy();
+            let name = p.parameter_name.to_string_lossy();
 
-            // TODO: Clean this up.
             if name.contains("Texture") {
-                let pixel_channels = texture_color_channels(&name, pixel_binary_data, pixel_source)
-                    .unwrap_or_default();
-
-                let channels: String = "xyzw"
-                    .chars()
-                    .enumerate()
-                    .filter(|(i, _)| pixel_channels[*i])
-                    .map(|(_, c)| c)
-                    .collect();
-
-                if !channels.is_empty() {
-                    name = format!("{name}.{channels}")
-                }
+                // "Texture0.xyz"
+                let channels = texture_color_channels(&name, exprs);
+                format_channels(&name, &channels)
             } else if name.contains("CustomVector") {
-                // Check what Vector4 color channels are used.
-                let pixel_channels =
-                    vector4_color_channels(&name, "nuPerMaterial", pixel_binary_data, pixel_source)
-                        .unwrap_or_default();
-                let vertex_channels = vector4_color_channels(
-                    &name,
-                    "nuPerMaterial",
-                    vertex_binary_data,
-                    vertex_source,
-                )
-                .unwrap_or_default();
-
-                // Channels may be accessed in either shader.
-                let channels: String = "xyzw"
-                    .chars()
-                    .enumerate()
-                    .filter(|(i, _)| pixel_channels[*i] || vertex_channels[*i])
-                    .map(|(_, c)| c)
-                    .collect();
-
-                if !channels.is_empty() {
-                    name = format!("{name}.{channels}")
-                }
+                // "CustomVector8.xyzw"
+                let channels = parameter_color_channels(&name, "nuPerMaterial", exprs);
+                format_channels(&name, &channels)
+            } else {
+                // BlendState0
+                name.into()
             }
-
-            name.into()
         })
         .collect()
 }
 
-fn texture_color_channels(
-    name: &str,
-    binary_data: &anyhow::Result<Metadata>,
-    source: &Result<String, std::io::Error>,
-) -> Option<[bool; 4]> {
-    let uniform = binary_data
-        .as_ref()
-        .ok()?
-        .uniforms
+fn texture_color_channels(name: &str, exprs: &[OutputExpr<Op>]) -> BTreeSet<char> {
+    exprs
         .iter()
-        .find(|u| u.name == name)?;
-
-    // Check what color channels are used.
-    Some(texture_color_channels_from_source(
-        &uniform.name,
-        source.as_ref().ok()?,
-    ))
+        .filter_map(|e| {
+            if let OutputExpr::Value(Value::Texture(t)) = e {
+                if t.name == name { t.channel } else { None }
+            } else {
+                None
+            }
+        })
+        .collect()
 }
 
-fn texture_color_channels_from_source(texture_name: &str, source: &str) -> [bool; 4] {
-    // Assume accesses will be combined like xyzw or xw.
-    // TODO: regex?
-    let access = format!("({texture_name}");
-    let access_line = source.lines().find(|l| l.contains(&access)).unwrap();
-    let start = access_line.chars().position(|c| c == '.').unwrap();
-    let end = access_line.chars().position(|c| c == ';').unwrap();
-    let components = &access_line[start..end];
-
-    let mut channels = [false; 4];
-    for (channel, component) in channels.iter_mut().zip("xyzw".chars()) {
-        if components.contains(component) {
-            *channel = true;
-        }
-    }
-
-    channels
-}
-
-fn vector4_color_channels(
+fn parameter_color_channels(
     name: &str,
     buffer_name: &str,
-    binary_data: &anyhow::Result<Metadata>,
-    source: &Result<String, std::io::Error>,
-) -> Option<[bool; 4]> {
-    let uniform = binary_data
-        .as_ref()
-        .ok()?
-        .uniforms
+    exprs: &[OutputExpr<Op>],
+) -> BTreeSet<char> {
+    exprs
         .iter()
-        .find(|u| u.name == name)?;
-
-    // Check what Vector4 color channels are used.
-    Some(vector4_color_channels_from_source(
-        uniform,
-        source.as_ref().ok()?,
-        buffer_name,
-    ))
-}
-
-fn vector4_color_channels_from_source(
-    uniform: &ssbh_data::shdr_data::Uniform,
-    source: &str,
-    buffer_name: &str,
-) -> [bool; 4] {
-    let mut channels = [false; 4];
-    for (channel, component) in channels.iter_mut().zip("xyzw".chars()) {
-        let access = format!("{buffer_name}.{}.{component}", &uniform.name);
-        if source.contains(&access) {
-            *channel = true;
-        }
-    }
-
-    channels
-}
-
-fn vertex_attributes(
-    program: &ssbh_lib::formats::nufx::ShaderProgramV1,
-    vertex_binary_data: anyhow::Result<Metadata>,
-    vertex_source: &Result<String, std::io::Error>,
-) -> Vec<SmolStr> {
-    program
-        .vertex_attributes
-        .elements
-        .iter()
-        .map(|a| {
-            let mut name = a.attribute_name.to_string_lossy();
-
-            // Check the vertex shader since it uses the same naming conventions.
-            // Some attributes are combined before passing to the pixel shader.
-            // This may overestimate used channels since we don't include the pixel shader.
-            let input_name = format!("IN_{name}");
-            if let Some(location) = vertex_binary_data.as_ref().ok().and_then(|data| {
-                data.inputs
-                    .iter()
-                    .find(|i| i.name == input_name)
-                    .map(|i| i.location)
-            }) && let Ok(vertex) = &vertex_source
+        .filter_map(|e| {
+            if let OutputExpr::Value(Value::Parameter(p)) = e
+                && p.name == buffer_name
+                && p.field == name
             {
-                let channels = input_attribute_color_channels(location, vertex);
-                if !channels.is_empty() {
-                    name = format!("{name}.{channels}")
-                }
+                p.channel
+            } else {
+                None
             }
-            name.into()
         })
         .collect()
 }
 
-fn input_attribute_color_channels(location: i32, source: &str) -> String {
-    // Assume the name is the location like "layout (location = 1) in vec4 in_attr1;"
-    let mut channels = String::new();
-    for component in "xyzw".chars() {
-        let access = format!("in_attr{location}.{component}");
-        if source.contains(&access) {
-            channels.push(component);
-        }
-    }
+fn vertex_attributes(vertex: &GlslGraph) -> Vec<SmolStr> {
+    vertex
+        .attributes
+        .input_locations
+        .left_values()
+        .map(|attribute_name| {
+            let channels: BTreeSet<_> = vertex
+                .graph
+                .exprs
+                .iter()
+                .filter_map(|e| {
+                    if let xc3_shader::graph::Expr::Global { name, channel } = e
+                        && name == attribute_name
+                    {
+                        Some((*channel)?)
+                    } else {
+                        None
+                    }
+                })
+                .collect();
 
-    channels
+            let attribute_name = attribute_name.trim_start_matches("IN_");
+            format_channels(attribute_name, &channels)
+        })
+        .collect()
+}
+
+fn format_channels(name: &str, channels: &BTreeSet<char>) -> SmolStr {
+    if !channels.is_empty() {
+        let channels: String = "xyzw".chars().filter(|c| channels.contains(c)).collect();
+        format_smolstr!("{name}.{channels}")
+    } else {
+        name.into()
+    }
 }
 
 fn is_premultiplied_alpha(graph: &Graph) -> Option<bool> {
@@ -622,23 +528,5 @@ mod tests {
     #[test]
     fn pixel_source_not_premultiplied_empty() {
         assert!(!is_premultiplied_alpha(&Graph::default()).unwrap_or_default());
-    }
-
-    #[test]
-    fn texture_color_channels_source_2d() {
-        let channels = texture_color_channels_from_source(
-            "fp_tex_tcb_10",
-            "temp_10 = texture(fp_tex_tcb_10, vec2(temp_2, temp_4)).zw;",
-        );
-        assert_eq!([false, false, true, true], channels);
-    }
-
-    #[test]
-    fn texture_color_channels_source_cube() {
-        let channels = texture_color_channels_from_source(
-            "fp_tex_tcb_10",
-            "temp_10 = textureLod(fp_tex_tcb_10, vec2(temp_2, temp_4)).xzw;",
-        );
-        assert_eq!([true, false, true, true], channels);
     }
 }
