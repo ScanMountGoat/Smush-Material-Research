@@ -50,6 +50,7 @@ pub struct ShaderDatabaseIndexed {
     #[bw(write_with = write_strings)]
     buffer_names: IndexSet<SmolStr>,
 
+    // TODO: Shorten this list by not storing index exprs as strings.
     #[br(parse_with = parse_strings)]
     #[bw(write_with = write_strings)]
     buffer_field_names: IndexSet<SmolStr>,
@@ -61,6 +62,11 @@ pub struct ShaderDatabaseIndexed {
     #[br(parse_with = parse_strings)]
     #[bw(write_with = write_strings)]
     outputs: IndexSet<SmolStr>,
+
+    // Parameters with channels like "CustomVector0.xyz"
+    #[br(parse_with = parse_strings)]
+    #[bw(write_with = write_strings)]
+    parameters: IndexSet<SmolStr>,
 }
 
 #[binrw]
@@ -263,7 +269,7 @@ impl ShaderDatabaseIndexed {
             parameters: p
                 .parameters
                 .iter()
-                .map(|s| add_string(&mut self.buffer_field_names, s.clone()))
+                .map(|s| add_string(&mut self.parameters, s.clone()))
                 .collect(),
             complexity: p.complexity,
             output_dependencies: p
@@ -352,7 +358,7 @@ impl ShaderDatabaseIndexed {
             parameters: p
                 .parameters
                 .iter()
-                .map(|s| self.buffer_field_names[s.0].clone())
+                .map(|s| self.parameters[s.0].clone())
                 .collect(),
             complexity: p.complexity,
             exprs: ShaderExprs {
