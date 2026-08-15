@@ -6,7 +6,7 @@ edition = "2024"
 [dependencies]
 xc3_shader.workspace = true
 binrw = "0.15.2"
-ahash = "0.8.12"
+ahash.workspace = true
 ordered-float = "5.0.0"
 varint-rs = "2.2.0"
 log.workspace = true

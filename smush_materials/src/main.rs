@@ -1,7 +1,8 @@
 use std::{
-    collections::{BTreeSet, HashMap},
+    collections::HashMap,
+    fmt::Write,
     fs::File,
-    io::{BufWriter, Cursor, Write},
+    io::{BufWriter, Cursor},
     path::{Path, PathBuf},
 };
 
@@ -23,6 +24,9 @@ use crate::database::shader_from_glsl;
 mod annotation;
 mod database;
 mod dependencies;
+
+// Faster than the default hash implementation.
+type IndexSet<T> = indexmap::IndexSet<T, ahash::RandomState>;
 
 /// Rendering data dumps for Smash Ultimate
 #[derive(Parser)]
@@ -214,6 +218,7 @@ fn xmb_to_xml(path: String, output_full_path: String) -> anyhow::Result<usize> {
 }
 
 fn anim_data_to_json(path: &Path, output_full_path: PathBuf) -> anyhow::Result<()> {
+    use std::io::Write;
     let anim = ssbh_data::anim_data::AnimData::from_file(path)
         .map_err(|e| anyhow!("Error reading {:?}: {:?}", path, e))?;
     let mut writer = std::fs::File::create(output_full_path)?;
@@ -414,7 +419,7 @@ fn decompile_shaders(
 }
 
 fn glsl_output_dependencies(frag: String, output: String) -> anyhow::Result<usize> {
-    // TODO: make an argument for the vertex path?
+    // TODO: make an argument for the vertex path since vertex names don't always match up.
     let vert_glsl = std::fs::read_to_string(Path::new(&frag.replace("_PS", "_VS")))?;
     let vert = GlslGraph::parse_glsl(&vert_glsl)?;
 
@@ -443,40 +448,86 @@ fn shader_str(s: &ShaderExprs) -> anyhow::Result<String> {
     // Use a condensed representation similar to GLSL for nicer diffs.
     let mut output = String::new();
     for (k, v) in &s.output_dependencies {
-        let mut visited = BTreeSet::new();
-        write_expr_dependencies_recursive(&mut output, s, *v, &mut visited)?;
-        writeln!(&mut output, "{k} = var{v};")?;
+        let mut visited = IndexSet::default();
+        write_expr_dependencies_recursive(&mut output, s, *v, &mut visited);
+        write_assignment(&mut output, s, k, *v, &mut visited);
         writeln!(&mut output)?;
     }
 
     Ok(output)
 }
 
+// TODO: assume the index is used exactly once because of SSA and never write var{i}?
+fn write_assignment(
+    output: &mut String,
+    s: &ShaderExprs,
+    var: &str,
+    i: usize,
+    old_to_new_index: &mut IndexSet<usize>,
+) {
+    writeln!(
+        output,
+        "{var} = {};",
+        arg_inlined_value(s, i, old_to_new_index)
+    )
+    .unwrap();
+}
+
 fn write_expr_dependencies_recursive(
     output: &mut String,
     s: &ShaderExprs,
     i: usize,
-    visited: &mut BTreeSet<usize>,
-) -> anyhow::Result<()> {
-    use std::fmt::Write;
-
+    old_to_new_index: &mut IndexSet<usize>,
+) {
     // Write all values that this value depends on first.
-    if visited.insert(i) {
+    if !old_to_new_index.contains(&i) {
         let expr = &s.exprs[i];
         match expr {
-            xc3_shader::expr::OutputExpr::Value(xc3_shader::expr::Value::Texture(t)) => {
+            smush_shader::OutputExpr::Value(smush_shader::Value::Texture(t)) => {
                 for arg in &t.texcoords {
-                    write_expr_dependencies_recursive(output, s, *arg, visited)?;
+                    write_expr_dependencies_recursive(output, s, *arg, old_to_new_index);
                 }
             }
-            xc3_shader::expr::OutputExpr::Func { args, .. } => {
+            smush_shader::OutputExpr::Func { op, args } => {
                 for arg in args {
-                    write_expr_dependencies_recursive(output, s, *arg, visited)?;
+                    write_expr_dependencies_recursive(output, s, *arg, old_to_new_index);
                 }
+
+                // Write values inline to make the output easier to read.
+                let args = args_inlined_values(s, args, old_to_new_index);
+                let new_index = old_to_new_index.insert_full(i).0;
+                writeln!(output, "var{new_index} = {op}({});", args.join(", ")).unwrap();
             }
-            xc3_shader::expr::OutputExpr::Value(_) => (),
+            smush_shader::OutputExpr::Value(_) => (),
         }
-        writeln!(output, "var{i} = {expr};")?;
     }
-    Ok(())
+}
+
+fn args_inlined_values(
+    s: &ShaderExprs,
+    args: &[usize],
+    old_to_new_index: &mut IndexSet<usize>,
+) -> Vec<String> {
+    args.iter()
+        .map(|a| arg_inlined_value(s, *a, old_to_new_index))
+        .collect()
+}
+
+fn arg_inlined_value(s: &ShaderExprs, i: usize, old_to_new_index: &mut IndexSet<usize>) -> String {
+    match &s.exprs[i] {
+        smush_shader::OutputExpr::Value(v) => {
+            if let smush_shader::Value::Texture(t) = v {
+                let coords: Vec<_> = args_inlined_values(s, &t.texcoords, old_to_new_index);
+                format!(
+                    "Texture({}, {}){}",
+                    t.name,
+                    coords.join(", "),
+                    t.channel.map(|c| format!(".{c}")).unwrap_or_default()
+                )
+            } else {
+                v.to_string()
+            }
+        }
+        _ => format!("var{}", old_to_new_index.insert_full(i).0),
+    }
 }

@@ -22,6 +22,7 @@ smol_str.workspace = true
 log.workspace = true
 simple_logger = "5.2.0"
 anyhow = "1.0"
+ahash.workspace = true
 
 [dev-dependencies]
 pretty_assertions = "1.4.1"
