@@ -75,14 +75,19 @@ pub enum Operation {
     Float,
     Equal,
     NotEqual,
+    Greater,
     GreaterEqual,
+    Less,
     LessEqual,
     Not,
+    And,
+    Or,
     LeftShift,
     RightShift,
     BitAnd,
     Pack2Float16,
     Unpack2Float16,
+    IsNaN,
 }
 
 impl ShaderDatabase {
