@@ -453,6 +453,12 @@ fn shader_str(s: &ShaderExprs) -> anyhow::Result<String> {
         write_assignment(&mut output, s, k, *v, &mut visited);
         writeln!(&mut output)?;
     }
+    if let Some(i) = s.discard_condition {
+        let mut visited = IndexSet::default();
+        write_expr_dependencies_recursive(&mut output, s, i, &mut visited);
+        write_assignment(&mut output, s, "discard", i, &mut visited);
+        writeln!(&mut output).unwrap();
+    }
 
     Ok(output)
 }

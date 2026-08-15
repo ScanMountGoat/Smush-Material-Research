@@ -145,6 +145,10 @@ pub fn shader_from_glsl(vertex: GlslGraph, fragment: GlslGraph) -> ShaderExprs {
         }
     }
 
+    let discard_condition = graph
+        .discard_condition
+        .map(|i| output_expr(&graph.exprs[i], &graph, &mut exprs));
+
     let exprs = exprs
         .into_exprs()
         .into_iter()
@@ -162,6 +166,7 @@ pub fn shader_from_glsl(vertex: GlslGraph, fragment: GlslGraph) -> ShaderExprs {
     ShaderExprs {
         output_dependencies,
         exprs,
+        discard_condition,
     }
 }
 

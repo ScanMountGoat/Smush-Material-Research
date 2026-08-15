@@ -40,6 +40,7 @@ pub struct ShaderProgram {
 #[derive(Debug, PartialEq, Default)]
 pub struct ShaderExprs {
     pub output_dependencies: IndexMap<SmolStr, usize>,
+    pub discard_condition: Option<usize>,
     pub exprs: Vec<OutputExpr<Operation>>,
 }
 

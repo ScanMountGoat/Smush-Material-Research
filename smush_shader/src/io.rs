@@ -111,6 +111,8 @@ struct ShaderProgramIndexed {
     #[br(parse_with = parse_vec)]
     #[bw(write_with = write_vec)]
     output_dependencies: Vec<(VarInt, VarInt)>,
+
+    discard_condition: OptVarInt,
 }
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, BinRead, BinWrite)]
@@ -281,6 +283,7 @@ impl ShaderDatabaseIndexed {
                     (output_index, expr_indices[value])
                 })
                 .collect(),
+            discard_condition: OptVarInt(p.exprs.discard_condition.map(|i| expr_indices[i].0)),
         }
     }
 
@@ -343,6 +346,11 @@ impl ShaderDatabaseIndexed {
             })
             .collect();
 
+        let discard_condition = p
+            .discard_condition
+            .0
+            .map(|i| self.output_expr_from_indexed(i, &mut exprs, &mut expr_to_index));
+
         ShaderProgram {
             discard: p.discard,
             premultiplied: p.premultiplied,
@@ -364,6 +372,7 @@ impl ShaderDatabaseIndexed {
             exprs: ShaderExprs {
                 output_dependencies,
                 exprs: exprs.into_iter().collect(),
+                discard_condition,
             },
         }
     }
