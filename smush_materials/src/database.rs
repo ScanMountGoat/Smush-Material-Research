@@ -232,7 +232,7 @@ pub fn export_shader_database(
 
                     let pixel_metadata = shader_metadata(&binary_folder, pixel_shader);
 
-                    let attrs = vert.as_ref().map(vertex_attributes).unwrap_or_default();
+                    let attributes = vert.as_ref().map(vertex_attributes).unwrap_or_default();
 
                     // TODO: Don't count comment lines?
                     // This assumes each line of code takes has the same cost.
@@ -278,7 +278,7 @@ pub fn export_shader_database(
                         ShaderExprs::default()
                     };
 
-                    let params = material_parameters(program, &exprs.exprs);
+                    let parameters = material_parameters(program, &exprs.exprs);
 
                     (
                         program.name.to_string_lossy().into(),
@@ -289,8 +289,8 @@ pub fn export_shader_database(
                             sh,
                             lighting,
                             anisotropic_rotation,
-                            attributes: attrs,
-                            parameters: params,
+                            attributes,
+                            parameters,
                             complexity: lines_of_code as f64,
                             exprs,
                         },
@@ -411,7 +411,13 @@ fn vertex_attributes(vertex: &GlslGraph) -> Vec<SmolStr> {
                 })
                 .collect();
 
-            let attribute_name = attribute_name.trim_start_matches("IN_");
+            // Use the format expected by numshb attribute names.
+            let attribute_name = match attribute_name.trim_start_matches("IN_") {
+                "Normal" => "Normal0",
+                "Position" => "Position0",
+                "Tangent" => "Tangent0",
+                name => name,
+            };
             format_channels(attribute_name, &channels)
         })
         .collect()
