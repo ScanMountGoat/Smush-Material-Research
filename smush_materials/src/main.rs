@@ -521,8 +521,8 @@ fn args_inlined_values(
 
 fn arg_inlined_value(s: &ShaderExprs, i: usize, old_to_new_index: &mut IndexSet<usize>) -> String {
     match &s.exprs[i] {
-        smush_shader::OutputExpr::Value(v) => {
-            if let smush_shader::Value::Texture(t) = v {
+        smush_shader::OutputExpr::Value(v) => match v {
+            smush_shader::Value::Texture(t) => {
                 let coords: Vec<_> = args_inlined_values(s, &t.texcoords, old_to_new_index);
                 format!(
                     "Texture({}, {}){}",
@@ -530,10 +530,27 @@ fn arg_inlined_value(s: &ShaderExprs, i: usize, old_to_new_index: &mut IndexSet<
                     coords.join(", "),
                     t.channel.map(|c| format!(".{c}")).unwrap_or_default()
                 )
-            } else {
-                v.to_string()
             }
-        }
+            smush_shader::Value::Parameter(p) => {
+                format!(
+                    "{}{}{}{}{}",
+                    p.name,
+                    if !p.field.is_empty() {
+                        format!(".{}", p.field)
+                    } else {
+                        String::new()
+                    },
+                    p.index
+                        .map(|i| format!("[{}]", arg_inlined_value(s, i, old_to_new_index)))
+                        .unwrap_or_default(),
+                    p.index2
+                        .map(|i| format!("[{}]", arg_inlined_value(s, i, old_to_new_index)))
+                        .unwrap_or_default(),
+                    p.channel.map(|c| format!(".{c}")).unwrap_or_default()
+                )
+            }
+            v => v.to_string(),
+        },
         _ => format!("var{}", old_to_new_index.insert_full(i).0),
     }
 }

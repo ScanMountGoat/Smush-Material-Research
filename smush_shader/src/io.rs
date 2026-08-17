@@ -63,10 +63,15 @@ pub struct ShaderDatabaseIndexed {
     #[bw(write_with = write_strings)]
     outputs: IndexSet<SmolStr>,
 
+    // Attributes with channels like "map1.xy"
+    #[br(parse_with = parse_strings)]
+    #[bw(write_with = write_strings)]
+    attribute_channels: IndexSet<SmolStr>,
+
     // Parameters with channels like "CustomVector0.xyz"
     #[br(parse_with = parse_strings)]
     #[bw(write_with = write_strings)]
-    parameters: IndexSet<SmolStr>,
+    parameter_channels: IndexSet<SmolStr>,
 }
 
 #[binrw]
@@ -191,6 +196,12 @@ enum ValueIndexed {
 
     #[brw(magic(4u8))]
     Int(i32),
+
+    #[brw(magic(5u8))]
+    Uint(u32),
+
+    #[brw(magic(6u8))]
+    Bool(u8),
 }
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, BinRead, BinWrite)]
@@ -198,6 +209,7 @@ struct ParameterIndexed {
     name: VarInt,
     field: VarInt,
     index: OptVarInt,
+    index2: OptVarInt,
     channel: Channel,
 }
 
@@ -266,12 +278,12 @@ impl ShaderDatabaseIndexed {
             attributes: p
                 .attributes
                 .iter()
-                .map(|s| add_string(&mut self.attribute_names, s.clone()))
+                .map(|s| add_string(&mut self.attribute_channels, s.clone()))
                 .collect(),
             parameters: p
                 .parameters
                 .iter()
-                .map(|s| add_string(&mut self.parameters, s.clone()))
+                .map(|s| add_string(&mut self.parameter_channels, s.clone()))
                 .collect(),
             complexity: p.complexity,
             output_dependencies: p
@@ -361,12 +373,12 @@ impl ShaderDatabaseIndexed {
             attributes: p
                 .attributes
                 .iter()
-                .map(|s| self.attribute_names[s.0].clone())
+                .map(|s| self.attribute_channels[s.0].clone())
                 .collect(),
             parameters: p
                 .parameters
                 .iter()
-                .map(|s| self.parameters[s.0].clone())
+                .map(|s| self.parameter_channels[s.0].clone())
                 .collect(),
             complexity: p.complexity,
             exprs: ShaderExprs {
@@ -415,7 +427,9 @@ impl ShaderDatabaseIndexed {
     ) -> Value {
         match v {
             ValueIndexed::Int(i) => Value::Int(*i),
+            ValueIndexed::Uint(u) => Value::Uint(*u),
             ValueIndexed::Float(f) => Value::Float(*f),
+            ValueIndexed::Bool(b) => Value::Bool(*b != 0),
             ValueIndexed::Parameter(p) => Value::Parameter(self.parameter_from_indexed(p)),
             ValueIndexed::Texture(t) => Value::Texture(Texture {
                 name: self.texture_names[t.name.0].clone(),
@@ -441,7 +455,9 @@ impl ShaderDatabaseIndexed {
     ) -> ValueIndexed {
         match v {
             Value::Int(i) => ValueIndexed::Int(i),
+            Value::Uint(u) => ValueIndexed::Uint(u),
             Value::Float(c) => ValueIndexed::Float(c),
+            Value::Bool(b) => ValueIndexed::Bool(b as u8),
             Value::Parameter(p) => ValueIndexed::Parameter(self.parameter_indexed(p)),
             Value::Texture(t) => ValueIndexed::Texture(TextureIndexed {
                 name: add_string(&mut self.texture_names, t.name),
@@ -464,6 +480,7 @@ impl ShaderDatabaseIndexed {
             name: self.buffer_names[p.name.0].clone(),
             field: self.buffer_field_names[p.field.0].clone(),
             index: p.index.0,
+            index2: p.index2.0,
             channel: p.channel.into(),
         }
     }
@@ -473,6 +490,7 @@ impl ShaderDatabaseIndexed {
             name: add_string(&mut self.buffer_names, p.name),
             field: add_string(&mut self.buffer_field_names, p.field),
             index: OptVarInt(p.index),
+            index2: OptVarInt(p.index2),
             channel: p.channel.into(),
         }
     }

@@ -1650,7 +1650,7 @@ dependencies = [
 [[package]]
 name = "xc3_shader"
 version = "0.22.0"
-source = "git+https://github.com/ScanMountGoat/xc3_lib?rev=347f046e#347f046ec2f6a2524ab9924c7ea03ff43b23ed2f"
+source = "git+https://github.com/ScanMountGoat/xc3_lib?rev=e77ea279#e77ea2792c8767900c41c42b465c19e1db691f54"
 dependencies = [
  "ahash",
  "approx",
