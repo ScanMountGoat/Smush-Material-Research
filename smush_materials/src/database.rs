@@ -95,10 +95,14 @@ impl xc3_shader::expr::Operation for Operation {
     }
 
     fn preprocess_expr<'a>(
-        _graph: &'a Graph,
+        graph: &'a Graph,
         expr: &'a xc3_shader::graph::Expr,
     ) -> std::borrow::Cow<'a, xc3_shader::graph::Expr> {
-        Cow::Borrowed(expr)
+        if let Some(new_expr) = unk_position(graph, expr).or_else(|| unk_distance(graph, expr)) {
+            Cow::Owned(new_expr)
+        } else {
+            Cow::Borrowed(expr)
+        }
     }
 
     fn preprocess_value_expr<'a>(
