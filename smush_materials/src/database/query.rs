@@ -35,6 +35,46 @@ pub fn ternary<'a>(graph: &'a Graph, expr: &'a Expr) -> Option<(Operation, Vec<&
     }
 }
 
+pub fn binary_ops<'a>(graph: &'a Graph, expr: &'a Expr) -> Option<(Operation, Vec<&'a Expr>)> {
+    if let Expr::Binary(op, a0, a1) = expr {
+        let args = vec![&graph.exprs[*a0], &graph.exprs[*a1]];
+
+        match op {
+            BinaryOp::Add => Some((Op::Add.into(), args)),
+            BinaryOp::Sub => Some((Op::Sub.into(), args)),
+            BinaryOp::Mul => Some((Op::Mul.into(), args)),
+            BinaryOp::Div => Some((Op::Div.into(), args)),
+            BinaryOp::LeftShift => Some((Op::LeftShift.into(), args)),
+            BinaryOp::RightShift => Some((Op::RightShift.into(), args)),
+            BinaryOp::BitOr => None,
+            BinaryOp::BitXor => None,
+            BinaryOp::BitAnd => Some((Op::BitAnd.into(), args)),
+            BinaryOp::Equal => Some((Op::Equal.into(), args)),
+            BinaryOp::NotEqual => Some((Op::NotEqual.into(), args)),
+            BinaryOp::Less => Some((Op::Less.into(), args)),
+            BinaryOp::Greater => Some((Op::Greater.into(), args)),
+            BinaryOp::LessEqual => Some((Op::LessEqual.into(), args)),
+            BinaryOp::GreaterEqual => Some((Op::GreaterEqual.into(), args)),
+            BinaryOp::Or => Some((Op::Or.into(), args)),
+            BinaryOp::And => Some((Op::And.into(), args)),
+        }
+    } else {
+        None
+    }
+}
+
+pub fn unary_ops<'a>(graph: &'a Graph, expr: &'a Expr) -> Option<(Operation, Vec<&'a Expr>)> {
+    if let Expr::Unary(op, a) = expr {
+        match op {
+            UnaryOp::Negate => Some((Op::Negate.into(), vec![&graph.exprs[*a]])),
+            UnaryOp::Not => Some((Op::Not.into(), vec![&graph.exprs[*a]])),
+            UnaryOp::Complement => None,
+        }
+    } else {
+        None
+    }
+}
+
 static PACK_HALF: LazyLock<Graph> = LazyLock::new(|| {
     let query = indoc! {"
         void main() {
@@ -51,36 +91,6 @@ pub fn pack_half<'a>(graph: &'a Graph, expr: &'a Expr) -> Option<(Operation, Vec
         Op::Pack2Float16.into(),
         vec![result.get("a")?, result.get("b")?],
     ))
-}
-
-pub fn binary_op<'a>(
-    graph: &'a Graph,
-    expr: &'a Expr,
-    binary_op: BinaryOp,
-    operation: Operation,
-) -> Option<(Operation, Vec<&'a Expr>)> {
-    if let Expr::Binary(op, a0, a1) = expr
-        && *op == binary_op
-    {
-        Some((operation, vec![&graph.exprs[*a0], &graph.exprs[*a1]]))
-    } else {
-        None
-    }
-}
-
-pub fn unary_op<'a>(
-    graph: &'a Graph,
-    expr: &'a Expr,
-    unary_op: UnaryOp,
-    operation: Operation,
-) -> Option<(Operation, Vec<&'a Expr>)> {
-    if let Expr::Unary(op, a) = expr
-        && *op == unary_op
-    {
-        Some((operation, vec![&graph.exprs[*a]]))
-    } else {
-        None
-    }
 }
 
 static UNK_DISTANCE: LazyLock<Graph> = LazyLock::new(|| {
@@ -600,4 +610,51 @@ pub fn unk_projection_v<'a>(graph: &'a Graph, expr: &'a Expr) -> Option<Expr> {
             name: "unk_projection_v".into(),
             channel: None,
         })
+}
+
+static ANISOTROPIC_ROTATION: LazyLock<Graph> = LazyLock::new(|| {
+    // TODO: does this require a more specific query?
+    let query = indoc! {"
+        void main() {
+            prm = prm;
+            alpha = prm.w;
+            result = fma(alpha, 2.0, -1.0);
+        }
+    "};
+    Graph::parse_glsl(query).unwrap().simplify()
+});
+
+pub fn has_anisotropic_rotation(graph: &Graph) -> bool {
+    graph
+        .nodes
+        .iter()
+        .any(|n| query_nodes(&graph.exprs[n.input], &graph, &ANISOTROPIC_ROTATION).is_some())
+}
+
+static PREMULTIPLIED_ALPHA: LazyLock<Graph> = LazyLock::new(|| {
+    let query = indoc! {"
+        void main() {
+            temp_743 = fma(temp_736, temp_742, temp_736);
+            temp_744 = temp_739 * temp_736;
+            temp_745 = temp_740 * temp_736;
+            temp_746 = temp_741 * temp_736;
+            out_attr0.x = temp_745;
+            out_attr0.y = temp_744;
+            out_attr0.z = temp_746;
+            out_attr0.w = temp_743;
+        }
+    "};
+    Graph::parse_glsl(query).unwrap().simplify()
+});
+
+pub fn is_premultiplied_alpha(graph: &Graph) -> Option<bool> {
+    let node = graph
+        .nodes
+        .iter()
+        .rfind(|n| n.output.name == "out_attr0" && n.output.channel == Some('w'))?;
+
+    // Check if the RGB outputs are multiplied by alpha.
+    let result = query_nodes(&graph.exprs[node.input], graph, &PREMULTIPLIED_ALPHA)?;
+
+    Some(!result.is_empty())
 }

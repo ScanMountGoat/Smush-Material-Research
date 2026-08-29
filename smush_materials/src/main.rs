@@ -489,11 +489,22 @@ fn write_expr_dependencies_recursive(
     if !old_to_new_index.contains(&i) {
         let expr = &s.exprs[i];
         match expr {
-            smush_shader::OutputExpr::Value(smush_shader::Value::Texture(t)) => {
-                for arg in &t.texcoords {
-                    write_expr_dependencies_recursive(output, s, *arg, old_to_new_index);
+            smush_shader::OutputExpr::Value(v) => match v {
+                smush_shader::Value::Parameter(p) => {
+                    if let Some(i) = p.index {
+                        write_expr_dependencies_recursive(output, s, i, old_to_new_index);
+                    }
+                    if let Some(i) = p.index2 {
+                        write_expr_dependencies_recursive(output, s, i, old_to_new_index);
+                    }
                 }
-            }
+                smush_shader::Value::Texture(t) => {
+                    for arg in &t.texcoords {
+                        write_expr_dependencies_recursive(output, s, *arg, old_to_new_index);
+                    }
+                }
+                _ => (),
+            },
             smush_shader::OutputExpr::Func { op, args } => {
                 for arg in args {
                     write_expr_dependencies_recursive(output, s, *arg, old_to_new_index);
@@ -504,7 +515,6 @@ fn write_expr_dependencies_recursive(
                 let new_index = old_to_new_index.insert_full(i).0;
                 writeln!(output, "var{new_index} = {op}({});", args.join(", ")).unwrap();
             }
-            smush_shader::OutputExpr::Value(_) => (),
         }
     }
 }

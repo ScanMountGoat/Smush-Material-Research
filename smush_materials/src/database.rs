@@ -1,5 +1,5 @@
+use anyhow::anyhow;
 use indexmap::IndexMap;
-use indoc::indoc;
 use log::error;
 use query::*;
 use rayon::prelude::*;
@@ -10,9 +10,8 @@ use std::{borrow::Cow, collections::BTreeSet, path::Path};
 use xc3_shader::{
     expr::{ExprCache, OutputExpr, output_expr},
     graph::{
-        BinaryOp, Graph, UnaryOp,
+        Graph,
         glsl::{GlslGraph, merge_vertex_fragment, shader_source_no_extensions},
-        query::query_nodes_glsl,
     },
 };
 
@@ -47,21 +46,7 @@ impl xc3_shader::expr::Operation for Operation {
         expr: &'a xc3_shader::graph::Expr,
     ) -> Option<(Self, Vec<&'a xc3_shader::graph::Expr>)> {
         // TODO: how to handle bitfieldExtract to be compatible with WGSL?
-        binary_op(graph, expr, BinaryOp::Add, Op::Add.into())
-            .or_else(|| binary_op(graph, expr, BinaryOp::Sub, Op::Sub.into()))
-            .or_else(|| binary_op(graph, expr, BinaryOp::Mul, Op::Mul.into()))
-            .or_else(|| binary_op(graph, expr, BinaryOp::Div, Op::Div.into()))
-            .or_else(|| binary_op(graph, expr, BinaryOp::Equal, Op::Equal.into()))
-            .or_else(|| binary_op(graph, expr, BinaryOp::NotEqual, Op::NotEqual.into()))
-            .or_else(|| binary_op(graph, expr, BinaryOp::Greater, Op::Greater.into()))
-            .or_else(|| binary_op(graph, expr, BinaryOp::GreaterEqual, Op::GreaterEqual.into()))
-            .or_else(|| binary_op(graph, expr, BinaryOp::Less, Op::Less.into()))
-            .or_else(|| binary_op(graph, expr, BinaryOp::LessEqual, Op::LessEqual.into()))
-            .or_else(|| binary_op(graph, expr, BinaryOp::And, Op::And.into()))
-            .or_else(|| binary_op(graph, expr, BinaryOp::Or, Op::Or.into()))
-            .or_else(|| binary_op(graph, expr, BinaryOp::LeftShift, Op::LeftShift.into()))
-            .or_else(|| binary_op(graph, expr, BinaryOp::RightShift, Op::RightShift.into()))
-            .or_else(|| binary_op(graph, expr, BinaryOp::BitAnd, Op::BitAnd.into()))
+        binary_ops(graph, expr)
             .or_else(|| op_func(graph, expr, "fma", Op::Fma.into()))
             .or_else(|| op_func(graph, expr, "min", Op::Min.into()))
             .or_else(|| op_func(graph, expr, "max", Op::Max.into()))
@@ -85,8 +70,7 @@ impl xc3_shader::expr::Operation for Operation {
             .or_else(|| op_func(graph, expr, "isnan", Op::IsNaN.into()))
             .or_else(|| op_func(graph, expr, "unpackHalf2x16", Op::Unpack2Float16.into()))
             .or_else(|| pack_half(graph, expr))
-            .or_else(|| unary_op(graph, expr, UnaryOp::Negate, Op::Negate.into()))
-            .or_else(|| unary_op(graph, expr, UnaryOp::Not, Op::Not.into()))
+            .or_else(|| unary_ops(graph, expr))
             .or_else(|| ternary(graph, expr))
             .or_else(|| {
                 error!("Unsupported expression {expr:?}");
@@ -174,152 +158,142 @@ pub fn export_shader_database(
     source_folder: String,
     output_file: String,
 ) -> anyhow::Result<usize> {
-    // Generate the shader info JSON for ssbh_wgpu.
+    // Generate the shader database for ssbh_wgpu.
     let nufx = ssbh_lib::formats::nufx::Nufx::from_file(&nufx_file)?;
-    if let ssbh_lib::formats::nufx::Nufx::V1(nufx) = nufx {
-        // TODO: Make excluding duplicate render pass entries optional?
-        // All "SFX_PBS..." programs support all render passes.
-        // Only consider one render pass per program since the entries are identical.
-        let mut database = ShaderDatabase {
-            programs: nufx
-                .programs
-                .elements
-                .par_iter()
-                .filter(|program| program.render_pass.to_str() == Some("nu::Final"))
-                .map(|program| {
-                    // We can infer information from the shader source using some basic heurstics.
-                    let pixel_shader = program.shaders.pixel_shader.to_string_lossy();
-                    let pixel_source = shader_source(&source_folder, &pixel_shader);
+    let nufx = if let ssbh_lib::formats::nufx::Nufx::V1(nufx) = nufx {
+        Ok(nufx)
+    } else {
+        Err(anyhow!("Unsupported NUFX version"))
+    }?;
 
-                    let vertex_shader = program.shaders.vertex_shader.to_string_lossy();
-                    let vertex_source = shader_source(&source_folder, &vertex_shader);
+    // All "SFX_PBS..." programs support all render passes.
+    // Only consider one render pass per program since the entries are identical.
+    let mut database = ShaderDatabase {
+        programs: nufx
+            .programs
+            .elements
+            .par_iter()
+            .filter(|program| program.render_pass.to_str() == Some("nu::Final"))
+            .map(|program| {
+                // We can infer information from the shader source using some basic heurstics.
+                let pixel_shader = program.shaders.pixel_shader.to_string_lossy();
+                let pixel_source = shader_source(&source_folder, &pixel_shader);
 
-                    // Alpha testing in Smash Ultimate is done in shader, so check for discard.
-                    // There may be false positives if the discard code path is unused.
-                    let discard = pixel_source
-                        .as_ref()
-                        .map(|source| source.contains("discard;"))
-                        .unwrap_or_default();
+                let vertex_shader = program.shaders.vertex_shader.to_string_lossy();
+                let vertex_source = shader_source(&source_folder, &vertex_shader);
 
-                    let vert = vertex_source.as_ref().ok().map(|source| {
-                        let glsl = shader_source_no_extensions(source);
-                        GlslGraph::parse_glsl(glsl).unwrap()
-                    });
+                // Alpha testing in Smash Ultimate is done in shader, so check for discard.
+                // There may be false positives if the discard code path is unused.
+                let discard = pixel_source
+                    .as_ref()
+                    .map(|source| source.contains("discard;"))
+                    .unwrap_or_default();
 
-                    let frag = pixel_source.as_ref().ok().map(|source| {
-                        let glsl = shader_source_no_extensions(source);
-                        GlslGraph::parse_glsl(glsl).unwrap()
-                    });
+                let vert = vertex_source.as_ref().ok().map(|source| {
+                    let glsl = shader_source_no_extensions(source);
+                    GlslGraph::parse_glsl(glsl).unwrap()
+                });
 
-                    let premultiplied = frag
-                        .as_ref()
-                        .map(|frag| is_premultiplied_alpha(&frag.graph).unwrap_or_default())
-                        .unwrap_or_default();
+                let frag = pixel_source.as_ref().ok().map(|source| {
+                    let glsl = shader_source_no_extensions(source);
+                    GlslGraph::parse_glsl(glsl).unwrap()
+                });
 
-                    let anisotropic_rotation = frag
-                        .as_ref()
-                        .map(|frag| {
-                            frag.graph.nodes.iter().any(|n| {
-                                // TODO: does this require a more specific query?
-                                let query = indoc! {"
-                                        prm = prm;
-                                        alpha = prm.w;
-                                        result = fma(alpha, 2.0, -1.0);
-                                    "};
+                let premultiplied = frag
+                    .as_ref()
+                    .map(|frag| is_premultiplied_alpha(&frag.graph).unwrap_or_default())
+                    .unwrap_or_default();
 
-                                query_nodes_glsl(&frag.graph.exprs[n.input], &frag.graph, query)
-                                    .is_some()
-                            })
-                        })
-                        .unwrap_or_default();
+                let anisotropic_rotation = frag
+                    .as_ref()
+                    .map(|frag| has_anisotropic_rotation(&frag.graph))
+                    .unwrap_or_default();
 
-                    let pixel_metadata = shader_metadata(&binary_folder, pixel_shader);
+                let pixel_metadata = shader_metadata(&binary_folder, pixel_shader);
 
-                    let attributes = vert.as_ref().map(vertex_attributes).unwrap_or_default();
+                let attributes = vert.as_ref().map(vertex_attributes).unwrap_or_default();
 
-                    // TODO: Don't count comment lines?
-                    // This assumes each line of code takes has the same cost.
-                    // Some lines will cost more in practice like texture loads.
-                    let lines_of_code = pixel_source
+                // TODO: Don't count comment lines?
+                // This assumes each line of code takes has the same cost.
+                // Some lines will cost more in practice like texture loads.
+                let lines_of_code = pixel_source
+                    .as_ref()
+                    .map(|s| s.lines().count())
+                    .unwrap_or_default()
+                    + vertex_source
                         .as_ref()
                         .map(|s| s.lines().count())
-                        .unwrap_or_default()
-                        + vertex_source
-                            .as_ref()
-                            .map(|s| s.lines().count())
-                            .unwrap_or_default();
-
-                    // Texture15 is always the shadow map texture.
-                    // Shaders with Texture15 also have IN_ShadowMap.
-                    // Just check if the shadow map is present for now.
-                    // Checking shadow map usage requires mapping decompiled texture handles to uniforms.
-                    let receives_shadow = pixel_metadata
-                        .as_ref()
-                        .map(|p| p.uniforms.iter().any(|u| u.name == "Texture15"))
                         .unwrap_or_default();
 
-                    // Spherical harmonic ambient lighting is passed from the vertex shader.
-                    let sh = pixel_metadata
-                        .as_ref()
-                        .map(|p| p.inputs.iter().any(|i| i.name == "IN_shLighting"))
-                        .unwrap_or_default();
+                // Texture15 is always the shadow map texture.
+                // Shaders with Texture15 also have IN_ShadowMap.
+                // Just check if the shadow map is present for now.
+                // Checking shadow map usage requires mapping decompiled texture handles to uniforms.
+                let receives_shadow = pixel_metadata
+                    .as_ref()
+                    .map(|p| p.uniforms.iter().any(|u| u.name == "Texture15"))
+                    .unwrap_or_default();
 
-                    // Some models with baked lighting don't use the light set.
-                    // A negative offset means that the buffer doesn't contain the uniform.
-                    let lighting = pixel_metadata
-                        .as_ref()
-                        .map(|p| {
-                            p.uniforms.iter().any(|u| {
-                                u.name == "lightDirColor1" && u.uniform_buffer_offset != -1
-                            })
-                        })
-                        .unwrap_or_default();
+                // Spherical harmonic ambient lighting is passed from the vertex shader.
+                let sh = pixel_metadata
+                    .as_ref()
+                    .map(|p| p.inputs.iter().any(|i| i.name == "IN_shLighting"))
+                    .unwrap_or_default();
 
-                    let exprs = if let (Some(vert), Some(frag)) = (vert, frag) {
-                        shader_from_glsl(vert, frag)
-                    } else {
-                        ShaderExprs::default()
-                    };
+                // Some models with baked lighting don't use the light set.
+                // A negative offset means that the buffer doesn't contain the uniform.
+                let lighting = pixel_metadata
+                    .as_ref()
+                    .map(|p| {
+                        p.uniforms
+                            .iter()
+                            .any(|u| u.name == "lightDirColor1" && u.uniform_buffer_offset != -1)
+                    })
+                    .unwrap_or_default();
 
-                    let parameters = material_parameters(program, &exprs.exprs);
+                let exprs = if let (Some(vert), Some(frag)) = (vert, frag) {
+                    shader_from_glsl(vert, frag)
+                } else {
+                    ShaderExprs::default()
+                };
 
-                    (
-                        program.name.to_string_lossy().into(),
-                        ShaderProgram {
-                            discard,
-                            premultiplied,
-                            receives_shadow,
-                            sh,
-                            lighting,
-                            anisotropic_rotation,
-                            attributes,
-                            parameters,
-                            complexity: lines_of_code as f64,
-                            exprs,
-                        },
-                    )
-                })
-                .collect(),
-        };
+                let parameters = material_parameters(program, &exprs.exprs);
 
-        // Normalize shader complexity so the highest complexity is 1.0.
-        // Prevent a potential division by zero.
-        let total_lines_of_code = database
-            .programs
-            .values()
-            .map(|s| s.complexity)
-            .reduce(f64::max)
-            .unwrap_or_default()
-            .max(1.0);
+                (
+                    program.name.to_string_lossy().into(),
+                    ShaderProgram {
+                        discard,
+                        premultiplied,
+                        receives_shadow,
+                        sh,
+                        lighting,
+                        anisotropic_rotation,
+                        attributes,
+                        parameters,
+                        complexity: lines_of_code as f64,
+                        exprs,
+                    },
+                )
+            })
+            .collect(),
+    };
 
-        for s in database.programs.values_mut() {
-            s.complexity /= total_lines_of_code;
-        }
+    // Normalize shader complexity so the highest complexity is 1.0.
+    // Prevent a potential division by zero.
+    let total_lines_of_code = database
+        .programs
+        .values()
+        .map(|s| s.complexity)
+        .reduce(f64::max)
+        .unwrap_or_default()
+        .max(1.0);
 
-        database.save(&output_file)?;
-    } else {
-        error!("Unsupported NUFX version");
+    for s in database.programs.values_mut() {
+        s.complexity /= total_lines_of_code;
     }
+
+    database.save(&output_file)?;
+
     Ok(0)
 }
 
@@ -433,30 +407,6 @@ fn format_channels(name: &str, channels: &BTreeSet<char>) -> SmolStr {
     } else {
         name.into()
     }
-}
-
-fn is_premultiplied_alpha(graph: &Graph) -> Option<bool> {
-    let node = graph
-        .nodes
-        .iter()
-        .rfind(|n| n.output.name == "out_attr0" && n.output.channel == Some('w'))?;
-
-    // Check if the RGB outputs are multiplied by alpha.
-    let query = indoc! {"
-        alpha_final = fma(alpha2, temp, alpha);
-        red = temp * alpha;
-        green = temp * alpha;
-        blue = temp * alpha;
-        result.x = red;
-        result.y = green;
-        result.z = blue;
-        result.w = alpha_final;
-    "};
-
-    // This handles changes in variable names and algebraic identities like a*b == b*a.
-    let result = query_nodes_glsl(&graph.exprs[node.input], graph, query)?;
-
-    Some(!result.is_empty())
 }
 
 #[cfg(test)]
