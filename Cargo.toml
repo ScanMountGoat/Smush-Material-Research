@@ -3,7 +3,7 @@ members = ["smush_materials", "smush_shader"]
 resolver = "2"
 
 [workspace.dependencies]
-xc3_shader = { git = "https://github.com/ScanMountGoat/xc3_lib", default-features = false, rev = "8c86cc00" }
+xc3_shader = { git = "https://github.com/ScanMountGoat/xc3_lib", default-features = false, rev = "2ea18405" }
 log = "0.4.33"
 smol_str = "0.3.6"
 indexmap = "2.14.0"

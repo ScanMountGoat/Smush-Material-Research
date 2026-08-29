@@ -529,3 +529,75 @@ pub fn unk_position<'a>(graph: &'a Graph, expr: &'a Expr) -> Option<Expr> {
             })
         })
 }
+
+static UNK_PROJECTION_V: LazyLock<Graph> = LazyLock::new(|| {
+    // TODO: Is this some sort of projected UV maps toggled by CustomBoolean5?
+    // SFX_PBS_0000000800084100_VS.glsl.glsl, OUT_uv_map1.y
+    let query = indoc! {"
+        void main() {
+            temp_5 = intBitsToFloat(gl_InstanceID);
+            temp_8 = floatBitsToInt(temp_5) << 6;
+            temp_130 = temp_8 + 48;
+            temp_131 = uint(temp_130) >> 2;
+            temp_132 = temp_131 >> 2;
+            temp_133 = int(temp_131) & 3;
+            temp_134 = nuPerViewCBuffer.data[int(temp_132)][temp_133];
+            temp_135 = int(temp_131) + 1;
+            temp_136 = uint(temp_135) >> 2;
+            temp_137 = temp_135 & 3;
+            temp_138 = nuPerViewCBuffer.data[int(temp_136)][temp_137];
+            temp_142 = temp_8 + 56;
+            temp_143 = uint(temp_142) >> 2;
+            temp_144 = temp_143 >> 2;
+            temp_145 = int(temp_143) & 3;
+            temp_146 = nuPerViewCBuffer.data[int(temp_144)][temp_145];
+            temp_147 = int(temp_143) + 1;
+            temp_148 = uint(temp_147) >> 2;
+            temp_149 = temp_147 & 3;
+            temp_150 = nuPerViewCBuffer.data[int(temp_148)][temp_149];
+            temp_168 = temp_138 * nuPerViewCBuffer.projectionMatrix[1].w;
+            temp_172 = fma(temp_134, nuPerViewCBuffer.projectionMatrix[0].w, temp_168);
+            temp_182 = fma(temp_146, nuPerViewCBuffer.projectionMatrix[2].w, temp_172);
+            temp_189 = fma(temp_150, nuPerViewCBuffer.projectionMatrix[3].w, temp_182);
+        }
+    "};
+    Graph::parse_glsl(query).unwrap().simplify()
+});
+
+static UNK_PROJECTION_V2: LazyLock<Graph> = LazyLock::new(|| {
+    // TODO: Is this some sort of projected UV maps toggled by CustomBoolean9?
+    // SFX_PBS_0000000000000500_VS.glsl.glsl, OUT_uv_map1.y
+    let query = indoc! {"
+        void main() {
+            temp_5 = intBitsToFloat(gl_InstanceID);
+            temp_17 = floatBitsToInt(temp_5) << 6;
+            temp_31 = temp_17 + 32;
+            temp_32 = uint(temp_31) >> 2;
+            temp_33 = temp_32 >> 2;
+            temp_34 = int(temp_32) & 3;
+            temp_35 = nuPerViewCBuffer.data[int(temp_33)][temp_34];
+            temp_36 = int(temp_32) + 1;
+            temp_37 = uint(temp_36) >> 2;
+            temp_38 = temp_36 & 3;
+            temp_39 = nuPerViewCBuffer.data[int(temp_37)][temp_38];
+            temp_109 = temp_17 + 40;
+            temp_110 = uint(temp_109) >> 2;
+            temp_111 = temp_110 >> 2;
+            temp_112 = int(temp_110) & 3;
+            temp_113 = nuPerViewCBuffer.data[int(temp_111)][temp_112];
+            temp_128 = temp_39 * nuPerViewCBuffer.projectionMatrix[1].x;
+            temp_146 = fma(temp_35, nuPerViewCBuffer.projectionMatrix[0].x, temp_128);
+            temp_192 = fma(temp_113, nuPerViewCBuffer.projectionMatrix[2].x, temp_146);
+        }
+    "};
+    Graph::parse_glsl(query).unwrap().simplify()
+});
+
+pub fn unk_projection_v<'a>(graph: &'a Graph, expr: &'a Expr) -> Option<Expr> {
+    query_nodes(expr, graph, &UNK_PROJECTION_V)
+        .or_else(|| query_nodes(expr, graph, &UNK_PROJECTION_V2))
+        .map(|_| Expr::Global {
+            name: "unk_projection_v".into(),
+            channel: None,
+        })
+}

@@ -98,7 +98,10 @@ impl xc3_shader::expr::Operation for Operation {
         graph: &'a Graph,
         expr: &'a xc3_shader::graph::Expr,
     ) -> std::borrow::Cow<'a, xc3_shader::graph::Expr> {
-        if let Some(new_expr) = unk_position(graph, expr).or_else(|| unk_distance(graph, expr)) {
+        if let Some(new_expr) = unk_position(graph, expr)
+            .or_else(|| unk_distance(graph, expr))
+            .or_else(|| unk_projection_v(graph, expr))
+        {
             Cow::Owned(new_expr)
         } else {
             Cow::Borrowed(expr)
@@ -119,16 +122,7 @@ pub fn shader_from_glsl(vertex: GlslGraph, fragment: GlslGraph) -> ShaderExprs {
     // This simplifies generating shader code or material nodes in 3D applications.
     let frag_attributes = fragment.attributes.clone();
 
-    // TODO: keep the named vertex outputs?
-    let graph = merge_vertex_fragment(
-        GlslGraph {
-            graph: vertex.graph.simplify(),
-            attributes: vertex.attributes,
-        },
-        fragment,
-        |_, e| e.clone(),
-    );
-    let graph = graph.simplify();
+    let graph = merge_vertex_fragment(&vertex, &fragment).simplify();
 
     let mut exprs = ExprCache::<Operation>::default();
 
