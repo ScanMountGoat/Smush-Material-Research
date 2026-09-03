@@ -249,6 +249,26 @@ fn uniform_item_size(ty: ssbh_data::shdr_data::DataType) -> u32 {
     }
 }
 
+fn is_vector(ty: ssbh_data::shdr_data::DataType) -> bool {
+    match ty {
+        ssbh_data::shdr_data::DataType::Boolean => false,
+        ssbh_data::shdr_data::DataType::Int => false,
+        ssbh_data::shdr_data::DataType::Unk7 => false,
+        ssbh_data::shdr_data::DataType::UnsignedInt => false,
+        ssbh_data::shdr_data::DataType::UVec3 => true,
+        ssbh_data::shdr_data::DataType::Float => false,
+        ssbh_data::shdr_data::DataType::Vector2 => true,
+        ssbh_data::shdr_data::DataType::Vector3 => true,
+        ssbh_data::shdr_data::DataType::Vector4 => true,
+        ssbh_data::shdr_data::DataType::Matrix4x4 => false,
+        ssbh_data::shdr_data::DataType::Sampler2d => false,
+        ssbh_data::shdr_data::DataType::Sampler3d => false,
+        ssbh_data::shdr_data::DataType::SamplerCube => false,
+        ssbh_data::shdr_data::DataType::Sampler2dArray => false,
+        ssbh_data::shdr_data::DataType::Image2d => false,
+    }
+}
+
 fn annotate_texture(
     replacements: &mut BTreeMap<String, String>,
     u: &ssbh_data::shdr_data::Uniform,
@@ -470,14 +490,29 @@ fn find_glsl_parameter(fields: &[Field], vec4_index: u32, channel: &str) -> Opti
                             None
                         }
                     }
-                    // TODO: handle channels for other vector types.
                     _ => {
-                        if vec4_index * VEC4_SIZE + field_component_offset == f.offset {
-                            // Scalar values like floats only use one of the vec4 channels.
+                        // Check if the offset is within the range of this uniform.
+                        let accessed_offset = vec4_index * VEC4_SIZE + field_component_offset;
+                        if (f.offset..f.offset + uniform_size(f.ty)).contains(&accessed_offset) {
+                            let channel = if is_vector(f.ty) {
+                                let channel_index =
+                                    (accessed_offset - f.offset) / uniform_item_size(f.ty);
+                                match channel_index {
+                                    0 => Some(Identifier::new("x".into(), None)),
+                                    1 => Some(Identifier::new("y".into(), None)),
+                                    2 => Some(Identifier::new("z".into(), None)),
+                                    3 => Some(Identifier::new("w".into(), None)),
+                                    _ => todo!(),
+                                }
+                            } else {
+                                // Scalar values like floats only use one of the vec4 channels.
+                                None
+                            };
+
                             Some(GlslParameter {
                                 name: f.name.clone(),
                                 array_index: None,
-                                channel: None,
+                                channel,
                             })
                         } else {
                             None
