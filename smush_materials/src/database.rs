@@ -68,7 +68,7 @@ impl xc3_shader::expr::Operation for Operation {
             .or_else(|| op_func(graph, expr, "uint", Op::Uint.into()))
             .or_else(|| op_func(graph, expr, "float", Op::Float.into()))
             .or_else(|| op_func(graph, expr, "isnan", Op::IsNaN.into()))
-            .or_else(|| op_func(graph, expr, "unpackHalf2x16", Op::Unpack2Float16.into()))
+            .or_else(|| unpack_half(graph, expr))
             .or_else(|| pack_half(graph, expr))
             .or_else(|| unary_ops(graph, expr))
             .or_else(|| ternary(graph, expr))

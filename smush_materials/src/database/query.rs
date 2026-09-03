@@ -75,6 +75,31 @@ pub fn unary_ops<'a>(graph: &'a Graph, expr: &'a Expr) -> Option<(Operation, Vec
     }
 }
 
+static UNPACK_HALF_X: LazyLock<Graph> = LazyLock::new(|| {
+    let query = indoc! {"
+        void main() {
+            result = unpackHalf2x16(arg).x;
+        }
+    "};
+    Graph::parse_glsl(query).unwrap().simplify()
+});
+
+static UNPACK_HALF_Y: LazyLock<Graph> = LazyLock::new(|| {
+    let query = indoc! {"
+        void main() {
+            result = unpackHalf2x16(arg).y;
+        }
+    "};
+    Graph::parse_glsl(query).unwrap().simplify()
+});
+
+pub fn unpack_half<'a>(graph: &'a Graph, expr: &'a Expr) -> Option<(Operation, Vec<&'a Expr>)> {
+    let (op, result) = query_nodes(expr, graph, &UNPACK_HALF_X)
+        .map(|r| (Op::Unpack2Float16X, r))
+        .or_else(|| query_nodes(expr, graph, &UNPACK_HALF_Y).map(|r| (Op::Unpack2Float16Y, r)))?;
+    Some((op.into(), vec![result.get("arg")?]))
+}
+
 static PACK_HALF: LazyLock<Graph> = LazyLock::new(|| {
     let query = indoc! {"
         void main() {

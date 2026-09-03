@@ -87,7 +87,8 @@ pub enum Operation {
     RightShift,
     BitAnd,
     Pack2Float16,
-    Unpack2Float16,
+    Unpack2Float16X,
+    Unpack2Float16Y,
     IsNaN,
 }
 
