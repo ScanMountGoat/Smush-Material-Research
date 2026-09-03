@@ -228,44 +228,45 @@ fn uniform_size(ty: ssbh_data::shdr_data::DataType) -> u32 {
     }
 }
 
-fn uniform_item_size(ty: ssbh_data::shdr_data::DataType) -> u32 {
-    // The size of an indexed element like "var[3]".
+fn uniform_col_size(ty: ssbh_data::shdr_data::DataType) -> Option<u32> {
+    // The size of an indexed element like "transform[3]".
     match ty {
-        ssbh_data::shdr_data::DataType::Boolean => 4,
-        ssbh_data::shdr_data::DataType::Int => 4,
-        ssbh_data::shdr_data::DataType::Unk7 => 1, // TODO: What is this data type?
-        ssbh_data::shdr_data::DataType::UnsignedInt => 4,
-        ssbh_data::shdr_data::DataType::UVec3 => 4,
-        ssbh_data::shdr_data::DataType::Float => 4,
-        ssbh_data::shdr_data::DataType::Vector2 => 4,
-        ssbh_data::shdr_data::DataType::Vector3 => 4,
-        ssbh_data::shdr_data::DataType::Vector4 => 4,
-        ssbh_data::shdr_data::DataType::Matrix4x4 => 4 * 4,
-        ssbh_data::shdr_data::DataType::Sampler2d => 1,
-        ssbh_data::shdr_data::DataType::Sampler3d => 1,
-        ssbh_data::shdr_data::DataType::SamplerCube => 1,
-        ssbh_data::shdr_data::DataType::Sampler2dArray => 1,
-        ssbh_data::shdr_data::DataType::Image2d => 1,
+        ssbh_data::shdr_data::DataType::Boolean => None,
+        ssbh_data::shdr_data::DataType::Int => None,
+        ssbh_data::shdr_data::DataType::Unk7 => None, // TODO: What is this data type?
+        ssbh_data::shdr_data::DataType::UnsignedInt => None,
+        ssbh_data::shdr_data::DataType::UVec3 => None,
+        ssbh_data::shdr_data::DataType::Float => None,
+        ssbh_data::shdr_data::DataType::Vector2 => None,
+        ssbh_data::shdr_data::DataType::Vector3 => None,
+        ssbh_data::shdr_data::DataType::Vector4 => None,
+        ssbh_data::shdr_data::DataType::Matrix4x4 => Some(4 * 4),
+        ssbh_data::shdr_data::DataType::Sampler2d => None,
+        ssbh_data::shdr_data::DataType::Sampler3d => None,
+        ssbh_data::shdr_data::DataType::SamplerCube => None,
+        ssbh_data::shdr_data::DataType::Sampler2dArray => None,
+        ssbh_data::shdr_data::DataType::Image2d => None,
     }
 }
 
-fn is_vector(ty: ssbh_data::shdr_data::DataType) -> bool {
+fn uniform_channel_size(ty: ssbh_data::shdr_data::DataType) -> Option<u32> {
+    // The size of an single component like "var[3].x".
     match ty {
-        ssbh_data::shdr_data::DataType::Boolean => false,
-        ssbh_data::shdr_data::DataType::Int => false,
-        ssbh_data::shdr_data::DataType::Unk7 => false,
-        ssbh_data::shdr_data::DataType::UnsignedInt => false,
-        ssbh_data::shdr_data::DataType::UVec3 => true,
-        ssbh_data::shdr_data::DataType::Float => false,
-        ssbh_data::shdr_data::DataType::Vector2 => true,
-        ssbh_data::shdr_data::DataType::Vector3 => true,
-        ssbh_data::shdr_data::DataType::Vector4 => true,
-        ssbh_data::shdr_data::DataType::Matrix4x4 => false,
-        ssbh_data::shdr_data::DataType::Sampler2d => false,
-        ssbh_data::shdr_data::DataType::Sampler3d => false,
-        ssbh_data::shdr_data::DataType::SamplerCube => false,
-        ssbh_data::shdr_data::DataType::Sampler2dArray => false,
-        ssbh_data::shdr_data::DataType::Image2d => false,
+        ssbh_data::shdr_data::DataType::Boolean => None,
+        ssbh_data::shdr_data::DataType::Int => None,
+        ssbh_data::shdr_data::DataType::Unk7 => None, // TODO: What is this data type?
+        ssbh_data::shdr_data::DataType::UnsignedInt => None,
+        ssbh_data::shdr_data::DataType::UVec3 => Some(4),
+        ssbh_data::shdr_data::DataType::Float => None,
+        ssbh_data::shdr_data::DataType::Vector2 => Some(4),
+        ssbh_data::shdr_data::DataType::Vector3 => Some(4),
+        ssbh_data::shdr_data::DataType::Vector4 => Some(4),
+        ssbh_data::shdr_data::DataType::Matrix4x4 => Some(4),
+        ssbh_data::shdr_data::DataType::Sampler2d => None,
+        ssbh_data::shdr_data::DataType::Sampler3d => None,
+        ssbh_data::shdr_data::DataType::SamplerCube => None,
+        ssbh_data::shdr_data::DataType::Sampler2dArray => None,
+        ssbh_data::shdr_data::DataType::Image2d => None,
     }
 }
 
@@ -381,7 +382,7 @@ impl VisitorMut for Annotator {
                                 ));
 
                                 // buffer.uniform
-                                let new_expr = Expr::new(
+                                let mut new_expr = Expr::new(
                                     ExprData::Dot(
                                         Box::new(Expr::new(variable, None)),
                                         Identifier::new(parameter.name.as_str().into(), None),
@@ -389,9 +390,9 @@ impl VisitorMut for Annotator {
                                     None,
                                 );
 
-                                let new_expr = match parameter.array_index {
-                                    // buffer.uniform[array_index].x
-                                    Some(array_index) => Expr::new(
+                                if let Some(array_index) = parameter.array_index {
+                                    // buffer.uniform[array_index]
+                                    new_expr = Expr::new(
                                         ExprData::Bracket(
                                             Box::new(new_expr),
                                             Box::new(Node::new(
@@ -400,11 +401,24 @@ impl VisitorMut for Annotator {
                                             )),
                                         ),
                                         None,
-                                    ),
-                                    // buffer.uniform.x
-                                    None => new_expr,
+                                    );
                                 };
 
+                                if let Some(col_index) = parameter.col_index {
+                                    // buffer.uniform[col_index] or buffer.uniform[array_index][col_index]
+                                    new_expr = Expr::new(
+                                        ExprData::Bracket(
+                                            Box::new(new_expr),
+                                            Box::new(Node::new(
+                                                ExprData::IntConst(col_index as i32),
+                                                None,
+                                            )),
+                                        ),
+                                        None,
+                                    );
+                                };
+
+                                // Add the channel like buffer.uniform.x
                                 *expr = match parameter.channel {
                                     Some(c) => {
                                         Expr::new(ExprData::Dot(Box::new(new_expr), c), None)
@@ -426,100 +440,70 @@ impl VisitorMut for Annotator {
 struct GlslParameter {
     name: String,
     array_index: Option<u32>,
+    col_index: Option<u32>,
     channel: Option<Identifier>,
 }
 
 fn find_glsl_parameter(fields: &[Field], vec4_index: u32, channel: &str) -> Option<GlslParameter> {
     // Uniforms in the original shader are always vec4 arrays.
     // Convert accesses like "buffer.data[3].y" to a uniform struct field access.
+    let component_offset = match channel {
+        "x" => 0,
+        "y" => 4,
+        "z" => 8,
+        "w" => 12,
+        _ => todo!(),
+    };
+    let offset_in_bytes = vec4_index * VEC4_SIZE + component_offset;
+
     fields.iter().find_map(|f| {
-        let field_vec4_index = f.offset / VEC4_SIZE;
-        // Figure out the index like 1 for y.
-        let field_component_offset = match channel {
-            "x" => 0,
-            "y" => 4,
-            "z" => 8,
-            "w" => 12,
-            _ => todo!(),
-        };
+        // Check if the accessed byte address is within this field.
+        let field_size = uniform_size(f.ty) * f.array_length.unwrap_or(1);
+        if (f.offset..f.offset + field_size).contains(&offset_in_bytes) {
+            // The field offset is for the start of the field.
+            let offset_in_field = offset_in_bytes - f.offset;
 
-        // TODO: Fix array handling for vectors and matrices.
-        match f.array_length {
-            Some(length) => {
-                // Check if the vec4 index falls within this array field.
-                if vec4_index >= field_vec4_index {
-                    let item_size = uniform_item_size(f.ty);
-                    let new_index = (vec4_index - field_vec4_index) * VEC4_SIZE / item_size;
+            let array_index = if f.array_length.is_some() {
+                Some(offset_in_field / uniform_size(f.ty))
+            } else {
+                None
+            };
 
-                    if new_index < length {
-                        Some(GlslParameter {
-                            name: f.name.clone(),
-                            array_index: Some(new_index),
-                            channel: Some(Identifier::new(channel.into(), None)),
-                        })
-                    } else {
-                        None
-                    }
-                } else {
-                    None
+            let offset_in_array_item = offset_in_field % uniform_size(f.ty);
+
+            // Matrix arrays need an additional index like transforms[3][col_index].y.
+            let col_index = if let Some(col_size) = uniform_col_size(f.ty) {
+                Some(offset_in_array_item / col_size)
+            } else {
+                None
+            };
+
+            let channel = if let Some(channel_size) = uniform_channel_size(f.ty) {
+                // Find the offset for just the channel after removing both bracket indices.
+                let channel_offset = match uniform_col_size(f.ty) {
+                    Some(col_size) => offset_in_array_item % col_size,
+                    None => offset_in_array_item,
+                };
+                let channel_index = channel_offset / channel_size;
+                match channel_index {
+                    0 => Some(Identifier::new("x".into(), None)),
+                    1 => Some(Identifier::new("y".into(), None)),
+                    2 => Some(Identifier::new("z".into(), None)),
+                    3 => Some(Identifier::new("w".into(), None)),
+                    _ => todo!(),
                 }
-            }
-            None => {
-                match f.ty {
-                    ssbh_data::shdr_data::DataType::Matrix4x4 => {
-                        // Treat mat4x4 as a vec4 array.
-                        if vec4_index >= field_vec4_index && vec4_index < field_vec4_index + 4 {
-                            Some(GlslParameter {
-                                name: f.name.clone(),
-                                array_index: Some(vec4_index - field_vec4_index),
-                                channel: Some(Identifier::new(channel.into(), None)),
-                            })
-                        } else {
-                            None
-                        }
-                    }
+            } else {
+                None
+            };
 
-                    ssbh_data::shdr_data::DataType::Vector4 => {
-                        if vec4_index == field_vec4_index {
-                            Some(GlslParameter {
-                                name: f.name.clone(),
-                                array_index: None,
-                                channel: Some(Identifier::new(channel.into(), None)),
-                            })
-                        } else {
-                            None
-                        }
-                    }
-                    _ => {
-                        // Check if the offset is within the range of this uniform.
-                        let accessed_offset = vec4_index * VEC4_SIZE + field_component_offset;
-                        if (f.offset..f.offset + uniform_size(f.ty)).contains(&accessed_offset) {
-                            let channel = if is_vector(f.ty) {
-                                let channel_index =
-                                    (accessed_offset - f.offset) / uniform_item_size(f.ty);
-                                match channel_index {
-                                    0 => Some(Identifier::new("x".into(), None)),
-                                    1 => Some(Identifier::new("y".into(), None)),
-                                    2 => Some(Identifier::new("z".into(), None)),
-                                    3 => Some(Identifier::new("w".into(), None)),
-                                    _ => todo!(),
-                                }
-                            } else {
-                                // Scalar values like floats only use one of the vec4 channels.
-                                None
-                            };
-
-                            Some(GlslParameter {
-                                name: f.name.clone(),
-                                array_index: None,
-                                channel,
-                            })
-                        } else {
-                            None
-                        }
-                    }
-                }
-            }
+            Some(GlslParameter {
+                name: f.name.clone(),
+                array_index,
+                col_index,
+                channel,
+            })
+        } else {
+            None
         }
     })
 }
