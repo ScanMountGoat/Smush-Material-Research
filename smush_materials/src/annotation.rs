@@ -29,7 +29,8 @@ pub fn annotate_glsl(
     let mut constant_values = BTreeMap::new();
 
     annotate_input_outputs(&mut replacements, shader_type, metadata);
-    annotate_uniforms(&mut replacements, &mut struct_fields, metadata, shader_type)?;
+    annotate_uniform_buffers(&mut replacements, &mut struct_fields, metadata, shader_type)?;
+    annotate_storage_buffers(&mut replacements, metadata, shader_type)?;
     annotate_constants(&mut constant_values, metadata)?;
 
     let mut visitor = Annotator {
@@ -91,7 +92,7 @@ fn annotate_input_outputs(
     }
 }
 
-fn annotate_uniforms(
+fn annotate_uniform_buffers(
     replacements: &mut BTreeMap<String, String>,
     struct_fields: &mut BTreeMap<String, Vec<Field>>,
     metadata: &Metadata,
@@ -112,12 +113,12 @@ fn annotate_uniforms(
         ShaderStage::Compute => None,
     }?;
 
-    for (buffer_index, buffer) in metadata.buffers.iter().enumerate() {
+    for (buffer_index, buffer) in metadata.uniform_buffers.iter().enumerate() {
         // TODO: Handle the case where unk5 and unk6 are -1?
         // Buffers are selected using an index in the shader code.
         // This is also the binding in the decompiled code.
         let binding = match buffer.unk4 {
-            0 => 1, // The constant buffer is handled separately
+            0 => 1, // The constant buffer at binding 0 is handled separately
             1 => buffer.unk5 + 3,
             2 => buffer.unk6 + 3,
             _ => todo!(),
@@ -188,6 +189,45 @@ fn annotate_uniforms(
     Some(())
 }
 
+// TODO: Share code with uniform buffers.
+fn annotate_storage_buffers(
+    replacements: &mut BTreeMap<String, String>,
+    metadata: &Metadata,
+    shader_type: &ShaderStage,
+) -> Option<()> {
+    let buffer_prefix = match shader_type {
+        ShaderStage::Vertex => Some("vp"),
+        ShaderStage::Geometry => None,
+        ShaderStage::Fragment => Some("fp"),
+        ShaderStage::Compute => None,
+    }?;
+
+    for (buffer_index, buffer) in metadata.storage_buffers.iter().enumerate() {
+        let binding = buffer.unk4;
+
+        let buffer_name = format!("{buffer_prefix}_s{binding}");
+        let buffer_name_prefixed = format!("_{buffer_prefix}_s{binding}");
+
+        replacements.insert(buffer_name.clone(), buffer.name.clone());
+        replacements.insert(buffer_name_prefixed, format!("_{}", buffer.name));
+
+        // Sort to make it easier to convert offsets to sizes.
+        // TODO: Why are some offsets negative?
+        let mut uniforms: Vec<_> = metadata
+            .storage_buffer_uniforms
+            .iter()
+            .filter(|u| u.buffer_index == buffer_index as u32)
+            .collect();
+        uniforms.sort_by_key(|u| u.buffer_offset);
+
+        // Assume storage buffers are always arrays of a single type.
+        // TODO: Create a new struct type
+        // TODO: replace "uint data[]" with "StructType elements[]"
+    }
+
+    Some(())
+}
+
 fn glsl_type(ty: ssbh_data::shdr_data::DataType) -> TypeSpecifierNonArrayData {
     match ty {
         ssbh_data::shdr_data::DataType::Boolean => TypeSpecifierNonArrayData::Bool,
@@ -195,6 +235,8 @@ fn glsl_type(ty: ssbh_data::shdr_data::DataType) -> TypeSpecifierNonArrayData {
         ssbh_data::shdr_data::DataType::Unk7 => TypeSpecifierNonArrayData::Void, // TODO: What is this data type?
         ssbh_data::shdr_data::DataType::UnsignedInt => TypeSpecifierNonArrayData::UInt,
         ssbh_data::shdr_data::DataType::UVec3 => TypeSpecifierNonArrayData::UVec3,
+        ssbh_data::shdr_data::DataType::Unk24 => TypeSpecifierNonArrayData::Void, // TODO: What is this data type?
+        ssbh_data::shdr_data::DataType::Unk28 => TypeSpecifierNonArrayData::Void, // TODO: What is this data type?
         ssbh_data::shdr_data::DataType::Float => TypeSpecifierNonArrayData::Float,
         ssbh_data::shdr_data::DataType::Vector2 => TypeSpecifierNonArrayData::Vec2,
         ssbh_data::shdr_data::DataType::Vector3 => TypeSpecifierNonArrayData::Vec3,
@@ -215,6 +257,8 @@ fn uniform_size(ty: ssbh_data::shdr_data::DataType) -> u32 {
         ssbh_data::shdr_data::DataType::Unk7 => 1, // TODO: What is this data type?
         ssbh_data::shdr_data::DataType::UnsignedInt => 4,
         ssbh_data::shdr_data::DataType::UVec3 => 4 * 3,
+        ssbh_data::shdr_data::DataType::Unk24 => 1, // TODO: What is this data type?
+        ssbh_data::shdr_data::DataType::Unk28 => 1, // TODO: What is this data type?
         ssbh_data::shdr_data::DataType::Float => 4,
         ssbh_data::shdr_data::DataType::Vector2 => 4 * 2,
         ssbh_data::shdr_data::DataType::Vector3 => 4 * 3,
