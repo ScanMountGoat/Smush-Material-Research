@@ -6,8 +6,8 @@ use ssbh_lib::formats::shdr::ShaderStage;
 use glsl_lang::{
     ast::{
         ArraySpecifier, ArraySpecifierData, ArraySpecifierDimensionData, ArrayedIdentifierData,
-        Block, Expr, ExprData, Identifier, Node, StructFieldSpecifierData, TranslationUnit,
-        TypeSpecifierData, TypeSpecifierNonArrayData,
+        Block, Expr, ExprData, Identifier, Node, StructFieldSpecifier, StructFieldSpecifierData,
+        TranslationUnit, TypeSpecifierData, TypeSpecifierNonArrayData,
     },
     parse::DefaultParse,
     transpiler::glsl::{FormattingState, show_translation_unit},
@@ -230,43 +230,23 @@ fn uniform_size(ty: ssbh_data::shdr_data::DataType) -> u32 {
 
 fn uniform_col_size(ty: ssbh_data::shdr_data::DataType) -> Option<u32> {
     // The size of an indexed element like "transform[3]".
-    match ty {
-        ssbh_data::shdr_data::DataType::Boolean => None,
-        ssbh_data::shdr_data::DataType::Int => None,
-        ssbh_data::shdr_data::DataType::Unk7 => None, // TODO: What is this data type?
-        ssbh_data::shdr_data::DataType::UnsignedInt => None,
-        ssbh_data::shdr_data::DataType::UVec3 => None,
-        ssbh_data::shdr_data::DataType::Float => None,
-        ssbh_data::shdr_data::DataType::Vector2 => None,
-        ssbh_data::shdr_data::DataType::Vector3 => None,
-        ssbh_data::shdr_data::DataType::Vector4 => None,
-        ssbh_data::shdr_data::DataType::Matrix4x4 => Some(4 * 4),
-        ssbh_data::shdr_data::DataType::Sampler2d => None,
-        ssbh_data::shdr_data::DataType::Sampler3d => None,
-        ssbh_data::shdr_data::DataType::SamplerCube => None,
-        ssbh_data::shdr_data::DataType::Sampler2dArray => None,
-        ssbh_data::shdr_data::DataType::Image2d => None,
+    if ty == ssbh_data::shdr_data::DataType::Matrix4x4 {
+        Some(4 * 4)
+    } else {
+        None
     }
 }
 
 fn uniform_channel_size(ty: ssbh_data::shdr_data::DataType) -> Option<u32> {
     // The size of an single component like "var[3].x".
     match ty {
-        ssbh_data::shdr_data::DataType::Boolean => None,
-        ssbh_data::shdr_data::DataType::Int => None,
-        ssbh_data::shdr_data::DataType::Unk7 => None, // TODO: What is this data type?
-        ssbh_data::shdr_data::DataType::UnsignedInt => None,
         ssbh_data::shdr_data::DataType::UVec3 => Some(4),
         ssbh_data::shdr_data::DataType::Float => None,
         ssbh_data::shdr_data::DataType::Vector2 => Some(4),
         ssbh_data::shdr_data::DataType::Vector3 => Some(4),
         ssbh_data::shdr_data::DataType::Vector4 => Some(4),
         ssbh_data::shdr_data::DataType::Matrix4x4 => Some(4),
-        ssbh_data::shdr_data::DataType::Sampler2d => None,
-        ssbh_data::shdr_data::DataType::Sampler3d => None,
-        ssbh_data::shdr_data::DataType::SamplerCube => None,
-        ssbh_data::shdr_data::DataType::Sampler2dArray => None,
-        ssbh_data::shdr_data::DataType::Image2d => None,
+        _ => None,
     }
 }
 
@@ -472,11 +452,7 @@ fn find_glsl_parameter(fields: &[Field], vec4_index: u32, channel: &str) -> Opti
             let offset_in_array_item = offset_in_field % uniform_size(f.ty);
 
             // Matrix arrays need an additional index like transforms[3][col_index].y.
-            let col_index = if let Some(col_size) = uniform_col_size(f.ty) {
-                Some(offset_in_array_item / col_size)
-            } else {
-                None
-            };
+            let col_index = uniform_col_size(f.ty).map(|col_size| offset_in_array_item / col_size);
 
             let channel = if let Some(channel_size) = uniform_channel_size(f.ty) {
                 // Find the offset for just the channel after removing both bracket indices.
@@ -508,8 +484,23 @@ fn find_glsl_parameter(fields: &[Field], vec4_index: u32, channel: &str) -> Opti
     })
 }
 
-fn field(field: &Field) -> Node<StructFieldSpecifierData> {
-    Node::new(
+fn field(field: &Field) -> StructFieldSpecifier {
+    let array_spec = field.array_length.map(|i| {
+        let expr = Expr::new(ExprData::IntConst(i as i32), None);
+        let dimensions = vec![Node::new(
+            ArraySpecifierDimensionData::ExplicitlySized(Box::new(expr)),
+            None,
+        )];
+        ArraySpecifier::new(ArraySpecifierData { dimensions }, None)
+    });
+    let identifier = Node::new(
+        ArrayedIdentifierData {
+            ident: Identifier::new(field.name.as_str().into(), None),
+            array_spec,
+        },
+        None,
+    );
+    StructFieldSpecifier::new(
         StructFieldSpecifierData {
             qualifier: None,
             ty: Node::new(
@@ -519,25 +510,7 @@ fn field(field: &Field) -> Node<StructFieldSpecifierData> {
                 },
                 None,
             ),
-            identifiers: vec![Node::new(
-                ArrayedIdentifierData {
-                    ident: Identifier::new(field.name.as_str().into(), None),
-                    array_spec: field.array_length.map(|i| {
-                        ArraySpecifier::new(
-                            ArraySpecifierData {
-                                dimensions: vec![Node::new(
-                                    ArraySpecifierDimensionData::ExplicitlySized(Box::new(
-                                        Node::new(ExprData::IntConst(i as i32), None),
-                                    )),
-                                    None,
-                                )],
-                            },
-                            None,
-                        )
-                    }),
-                },
-                None,
-            )],
+            identifiers: vec![identifier],
         },
         None,
     )

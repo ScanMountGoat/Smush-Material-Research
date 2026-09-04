@@ -653,7 +653,7 @@ pub fn has_anisotropic_rotation(graph: &Graph) -> bool {
     graph
         .nodes
         .iter()
-        .any(|n| query_nodes(&graph.exprs[n.input], &graph, &ANISOTROPIC_ROTATION).is_some())
+        .any(|n| query_nodes(&graph.exprs[n.input], graph, &ANISOTROPIC_ROTATION).is_some())
 }
 
 static PREMULTIPLIED_ALPHA: LazyLock<Graph> = LazyLock::new(|| {
@@ -673,6 +673,7 @@ static PREMULTIPLIED_ALPHA: LazyLock<Graph> = LazyLock::new(|| {
 });
 
 pub fn is_premultiplied_alpha(graph: &Graph) -> Option<bool> {
+    // TODO: This doesn't have the correct output name for annotated graphs?
     let node = graph
         .nodes
         .iter()
