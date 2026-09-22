@@ -28,7 +28,12 @@ pub fn annotate_glsl(
     let mut struct_fields = BTreeMap::new();
     let mut constant_values = BTreeMap::new();
 
-    annotate_input_outputs(&mut replacements, shader_type, metadata);
+    let modified_source = shader_source_no_extensions(&glsl);
+    let mut translation_unit = TranslationUnit::parse(modified_source).unwrap();
+
+    let attributes = xc3_shader::graph::glsl::find_attribute_locations(&translation_unit);
+    annotate_input_outputs(&mut replacements, shader_type, metadata, &attributes);
+
     annotate_uniform_buffers(&mut replacements, &mut struct_fields, metadata, shader_type)?;
     annotate_storage_buffers(&mut replacements, metadata, shader_type)?;
     annotate_constants(&mut constant_values, metadata)?;
@@ -39,8 +44,6 @@ pub fn annotate_glsl(
         constant_values,
     };
 
-    let modified_source = shader_source_no_extensions(&glsl);
-    let mut translation_unit = TranslationUnit::parse(modified_source).unwrap();
     translation_unit.visit_mut(&mut visitor);
 
     let mut new_glsl = String::new();
@@ -58,32 +61,33 @@ fn annotate_input_outputs(
     replacements: &mut BTreeMap<String, String>,
     shader_type: &ShaderStage,
     metadata: &Metadata,
+    attributes: &xc3_shader::graph::glsl::Attributes,
 ) {
-    // It's possible to have overlapping identifiers like in_attr1 and in_attr10.
-    // Replace names in reverse order to hopefully fix this.
-    // TODO: Investigate a more robust solution.
     match shader_type {
         ShaderStage::Vertex => {
             // Vertex inputs have explicit locations.
-            for input in metadata.inputs.iter().rev() {
+            for input in metadata.inputs.iter() {
                 let glsl_name = format!("in_attr{}", input.location);
                 replacements.insert(glsl_name, input.name.clone());
             }
             // Vertex outputs appear in order.
             // TODO: Skip builtins like gl_Position?
-            for (i, output) in metadata.outputs.iter().enumerate().rev() {
+            for (i, output) in metadata.outputs.iter().enumerate() {
                 let glsl_name = format!("out_attr{i}");
                 replacements.insert(glsl_name, output.name.clone());
             }
         }
         ShaderStage::Fragment => {
             // Fragment inputs appear in order.
-            for (i, input) in metadata.inputs.iter().enumerate().rev() {
-                let glsl_name = format!("in_attr{i}");
-                replacements.insert(glsl_name, input.name.clone());
+            // Not all locations may be used, so get the names from the GLSL code.
+            let mut names: Vec<_> = attributes.input_locations.iter().collect();
+            names.sort_by_key(|(_, location)| *location);
+
+            for ((name, _), input) in attributes.input_locations.iter().zip(&metadata.inputs) {
+                replacements.insert(name.to_string(), input.name.clone());
             }
             // Fragment outputs have explicit locations.
-            for output in metadata.outputs.iter().rev() {
+            for output in metadata.outputs.iter() {
                 let glsl_name = format!("out_attr{}", output.location);
                 replacements.insert(glsl_name, output.name.clone());
             }
@@ -117,8 +121,12 @@ fn annotate_uniform_buffers(
         // TODO: Handle the case where unk5 and unk6 are -1?
         // Buffers are selected using an index in the shader code.
         // This is also the binding in the decompiled code.
+
+        // TODO: This should not annotate the constant buffers vp_c1 and fp_c1.
+        // TODO: what is vp_c0?
+        // The constant buffer at binding 0 is handled separately
         let binding = match buffer.unk4 {
-            0 => 1, // The constant buffer at binding 0 is handled separately
+            0 => continue,
             1 => buffer.unk5 + 3,
             2 => buffer.unk6 + 3,
             _ => todo!(),
@@ -202,8 +210,12 @@ fn annotate_storage_buffers(
         ShaderStage::Compute => None,
     }?;
 
+    // TODO: Is this the right way to annotate storage buffers?
+    let mut binding = 0;
     for (buffer_index, buffer) in metadata.storage_buffers.iter().enumerate() {
-        let binding = buffer.unk4;
+        if buffer.unk4 < 0 {
+            continue;
+        }
 
         let buffer_name = format!("{buffer_prefix}_s{binding}");
         let buffer_name_prefixed = format!("_{buffer_prefix}_s{binding}");
@@ -223,6 +235,8 @@ fn annotate_storage_buffers(
         // Assume storage buffers are always arrays of a single type.
         // TODO: Create a new struct type
         // TODO: replace "uint data[]" with "StructType elements[]"
+
+        binding += 1;
     }
 
     Some(())
