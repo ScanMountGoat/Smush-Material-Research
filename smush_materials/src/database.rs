@@ -83,8 +83,11 @@ impl xc3_shader::expr::Operation for Operation {
         expr: &'a xc3_shader::graph::Expr,
     ) -> std::borrow::Cow<'a, xc3_shader::graph::Expr> {
         if let Some(new_expr) = unk_position(graph, expr)
-            .or_else(|| unk_distance(graph, expr))
+            .or_else(|| instance_view_matrix(graph, expr))
             .or_else(|| unk_projection_v(graph, expr))
+            .or_else(|| renormal(graph, expr))
+            .or_else(|| unk_renormal(graph, expr))
+            .or_else(|| nl_x(graph, expr))
         {
             Cow::Owned(new_expr)
         } else {
@@ -115,15 +118,16 @@ pub fn shader_from_glsl(vertex: GlslGraph, fragment: GlslGraph) -> ShaderExprs {
     for output_name in frag_attributes.output_locations.left_values() {
         for c in "xyzw".chars() {
             // Find the most recent assignment for the output variable.
-            let node = graph
+            if let Some(node) = graph
                 .nodes
                 .iter()
                 .rfind(|n| &n.output.name == output_name && n.output.channel == Some(c))
-                .unwrap();
-            let expr = &graph.exprs[node.input];
+            {
+                let expr = &graph.exprs[node.input];
 
-            let value = output_expr(expr, &graph, &mut exprs);
-            output_dependencies.insert(format_smolstr!("{output_name}.{c}"), value);
+                let value = output_expr(expr, &graph, &mut exprs);
+                output_dependencies.insert(format_smolstr!("{output_name}.{c}"), value);
+            }
         }
     }
 
