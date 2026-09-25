@@ -82,9 +82,7 @@ impl xc3_shader::expr::Operation for Operation {
         graph: &'a Graph,
         expr: &'a xc3_shader::graph::Expr,
     ) -> std::borrow::Cow<'a, xc3_shader::graph::Expr> {
-        if let Some(new_expr) = unk_position(graph, expr)
-            .or_else(|| instance_view_matrix(graph, expr))
-            .or_else(|| unk_projection_v(graph, expr))
+        if let Some(new_expr) = instance_view_matrix(graph, expr)
             .or_else(|| renormal(graph, expr))
             .or_else(|| unk_renormal(graph, expr))
             .or_else(|| nl_x(graph, expr))

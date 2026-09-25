@@ -118,7 +118,6 @@ pub fn pack_half<'a>(graph: &'a Graph, expr: &'a Expr) -> Option<(Operation, Vec
     ))
 }
 
-// TODO: reduce repetition in queries
 static INSTANCE_VIEW_COL0_X: LazyLock<Graph> = LazyLock::new(|| {
     // SFX_PBS_00000000010ac240_VS.glsl
     // nuPerViewCBuffer.viewMatrix[gl_InstanceID][0].x
@@ -149,820 +148,178 @@ static INSTANCE_VIEW_COL0_Y: LazyLock<Graph> = LazyLock::new(|| {
             temp_11 = nuPerViewCBuffer.data[int(temp_9)][temp_10];
         }
     "};
-    Graph::parse_glsl(query).unwrap().simplify()
+    Graph::parse_glsl(&query).unwrap().simplify()
 });
 
-static INSTANCE_VIEW_COL1_X: LazyLock<Graph> = LazyLock::new(|| {
+fn instance_view_query_xz(offset: u32) -> String {
     // SFX_PBS_00000000010ac240_VS.glsl
-    // nuPerViewCBuffer.viewMatrix[gl_InstanceID][1].x
-    let query = indoc! {"
-        void main() {
+    // nuPerViewCBuffer.viewMatrix[gl_InstanceID][i].x
+    // nuPerViewCBuffer.viewMatrix[gl_InstanceID][i].z
+    formatdoc! {"
+        void main() {{
             temp_0 = intBitsToFloat(gl_InstanceID);
             temp_2 = floatBitsToInt(temp_0) << 6;
-            temp_15 = temp_2 + 16;
+            temp_15 = temp_2 + {offset};
             temp_16 = uint(temp_15) >> 2;
             temp_17 = temp_16 >> 2;
             temp_18 = int(temp_16) & 3;
             temp_19 = nuPerViewCBuffer.data[int(temp_17)][temp_18];
-        }
-    "};
-    Graph::parse_glsl(query).unwrap().simplify()
-});
+        }}
+    "}
+}
 
-static INSTANCE_VIEW_COL1_Y: LazyLock<Graph> = LazyLock::new(|| {
+fn instance_view_query_yw(offset: u32) -> String {
     // SFX_PBS_00000000010ac240_VS.glsl
-    // nuPerViewCBuffer.viewMatrix[gl_InstanceID][1].y
-    let query = indoc! {"
-        void main() {
+    // nuPerViewCBuffer.viewMatrix[gl_InstanceID][i].y
+    // nuPerViewCBuffer.viewMatrix[gl_InstanceID][i].w
+    formatdoc! {"
+        void main() {{
             temp_0 = intBitsToFloat(gl_InstanceID);
             temp_2 = floatBitsToInt(temp_0) << 6;
-            temp_15 = temp_2 + 16;
+            temp_15 = temp_2 + {offset};
             temp_16 = uint(temp_15) >> 2;
             temp_20 = int(temp_16) + 1;
             temp_21 = uint(temp_20) >> 2;
             temp_22 = temp_20 & 3;
             temp_23 = nuPerViewCBuffer.data[int(temp_21)][temp_22];
-        }
-    "};
-    Graph::parse_glsl(query).unwrap().simplify()
+        }}
+    "}
+}
+
+static INSTANCE_VIEW_COL1_X: LazyLock<Graph> = LazyLock::new(|| {
+    // SFX_PBS_00000000010ac240_VS.glsl
+    // nuPerViewCBuffer.viewMatrix[gl_InstanceID][1].x
+    let query = instance_view_query_xz(16);
+    Graph::parse_glsl(&query).unwrap().simplify()
+});
+
+static INSTANCE_VIEW_COL1_Y: LazyLock<Graph> = LazyLock::new(|| {
+    // SFX_PBS_00000000010ac240_VS.glsl
+    // nuPerViewCBuffer.viewMatrix[gl_InstanceID][1].y
+    let query = instance_view_query_yw(16);
+    Graph::parse_glsl(&query).unwrap().simplify()
 });
 
 static INSTANCE_VIEW_COL2_X: LazyLock<Graph> = LazyLock::new(|| {
     // SFX_PBS_00000000010ac240_VS.glsl
     // nuPerViewCBuffer.viewMatrix[gl_InstanceID][2].x
-    let query = indoc! {"
-        void main() {
-            temp_0 = intBitsToFloat(gl_InstanceID);
-            temp_2 = floatBitsToInt(temp_0) << 6;
-            temp_25 = temp_2 + 32;
-            temp_26 = uint(temp_25) >> 2;
-            temp_27 = temp_26 >> 2;
-            temp_28 = int(temp_26) & 3;
-            temp_29 = nuPerViewCBuffer.data[int(temp_27)][temp_28];
-        }
-    "};
-    Graph::parse_glsl(query).unwrap().simplify()
+    let query = instance_view_query_xz(32);
+    Graph::parse_glsl(&query).unwrap().simplify()
 });
 
 static INSTANCE_VIEW_COL2_Y: LazyLock<Graph> = LazyLock::new(|| {
     // SFX_PBS_00000000010ac240_VS.glsl
     // nuPerViewCBuffer.viewMatrix[gl_InstanceID][2].y
-    let query = indoc! {"
-        void main() {
-            temp_0 = intBitsToFloat(gl_InstanceID);
-            temp_2 = floatBitsToInt(temp_0) << 6;
-            temp_25 = temp_2 + 32;
-            temp_26 = uint(temp_25) >> 2;
-            temp_30 = int(temp_26) + 1;
-            temp_31 = uint(temp_30) >> 2;
-            temp_32 = temp_30 & 3;
-            temp_33 = nuPerViewCBuffer.data[int(temp_31)][temp_32];
-        }
-    "};
-    Graph::parse_glsl(query).unwrap().simplify()
+    let query = instance_view_query_yw(32);
+    Graph::parse_glsl(&query).unwrap().simplify()
 });
 
 static INSTANCE_VIEW_COL3_X: LazyLock<Graph> = LazyLock::new(|| {
     // SFX_PBS_00000000010ac240_VS.glsl
     // nuPerViewCBuffer.viewMatrix[gl_InstanceID][3].x
-    let query = indoc! {"
-        void main() {
-            temp_0 = intBitsToFloat(gl_InstanceID);
-            temp_2 = floatBitsToInt(temp_0) << 6;
-            temp_38 = temp_2 + 48;
-            temp_39 = uint(temp_38) >> 2;
-            temp_40 = temp_39 >> 2;
-            temp_41 = int(temp_39) & 3;
-            temp_42 = nuPerViewCBuffer.data[int(temp_40)][temp_41];
-        }
-    "};
-    Graph::parse_glsl(query).unwrap().simplify()
+    let query = instance_view_query_xz(48);
+    Graph::parse_glsl(&query).unwrap().simplify()
 });
 
 static INSTANCE_VIEW_COL3_Y: LazyLock<Graph> = LazyLock::new(|| {
     // SFX_PBS_00000000010ac240_VS.glsl
     // nuPerViewCBuffer.viewMatrix[gl_InstanceID][3].y
-    let query = indoc! {"
-        void main() {
-            temp_0 = intBitsToFloat(gl_InstanceID);
-            temp_2 = floatBitsToInt(temp_0) << 6;
-            temp_38 = temp_2 + 48;
-            temp_39 = uint(temp_38) >> 2;
-            temp_43 = int(temp_39) + 1;
-            temp_44 = uint(temp_43) >> 2;
-            temp_45 = temp_43 & 3;
-            temp_46 = nuPerViewCBuffer.data[int(temp_44)][temp_45];
-        }
-    "};
-    Graph::parse_glsl(query).unwrap().simplify()
+    let query = instance_view_query_yw(48);
+    Graph::parse_glsl(&query).unwrap().simplify()
 });
 
 static INSTANCE_VIEW_COL0_Z: LazyLock<Graph> = LazyLock::new(|| {
     // SFX_PBS_00000000010ac240_VS.glsl
     // nuPerViewCBuffer.viewMatrix[gl_InstanceID][0].z
-    let query = indoc! {"
-        void main() {
-            temp_0 = intBitsToFloat(gl_InstanceID);
-            temp_2 = floatBitsToInt(temp_0) << 6;
-            temp_53 = temp_2 + 8;
-            temp_54 = uint(temp_53) >> 2;
-            temp_55 = temp_54 >> 2;
-            temp_56 = int(temp_54) & 3;
-            temp_57 = nuPerViewCBuffer.data[int(temp_55)][temp_56];
-        }
-    "};
-    Graph::parse_glsl(query).unwrap().simplify()
+    let query = instance_view_query_xz(8);
+    Graph::parse_glsl(&query).unwrap().simplify()
 });
 
 static INSTANCE_VIEW_COL0_W: LazyLock<Graph> = LazyLock::new(|| {
     // SFX_PBS_00000000010ac240_VS.glsl
     // nuPerViewCBuffer.viewMatrix[gl_InstanceID][0].w
-    let query = indoc! {"
-        void main() {
-            temp_0 = intBitsToFloat(gl_InstanceID);
-            temp_2 = floatBitsToInt(temp_0) << 6;
-            temp_53 = temp_2 + 8;
-            temp_54 = uint(temp_53) >> 2;
-            temp_58 = int(temp_54) + 1;
-            temp_59 = uint(temp_58) >> 2;
-            temp_60 = temp_58 & 3;
-            temp_61 = nuPerViewCBuffer.data[int(temp_59)][temp_60];
-        }
-    "};
-    Graph::parse_glsl(query).unwrap().simplify()
+    let query = instance_view_query_yw(8);
+    Graph::parse_glsl(&query).unwrap().simplify()
 });
 
 static INSTANCE_VIEW_COL1_Z: LazyLock<Graph> = LazyLock::new(|| {
     // SFX_PBS_00000000010ac240_VS.glsl
     // nuPerViewCBuffer.viewMatrix[gl_InstanceID][1].z
-    let query = indoc! {"
-        void main() {
-            temp_0 = intBitsToFloat(gl_InstanceID);
-            temp_2 = floatBitsToInt(temp_0) << 6;
-            temp_65 = temp_2 + 24;
-            temp_66 = uint(temp_65) >> 2;
-            temp_67 = temp_66 >> 2;
-            temp_68 = int(temp_66) & 3;
-            temp_69 = nuPerViewCBuffer.data[int(temp_67)][temp_68];
-        }
-    "};
-    Graph::parse_glsl(query).unwrap().simplify()
+    let query = instance_view_query_xz(24);
+    Graph::parse_glsl(&query).unwrap().simplify()
 });
 
 static INSTANCE_VIEW_COL1_W: LazyLock<Graph> = LazyLock::new(|| {
     // SFX_PBS_00000000010ac240_VS.glsl
     // nuPerViewCBuffer.viewMatrix[gl_InstanceID][1].w
-    let query = indoc! {"
-        void main() {
-            temp_0 = intBitsToFloat(gl_InstanceID);
-            temp_2 = floatBitsToInt(temp_0) << 6;
-            temp_65 = temp_2 + 24;
-            temp_66 = uint(temp_65) >> 2;
-            temp_70 = int(temp_66) + 1;
-            temp_71 = uint(temp_70) >> 2;
-            temp_72 = temp_70 & 3;
-            temp_73 = nuPerViewCBuffer.data[int(temp_71)][temp_72];
-        }
-    "};
-    Graph::parse_glsl(query).unwrap().simplify()
+    let query = instance_view_query_yw(24);
+    Graph::parse_glsl(&query).unwrap().simplify()
 });
 
 static INSTANCE_VIEW_COL2_Z: LazyLock<Graph> = LazyLock::new(|| {
     // SFX_PBS_00000000010ac240_VS.glsl
     // nuPerViewCBuffer.viewMatrix[gl_InstanceID][2].z
-    let query = indoc! {"
-        void main() {
-            temp_0 = intBitsToFloat(gl_InstanceID);
-            temp_2 = floatBitsToInt(temp_0) << 6;
-            temp_75 = temp_2 + 40;
-            temp_76 = uint(temp_75) >> 2;
-            temp_77 = temp_76 >> 2;
-            temp_78 = int(temp_76) & 3;
-            temp_79 = nuPerViewCBuffer.data[int(temp_77)][temp_78];
-        }
-    "};
-    Graph::parse_glsl(query).unwrap().simplify()
+    let query = instance_view_query_xz(40);
+    Graph::parse_glsl(&query).unwrap().simplify()
 });
 
 static INSTANCE_VIEW_COL2_W: LazyLock<Graph> = LazyLock::new(|| {
     // SFX_PBS_00000000010ac240_VS.glsl
     // nuPerViewCBuffer.viewMatrix[gl_InstanceID][2].w
-    let query = indoc! {"
-        void main() {
-            temp_0 = intBitsToFloat(gl_InstanceID);
-            temp_2 = floatBitsToInt(temp_0) << 6;
-            temp_75 = temp_2 + 40;
-            temp_76 = uint(temp_75) >> 2;
-            temp_80 = int(temp_76) + 1;
-            temp_81 = uint(temp_80) >> 2;
-            temp_82 = temp_80 & 3;
-            temp_83 = nuPerViewCBuffer.data[int(temp_81)][temp_82];
-        }
-    "};
-    Graph::parse_glsl(query).unwrap().simplify()
+    let query = instance_view_query_yw(40);
+    Graph::parse_glsl(&query).unwrap().simplify()
 });
 
 static INSTANCE_VIEW_COL3_Z: LazyLock<Graph> = LazyLock::new(|| {
     // SFX_PBS_00000000010ac240_VS.glsl
     // nuPerViewCBuffer.viewMatrix[gl_InstanceID][3].z
-    let query = indoc! {"
-        void main() {
-            temp_0 = intBitsToFloat(gl_InstanceID);
-            temp_2 = floatBitsToInt(temp_0) << 6;
-            temp_95 = temp_2 + 56;
-            temp_96 = uint(temp_95) >> 2;
-            temp_97 = temp_96 >> 2;
-            temp_98 = int(temp_96) & 3;
-            temp_99 = nuPerViewCBuffer.data[int(temp_97)][temp_98];
-        }
-    "};
-    Graph::parse_glsl(query).unwrap().simplify()
+    let query = instance_view_query_xz(56);
+    Graph::parse_glsl(&query).unwrap().simplify()
 });
 
 static INSTANCE_VIEW_COL3_W: LazyLock<Graph> = LazyLock::new(|| {
     // SFX_PBS_00000000010ac240_VS.glsl
     // nuPerViewCBuffer.viewMatrix[gl_InstanceID][3].w
-    let query = indoc! {"
-        void main() {
-            temp_0 = intBitsToFloat(gl_InstanceID);
-            temp_2 = floatBitsToInt(temp_0) << 6;
-            temp_95 = temp_2 + 56;
-            temp_96 = uint(temp_95) >> 2;
-            temp_100 = int(temp_96) + 1;
-            temp_101 = uint(temp_100) >> 2;
-            temp_102 = temp_100 & 3;
-            temp_103 = nuPerViewCBuffer.data[int(temp_101)][temp_102];
-        }
-    "};
-    Graph::parse_glsl(query).unwrap().simplify()
+    let query = instance_view_query_yw(56);
+    Graph::parse_glsl(&query).unwrap().simplify()
 });
 
 pub fn instance_view_matrix<'a>(graph: &'a Graph, expr: &'a Expr) -> Option<Expr> {
+    let (i, channel) = query_nodes(expr, graph, &INSTANCE_VIEW_COL0_X)
+        .map(|_| (0, 'x'))
+        .or_else(|| query_nodes(expr, graph, &INSTANCE_VIEW_COL0_Y).map(|_| (0, 'y')))
+        .or_else(|| query_nodes(expr, graph, &INSTANCE_VIEW_COL0_Z).map(|_| (0, 'z')))
+        .or_else(|| query_nodes(expr, graph, &INSTANCE_VIEW_COL0_W).map(|_| (0, 'w')))
+        .or_else(|| query_nodes(expr, graph, &INSTANCE_VIEW_COL1_X).map(|_| (1, 'x')))
+        .or_else(|| query_nodes(expr, graph, &INSTANCE_VIEW_COL1_Y).map(|_| (1, 'y')))
+        .or_else(|| query_nodes(expr, graph, &INSTANCE_VIEW_COL1_Z).map(|_| (1, 'z')))
+        .or_else(|| query_nodes(expr, graph, &INSTANCE_VIEW_COL1_W).map(|_| (1, 'w')))
+        .or_else(|| query_nodes(expr, graph, &INSTANCE_VIEW_COL2_X).map(|_| (2, 'x')))
+        .or_else(|| query_nodes(expr, graph, &INSTANCE_VIEW_COL2_Y).map(|_| (2, 'y')))
+        .or_else(|| query_nodes(expr, graph, &INSTANCE_VIEW_COL2_Z).map(|_| (2, 'z')))
+        .or_else(|| query_nodes(expr, graph, &INSTANCE_VIEW_COL2_W).map(|_| (2, 'w')))
+        .or_else(|| query_nodes(expr, graph, &INSTANCE_VIEW_COL3_X).map(|_| (3, 'x')))
+        .or_else(|| query_nodes(expr, graph, &INSTANCE_VIEW_COL3_Y).map(|_| (3, 'y')))
+        .or_else(|| query_nodes(expr, graph, &INSTANCE_VIEW_COL3_Z).map(|_| (3, 'z')))
+        .or_else(|| query_nodes(expr, graph, &INSTANCE_VIEW_COL3_W).map(|_| (3, 'w')))?;
+
     // Assume the necessary index exprs already exist if any of the queries match.
     // TODO: insert the appropriate exprs instead?
-    // TODO: Find a way to reduce repetition.
-    query_nodes(expr, graph, &INSTANCE_VIEW_COL0_X)
-        .map(|_| Expr::Parameter {
-            name: "nuPerViewCBuffer".into(),
-            field: Some("viewMatrix".into()),
-            index: Some(find_instance_id(graph)),
-            index2: Some(find_int(graph, 0)),
-            channel: Some('x'),
-        })
-        .or_else(|| {
-            query_nodes(expr, graph, &INSTANCE_VIEW_COL0_Y).map(|_| Expr::Parameter {
-                name: "nuPerViewCBuffer".into(),
-                field: Some("viewMatrix".into()),
-                index: Some(find_instance_id(graph)),
-                index2: Some(find_int(graph, 0)),
-                channel: Some('y'),
-            })
-        })
-        .or_else(|| {
-            query_nodes(expr, graph, &INSTANCE_VIEW_COL0_Z).map(|_| Expr::Parameter {
-                name: "nuPerViewCBuffer".into(),
-                field: Some("viewMatrix".into()),
-                index: Some(find_instance_id(graph)),
-                index2: Some(find_int(graph, 0)),
-                channel: Some('z'),
-            })
-        })
-        .or_else(|| {
-            query_nodes(expr, graph, &INSTANCE_VIEW_COL0_W).map(|_| Expr::Parameter {
-                name: "nuPerViewCBuffer".into(),
-                field: Some("viewMatrix".into()),
-                index: Some(find_instance_id(graph)),
-                index2: Some(find_int(graph, 0)),
-                channel: Some('w'),
-            })
-        })
-        .or_else(|| {
-            query_nodes(expr, graph, &INSTANCE_VIEW_COL1_X).map(|_| Expr::Parameter {
-                name: "nuPerViewCBuffer".into(),
-                field: Some("viewMatrix".into()),
-                index: Some(find_instance_id(graph)),
-                index2: Some(find_int(graph, 1)),
-                channel: Some('x'),
-            })
-        })
-        .or_else(|| {
-            query_nodes(expr, graph, &INSTANCE_VIEW_COL1_Y).map(|_| Expr::Parameter {
-                name: "nuPerViewCBuffer".into(),
-                field: Some("viewMatrix".into()),
-                index: Some(find_instance_id(graph)),
-                index2: Some(find_int(graph, 1)),
-                channel: Some('y'),
-            })
-        })
-        .or_else(|| {
-            query_nodes(expr, graph, &INSTANCE_VIEW_COL1_Z).map(|_| Expr::Parameter {
-                name: "nuPerViewCBuffer".into(),
-                field: Some("viewMatrix".into()),
-                index: Some(find_instance_id(graph)),
-                index2: Some(find_int(graph, 1)),
-                channel: Some('z'),
-            })
-        })
-        .or_else(|| {
-            query_nodes(expr, graph, &INSTANCE_VIEW_COL1_W).map(|_| Expr::Parameter {
-                name: "nuPerViewCBuffer".into(),
-                field: Some("viewMatrix".into()),
-                index: Some(find_instance_id(graph)),
-                index2: Some(find_int(graph, 1)),
-                channel: Some('w'),
-            })
-        })
-        .or_else(|| {
-            query_nodes(expr, graph, &INSTANCE_VIEW_COL2_X).map(|_| Expr::Parameter {
-                name: "nuPerViewCBuffer".into(),
-                field: Some("viewMatrix".into()),
-                index: Some(find_instance_id(graph)),
-                index2: Some(find_int(graph, 2)),
-                channel: Some('x'),
-            })
-        })
-        .or_else(|| {
-            query_nodes(expr, graph, &INSTANCE_VIEW_COL2_Y).map(|_| Expr::Parameter {
-                name: "nuPerViewCBuffer".into(),
-                field: Some("viewMatrix".into()),
-                index: Some(find_instance_id(graph)),
-                index2: Some(find_int(graph, 2)),
-                channel: Some('y'),
-            })
-        })
-        .or_else(|| {
-            query_nodes(expr, graph, &INSTANCE_VIEW_COL2_Z).map(|_| Expr::Parameter {
-                name: "nuPerViewCBuffer".into(),
-                field: Some("viewMatrix".into()),
-                index: Some(find_instance_id(graph)),
-                index2: Some(find_int(graph, 2)),
-                channel: Some('z'),
-            })
-        })
-        .or_else(|| {
-            query_nodes(expr, graph, &INSTANCE_VIEW_COL2_W).map(|_| Expr::Parameter {
-                name: "nuPerViewCBuffer".into(),
-                field: Some("viewMatrix".into()),
-                index: Some(find_instance_id(graph)),
-                index2: Some(find_int(graph, 2)),
-                channel: Some('w'),
-            })
-        })
-        .or_else(|| {
-            query_nodes(expr, graph, &INSTANCE_VIEW_COL3_X).map(|_| Expr::Parameter {
-                name: "nuPerViewCBuffer".into(),
-                field: Some("viewMatrix".into()),
-                index: Some(find_instance_id(graph)),
-                index2: Some(find_int(graph, 3)),
-                channel: Some('x'),
-            })
-        })
-        .or_else(|| {
-            query_nodes(expr, graph, &INSTANCE_VIEW_COL3_Y).map(|_| Expr::Parameter {
-                name: "nuPerViewCBuffer".into(),
-                field: Some("viewMatrix".into()),
-                index: Some(find_instance_id(graph)),
-                index2: Some(find_int(graph, 3)),
-                channel: Some('y'),
-            })
-        })
-        .or_else(|| {
-            query_nodes(expr, graph, &INSTANCE_VIEW_COL3_Z).map(|_| Expr::Parameter {
-                name: "nuPerViewCBuffer".into(),
-                field: Some("viewMatrix".into()),
-                index: Some(find_instance_id(graph)),
-                index2: Some(find_int(graph, 3)),
-                channel: Some('z'),
-            })
-        })
-        .or_else(|| {
-            query_nodes(expr, graph, &INSTANCE_VIEW_COL3_W).map(|_| Expr::Parameter {
-                name: "nuPerViewCBuffer".into(),
-                field: Some("viewMatrix".into()),
-                index: Some(find_instance_id(graph)),
-                index2: Some(find_int(graph, 3)),
-                channel: Some('w'),
-            })
-        })
-}
-
-fn find_instance_id(graph: &Graph) -> usize {
-    graph
+    let index = graph
         .exprs
         .iter()
         .position(|e| matches!(e, Expr::Global { name, channel } if name == "gl_InstanceID"))
-        .unwrap()
-}
+        .unwrap();
 
-fn find_int(graph: &Graph, i: i32) -> usize {
-    graph.exprs.iter().position(|e| e == &Expr::Int(i)).unwrap()
-}
+    let index2 = graph.exprs.iter().position(|e| e == &Expr::Int(i)).unwrap();
 
-static UNK_POSITION_X: LazyLock<Graph> = LazyLock::new(|| {
-    // SFX_PBS_0000008009008a68_VS.glsl, gl_Position.x
-    let query = indoc! {"
-        void main() {
-            temp_0 = intBitsToFloat(gl_InstanceID);
-            temp_1 = IN_Position.x;
-            temp_3 = IN_Position.y;
-            temp_4 = floatBitsToInt(temp_0) << 6;
-            temp_6 = uint(temp_4) >> 2;
-            temp_8 = int(temp_6) & 3;
-            temp_9 = nuPerViewCBuffer.data[int(temp_7)][temp_8];
-            temp_10 = int(temp_6) + 1;
-            temp_12 = temp_10 & 3;
-            temp_13 = nuPerViewCBuffer.data[int(temp_11)][temp_12];
-            temp_14 = temp_4 + 16;
-            temp_15 = uint(temp_14) >> 2;
-            temp_17 = int(temp_15) & 3;
-            temp_18 = nuPerViewCBuffer.data[int(temp_16)][temp_17];
-            temp_19 = int(temp_15) + 1;
-            temp_21 = temp_19 & 3;
-            temp_22 = nuPerViewCBuffer.data[int(temp_20)][temp_21];
-            temp_23 = IN_Position.z;
-            temp_24 = temp_4 + 32;
-            temp_25 = uint(temp_24) >> 2;
-            temp_27 = int(temp_25) & 3;
-            temp_28 = nuPerViewCBuffer.data[int(temp_26)][temp_27];
-            temp_29 = int(temp_25) + 1;
-            temp_31 = temp_29 & 3;
-            temp_32 = nuPerViewCBuffer.data[int(temp_30)][temp_31];
-            temp_33 = temp_4 + 8;
-            temp_34 = uint(temp_33) >> 2;
-            temp_36 = int(temp_34) & 3;
-            temp_37 = nuPerViewCBuffer.data[int(temp_35)][temp_36];
-            temp_38 = int(temp_34) + 1;
-            temp_40 = temp_38 & 3;
-            temp_41 = nuPerViewCBuffer.data[int(temp_39)][temp_40];
-            temp_42 = temp_1 * nuPerWorldCBuffer.worldMatrix[0].w;
-            temp_44 = temp_1 * nuPerWorldCBuffer.worldMatrix[0].z;
-            temp_46 = temp_4 + 48;
-            temp_47 = uint(temp_46) >> 2;
-            temp_49 = int(temp_47) & 3;
-            temp_50 = nuPerViewCBuffer.data[int(temp_48)][temp_49];
-            temp_51 = int(temp_47) + 1;
-            temp_53 = temp_51 & 3;
-            temp_54 = nuPerViewCBuffer.data[int(temp_52)][temp_53];
-            temp_55 = temp_1 * nuPerWorldCBuffer.worldMatrix[0].x;
-            temp_56 = temp_4 + 24;
-            temp_57 = uint(temp_56) >> 2;
-            temp_59 = int(temp_57) & 3;
-            temp_60 = nuPerViewCBuffer.data[int(temp_58)][temp_59];
-            temp_61 = int(temp_57) + 1;
-            temp_63 = temp_61 & 3;
-            temp_64 = nuPerViewCBuffer.data[int(temp_62)][temp_63];
-            temp_66 = fma(temp_3, nuPerWorldCBuffer.worldMatrix[1].w, temp_42);
-            temp_67 = fma(temp_3, nuPerWorldCBuffer.worldMatrix[1].z, temp_44);
-            temp_68 = temp_4 + 40;
-            temp_69 = uint(temp_68) >> 2;
-            temp_71 = int(temp_69) & 3;
-            temp_72 = nuPerViewCBuffer.data[int(temp_70)][temp_71];
-            temp_73 = int(temp_69) + 1;
-            temp_75 = temp_73 & 3;
-            temp_76 = nuPerViewCBuffer.data[int(temp_74)][temp_75];
-            temp_77 = fma(temp_3, nuPerWorldCBuffer.worldMatrix[1].x, temp_55);
-            temp_78 = temp_1 * nuPerWorldCBuffer.worldMatrix[0].y;
-            temp_80 = fma(temp_23, nuPerWorldCBuffer.worldMatrix[2].x, temp_77);
-            temp_83 = fma(temp_3, nuPerWorldCBuffer.worldMatrix[1].y, temp_78);
-            temp_86 = fma(temp_23, nuPerWorldCBuffer.worldMatrix[2].y, temp_83);
-            temp_88 = temp_4 + 56;
-            temp_89 = uint(temp_88) >> 2;
-            temp_91 = int(temp_89) & 3;
-            temp_92 = nuPerViewCBuffer.data[int(temp_90)][temp_91];
-            temp_93 = int(temp_89) + 1;
-            temp_95 = temp_93 & 3;
-            temp_96 = nuPerViewCBuffer.data[int(temp_94)][temp_95];
-            temp_100 = temp_13 * nuPerViewCBuffer.projectionMatrix[1].x;
-            temp_105 = fma(temp_9, nuPerViewCBuffer.projectionMatrix[0].x, temp_100);
-            temp_108 = temp_22 * nuPerViewCBuffer.projectionMatrix[1].x;
-            temp_110 = fma(temp_23, nuPerWorldCBuffer.worldMatrix[2].w, temp_66);
-            temp_111 = fma(temp_23, nuPerWorldCBuffer.worldMatrix[2].z, temp_67);
-            temp_117 = temp_32 * nuPerViewCBuffer.projectionMatrix[1].x;
-            temp_120 = fma(temp_18, nuPerViewCBuffer.projectionMatrix[0].x, temp_108);
-            temp_125 = fma(temp_28, nuPerViewCBuffer.projectionMatrix[0].x, temp_117);
-            temp_128 = temp_80 + nuPerWorldCBuffer.worldMatrix[3].x;
-            temp_132 = temp_54 * nuPerViewCBuffer.projectionMatrix[1].x;
-            temp_134 = temp_86 + nuPerWorldCBuffer.worldMatrix[3].y;
-            temp_140 = fma(temp_50, nuPerViewCBuffer.projectionMatrix[0].x, temp_132);
-            temp_144 = fma(temp_37, nuPerViewCBuffer.projectionMatrix[2].x, temp_105);
-            temp_147 = fma(temp_72, nuPerViewCBuffer.projectionMatrix[2].x, temp_125);
-            temp_149 = temp_111 + nuPerWorldCBuffer.worldMatrix[3].z;
-            temp_155 = fma(temp_60, nuPerViewCBuffer.projectionMatrix[2].x, temp_120);
-            temp_157 = temp_110 + nuPerWorldCBuffer.worldMatrix[3].w;
-            temp_161 = fma(temp_92, nuPerViewCBuffer.projectionMatrix[2].x, temp_140);
-            temp_172 = fma(temp_41, nuPerViewCBuffer.projectionMatrix[3].x, temp_144);
-            temp_180 = fma(temp_64, nuPerViewCBuffer.projectionMatrix[3].x, temp_155);
-            temp_224 = fma(temp_76, nuPerViewCBuffer.projectionMatrix[3].x, temp_147);
-            temp_248 = fma(temp_96, nuPerViewCBuffer.projectionMatrix[3].x, temp_161);
-            temp_264 = temp_128 * temp_172;
-            temp_271 = fma(temp_134, temp_180, temp_264);
-            temp_294 = fma(temp_149, temp_224, temp_271);
-            temp_299 = fma(temp_157, temp_248, temp_294);
-        }
-    "};
-    Graph::parse_glsl(query).unwrap().simplify()
-});
-
-static UNK_POSITION_Y: LazyLock<Graph> = LazyLock::new(|| {
-    // SFX_PBS_0000008009008a68_VS.glsl, gl_Position.y
-    let query = indoc! {"
-        void main() {
-            temp_0 = intBitsToFloat(gl_InstanceID);
-            temp_1 = IN_Position.x;
-            temp_3 = IN_Position.y;
-            temp_4 = floatBitsToInt(temp_0) << 6;
-            temp_6 = uint(temp_4) >> 2;
-            temp_8 = int(temp_6) & 3;
-            temp_9 = nuPerViewCBuffer.data[int(temp_7)][temp_8];
-            temp_10 = int(temp_6) + 1;
-            temp_12 = temp_10 & 3;
-            temp_13 = nuPerViewCBuffer.data[int(temp_11)][temp_12];
-            temp_14 = temp_4 + 16;
-            temp_15 = uint(temp_14) >> 2;
-            temp_17 = int(temp_15) & 3;
-            temp_18 = nuPerViewCBuffer.data[int(temp_16)][temp_17];
-            temp_19 = int(temp_15) + 1;
-            temp_21 = temp_19 & 3;
-            temp_22 = nuPerViewCBuffer.data[int(temp_20)][temp_21];
-            temp_23 = IN_Position.z;
-            temp_24 = temp_4 + 32;
-            temp_25 = uint(temp_24) >> 2;
-            temp_27 = int(temp_25) & 3;
-            temp_28 = nuPerViewCBuffer.data[int(temp_26)][temp_27];
-            temp_29 = int(temp_25) + 1;
-            temp_31 = temp_29 & 3;
-            temp_32 = nuPerViewCBuffer.data[int(temp_30)][temp_31];
-            temp_33 = temp_4 + 8;
-            temp_34 = uint(temp_33) >> 2;
-            temp_36 = int(temp_34) & 3;
-            temp_37 = nuPerViewCBuffer.data[int(temp_35)][temp_36];
-            temp_38 = int(temp_34) + 1;
-            temp_40 = temp_38 & 3;
-            temp_41 = nuPerViewCBuffer.data[int(temp_39)][temp_40];
-            temp_42 = temp_1 * nuPerWorldCBuffer.worldMatrix[0].w;
-            temp_44 = temp_1 * nuPerWorldCBuffer.worldMatrix[0].z;
-            temp_46 = temp_4 + 48;
-            temp_47 = uint(temp_46) >> 2;
-            temp_49 = int(temp_47) & 3;
-            temp_50 = nuPerViewCBuffer.data[int(temp_48)][temp_49];
-            temp_51 = int(temp_47) + 1;
-            temp_53 = temp_51 & 3;
-            temp_54 = nuPerViewCBuffer.data[int(temp_52)][temp_53];
-            temp_55 = temp_1 * nuPerWorldCBuffer.worldMatrix[0].x;
-            temp_56 = temp_4 + 24;
-            temp_57 = uint(temp_56) >> 2;
-            temp_59 = int(temp_57) & 3;
-            temp_60 = nuPerViewCBuffer.data[int(temp_58)][temp_59];
-            temp_61 = int(temp_57) + 1;
-            temp_63 = temp_61 & 3;
-            temp_64 = nuPerViewCBuffer.data[int(temp_62)][temp_63];
-            temp_66 = fma(temp_3, nuPerWorldCBuffer.worldMatrix[1].w, temp_42);
-            temp_67 = fma(temp_3, nuPerWorldCBuffer.worldMatrix[1].z, temp_44);
-            temp_68 = temp_4 + 40;
-            temp_69 = uint(temp_68) >> 2;
-            temp_71 = int(temp_69) & 3;
-            temp_72 = nuPerViewCBuffer.data[int(temp_70)][temp_71];
-            temp_73 = int(temp_69) + 1;
-            temp_75 = temp_73 & 3;
-            temp_76 = nuPerViewCBuffer.data[int(temp_74)][temp_75];
-            temp_77 = fma(temp_3, nuPerWorldCBuffer.worldMatrix[1].x, temp_55);
-            temp_78 = temp_1 * nuPerWorldCBuffer.worldMatrix[0].y;
-            temp_80 = fma(temp_23, nuPerWorldCBuffer.worldMatrix[2].x, temp_77);
-            temp_83 = fma(temp_3, nuPerWorldCBuffer.worldMatrix[1].y, temp_78);
-            temp_86 = fma(temp_23, nuPerWorldCBuffer.worldMatrix[2].y, temp_83);
-            temp_88 = temp_4 + 56;
-            temp_89 = uint(temp_88) >> 2;
-            temp_91 = int(temp_89) & 3;
-            temp_92 = nuPerViewCBuffer.data[int(temp_90)][temp_91];
-            temp_93 = int(temp_89) + 1;
-            temp_95 = temp_93 & 3;
-            temp_96 = nuPerViewCBuffer.data[int(temp_94)][temp_95];
-            temp_99 = temp_13 * nuPerViewCBuffer.projectionMatrix[1].y;
-            temp_104 = fma(temp_9, nuPerViewCBuffer.projectionMatrix[0].y, temp_99);
-            temp_106 = temp_22 * nuPerViewCBuffer.projectionMatrix[1].y;
-            temp_110 = fma(temp_23, nuPerWorldCBuffer.worldMatrix[2].w, temp_66);
-            temp_111 = fma(temp_23, nuPerWorldCBuffer.worldMatrix[2].z, temp_67);
-            temp_114 = temp_32 * nuPerViewCBuffer.projectionMatrix[1].y;
-            temp_116 = fma(temp_18, nuPerViewCBuffer.projectionMatrix[0].y, temp_106);
-            temp_122 = fma(temp_28, nuPerViewCBuffer.projectionMatrix[0].y, temp_114);
-            temp_128 = temp_80 + nuPerWorldCBuffer.worldMatrix[3].x;
-            temp_131 = temp_54 * nuPerViewCBuffer.projectionMatrix[1].y;
-            temp_134 = temp_86 + nuPerWorldCBuffer.worldMatrix[3].y;
-            temp_139 = fma(temp_50, nuPerViewCBuffer.projectionMatrix[0].y, temp_131);
-            temp_141 = fma(temp_37, nuPerViewCBuffer.projectionMatrix[2].y, temp_104);
-            temp_145 = fma(temp_72, nuPerViewCBuffer.projectionMatrix[2].y, temp_122);
-            temp_149 = temp_111 + nuPerWorldCBuffer.worldMatrix[3].z;
-            temp_154 = fma(temp_60, nuPerViewCBuffer.projectionMatrix[2].y, temp_116);
-            temp_157 = temp_110 + nuPerWorldCBuffer.worldMatrix[3].w;
-            temp_164 = fma(temp_92, nuPerViewCBuffer.projectionMatrix[2].y, temp_139);
-            temp_170 = fma(temp_41, nuPerViewCBuffer.projectionMatrix[3].y, temp_141);
-            temp_178 = fma(temp_64, nuPerViewCBuffer.projectionMatrix[3].y, temp_154);
-            temp_223 = fma(temp_76, nuPerViewCBuffer.projectionMatrix[3].y, temp_145);
-            temp_255 = fma(temp_96, nuPerViewCBuffer.projectionMatrix[3].y, temp_164);
-            temp_281 = temp_128 * temp_170;
-            temp_285 = fma(temp_134, temp_178, temp_281);
-            temp_292 = fma(temp_149, temp_223, temp_285);
-            temp_298 = fma(temp_157, temp_255, temp_292);
-        }
-    "};
-    Graph::parse_glsl(query).unwrap().simplify()
-});
-
-static UNK_POSITION_Z: LazyLock<Graph> = LazyLock::new(|| {
-    // SFX_PBS_0000008009008a68_VS.glsl, gl_Position.z
-    let query = indoc! {"
-        void main() {
-            temp_0 = intBitsToFloat(gl_InstanceID);
-            temp_1 = IN_Position.x;
-            temp_3 = IN_Position.y;
-            temp_4 = floatBitsToInt(temp_0) << 6;
-            temp_6 = uint(temp_4) >> 2;
-            temp_8 = int(temp_6) & 3;
-            temp_9 = nuPerViewCBuffer.data[int(temp_7)][temp_8];
-            temp_10 = int(temp_6) + 1;
-            temp_12 = temp_10 & 3;
-            temp_13 = nuPerViewCBuffer.data[int(temp_11)][temp_12];
-            temp_14 = temp_4 + 16;
-            temp_15 = uint(temp_14) >> 2;
-            temp_17 = int(temp_15) & 3;
-            temp_18 = nuPerViewCBuffer.data[int(temp_16)][temp_17];
-            temp_19 = int(temp_15) + 1;
-            temp_21 = temp_19 & 3;
-            temp_22 = nuPerViewCBuffer.data[int(temp_20)][temp_21];
-            temp_23 = IN_Position.z;
-            temp_24 = temp_4 + 32;
-            temp_25 = uint(temp_24) >> 2;
-            temp_27 = int(temp_25) & 3;
-            temp_28 = nuPerViewCBuffer.data[int(temp_26)][temp_27];
-            temp_29 = int(temp_25) + 1;
-            temp_31 = temp_29 & 3;
-            temp_32 = nuPerViewCBuffer.data[int(temp_30)][temp_31];
-            temp_33 = temp_4 + 8;
-            temp_34 = uint(temp_33) >> 2;
-            temp_36 = int(temp_34) & 3;
-            temp_37 = nuPerViewCBuffer.data[int(temp_35)][temp_36];
-            temp_38 = int(temp_34) + 1;
-            temp_40 = temp_38 & 3;
-            temp_41 = nuPerViewCBuffer.data[int(temp_39)][temp_40];
-            temp_42 = temp_1 * nuPerWorldCBuffer.worldMatrix[0].w;
-            temp_44 = temp_1 * nuPerWorldCBuffer.worldMatrix[0].z;
-            temp_46 = temp_4 + 48;
-            temp_47 = uint(temp_46) >> 2;
-            temp_49 = int(temp_47) & 3;
-            temp_50 = nuPerViewCBuffer.data[int(temp_48)][temp_49];
-            temp_51 = int(temp_47) + 1;
-            temp_53 = temp_51 & 3;
-            temp_54 = nuPerViewCBuffer.data[int(temp_52)][temp_53];
-            temp_55 = temp_1 * nuPerWorldCBuffer.worldMatrix[0].x;
-            temp_56 = temp_4 + 24;
-            temp_57 = uint(temp_56) >> 2;
-            temp_59 = int(temp_57) & 3;
-            temp_60 = nuPerViewCBuffer.data[int(temp_58)][temp_59];
-            temp_61 = int(temp_57) + 1;
-            temp_63 = temp_61 & 3;
-            temp_64 = nuPerViewCBuffer.data[int(temp_62)][temp_63];
-            temp_66 = fma(temp_3, nuPerWorldCBuffer.worldMatrix[1].w, temp_42);
-            temp_67 = fma(temp_3, nuPerWorldCBuffer.worldMatrix[1].z, temp_44);
-            temp_68 = temp_4 + 40;
-            temp_69 = uint(temp_68) >> 2;
-            temp_71 = int(temp_69) & 3;
-            temp_72 = nuPerViewCBuffer.data[int(temp_70)][temp_71];
-            temp_73 = int(temp_69) + 1;
-            temp_75 = temp_73 & 3;
-            temp_76 = nuPerViewCBuffer.data[int(temp_74)][temp_75];
-            temp_77 = fma(temp_3, nuPerWorldCBuffer.worldMatrix[1].x, temp_55);
-            temp_78 = temp_1 * nuPerWorldCBuffer.worldMatrix[0].y;
-            temp_80 = fma(temp_23, nuPerWorldCBuffer.worldMatrix[2].x, temp_77);
-            temp_83 = fma(temp_3, nuPerWorldCBuffer.worldMatrix[1].y, temp_78);
-            temp_86 = fma(temp_23, nuPerWorldCBuffer.worldMatrix[2].y, temp_83);
-            temp_88 = temp_4 + 56;
-            temp_89 = uint(temp_88) >> 2;
-            temp_91 = int(temp_89) & 3;
-            temp_92 = nuPerViewCBuffer.data[int(temp_90)][temp_91];
-            temp_93 = int(temp_89) + 1;
-            temp_95 = temp_93 & 3;
-            temp_96 = nuPerViewCBuffer.data[int(temp_94)][temp_95];
-            temp_97 = temp_13 * nuPerViewCBuffer.projectionMatrix[1].z;
-            temp_101 = temp_22 * nuPerViewCBuffer.projectionMatrix[1].z;
-            temp_102 = fma(temp_9, nuPerViewCBuffer.projectionMatrix[0].z, temp_97);
-            temp_110 = fma(temp_23, nuPerWorldCBuffer.worldMatrix[2].w, temp_66);
-            temp_111 = fma(temp_23, nuPerWorldCBuffer.worldMatrix[2].z, temp_67);
-            temp_115 = temp_32 * nuPerViewCBuffer.projectionMatrix[1].z;
-            temp_119 = fma(temp_18, nuPerViewCBuffer.projectionMatrix[0].z, temp_101);
-            temp_124 = fma(temp_28, nuPerViewCBuffer.projectionMatrix[0].z, temp_115);
-            temp_126 = temp_54 * nuPerViewCBuffer.projectionMatrix[1].z;
-            temp_128 = temp_80 + nuPerWorldCBuffer.worldMatrix[3].x;
-            temp_133 = fma(temp_50, nuPerViewCBuffer.projectionMatrix[0].z, temp_126);
-            temp_134 = temp_86 + nuPerWorldCBuffer.worldMatrix[3].y;
-            temp_143 = fma(temp_37, nuPerViewCBuffer.projectionMatrix[2].z, temp_102);
-            temp_146 = fma(temp_72, nuPerViewCBuffer.projectionMatrix[2].z, temp_124);
-            temp_149 = temp_111 + nuPerWorldCBuffer.worldMatrix[3].z;
-            temp_151 = fma(temp_60, nuPerViewCBuffer.projectionMatrix[2].z, temp_119);
-            temp_157 = temp_110 + nuPerWorldCBuffer.worldMatrix[3].w;
-            temp_166 = fma(temp_92, nuPerViewCBuffer.projectionMatrix[2].z, temp_133);
-            temp_171 = fma(temp_41, nuPerViewCBuffer.projectionMatrix[3].z, temp_143);
-            temp_179 = fma(temp_64, nuPerViewCBuffer.projectionMatrix[3].z, temp_151);
-            temp_222 = fma(temp_76, nuPerViewCBuffer.projectionMatrix[3].z, temp_146);
-            temp_256 = fma(temp_96, nuPerViewCBuffer.projectionMatrix[3].z, temp_166);
-            temp_276 = temp_128 * temp_171;
-            temp_286 = fma(temp_134, temp_179, temp_276);
-            temp_295 = fma(temp_149, temp_222, temp_286);
-            temp_300 = fma(temp_157, temp_256, temp_295);
-        }
-    "};
-    Graph::parse_glsl(query).unwrap().simplify()
-});
-
-pub fn unk_position<'a>(graph: &'a Graph, expr: &'a Expr) -> Option<Expr> {
-    query_nodes(expr, graph, &UNK_POSITION_X)
-        .map(|_| Expr::Global {
-            name: "unk_position".into(),
-            channel: Some('x'),
-        })
-        .or_else(|| {
-            query_nodes(expr, graph, &UNK_POSITION_Y).map(|_| Expr::Global {
-                name: "unk_position".into(),
-                channel: Some('y'),
-            })
-        })
-        .or_else(|| {
-            query_nodes(expr, graph, &UNK_POSITION_Z).map(|_| Expr::Global {
-                name: "unk_position".into(),
-                channel: Some('z'),
-            })
-        })
-}
-
-static UNK_PROJECTION_V: LazyLock<Graph> = LazyLock::new(|| {
-    // TODO: Is this some sort of projected UV maps toggled by CustomBoolean5?
-    // SFX_PBS_0000000800084100_VS.glsl, OUT_uv_map1.y
-    let query = indoc! {"
-        void main() {
-            temp_5 = intBitsToFloat(gl_InstanceID);
-            temp_8 = floatBitsToInt(temp_5) << 6;
-            temp_130 = temp_8 + 48;
-            temp_131 = uint(temp_130) >> 2;
-            temp_132 = temp_131 >> 2;
-            temp_133 = int(temp_131) & 3;
-            temp_134 = nuPerViewCBuffer.data[int(temp_132)][temp_133];
-            temp_135 = int(temp_131) + 1;
-            temp_136 = uint(temp_135) >> 2;
-            temp_137 = temp_135 & 3;
-            temp_138 = nuPerViewCBuffer.data[int(temp_136)][temp_137];
-            temp_142 = temp_8 + 56;
-            temp_143 = uint(temp_142) >> 2;
-            temp_144 = temp_143 >> 2;
-            temp_145 = int(temp_143) & 3;
-            temp_146 = nuPerViewCBuffer.data[int(temp_144)][temp_145];
-            temp_147 = int(temp_143) + 1;
-            temp_148 = uint(temp_147) >> 2;
-            temp_149 = temp_147 & 3;
-            temp_150 = nuPerViewCBuffer.data[int(temp_148)][temp_149];
-            temp_168 = temp_138 * nuPerViewCBuffer.projectionMatrix[1].w;
-            temp_172 = fma(temp_134, nuPerViewCBuffer.projectionMatrix[0].w, temp_168);
-            temp_182 = fma(temp_146, nuPerViewCBuffer.projectionMatrix[2].w, temp_172);
-            temp_189 = fma(temp_150, nuPerViewCBuffer.projectionMatrix[3].w, temp_182);
-        }
-    "};
-    Graph::parse_glsl(query).unwrap().simplify()
-});
-
-static UNK_PROJECTION_V2: LazyLock<Graph> = LazyLock::new(|| {
-    // TODO: Is this some sort of projected UV maps toggled by CustomBoolean9?
-    // SFX_PBS_0000000000000500_VS.glsl, OUT_uv_map1.y
-    let query = indoc! {"
-        void main() {
-            temp_5 = intBitsToFloat(gl_InstanceID);
-            temp_17 = floatBitsToInt(temp_5) << 6;
-            temp_31 = temp_17 + 32;
-            temp_32 = uint(temp_31) >> 2;
-            temp_33 = temp_32 >> 2;
-            temp_34 = int(temp_32) & 3;
-            temp_35 = nuPerViewCBuffer.data[int(temp_33)][temp_34];
-            temp_36 = int(temp_32) + 1;
-            temp_37 = uint(temp_36) >> 2;
-            temp_38 = temp_36 & 3;
-            temp_39 = nuPerViewCBuffer.data[int(temp_37)][temp_38];
-            temp_109 = temp_17 + 40;
-            temp_110 = uint(temp_109) >> 2;
-            temp_111 = temp_110 >> 2;
-            temp_112 = int(temp_110) & 3;
-            temp_113 = nuPerViewCBuffer.data[int(temp_111)][temp_112];
-            temp_128 = temp_39 * nuPerViewCBuffer.projectionMatrix[1].x;
-            temp_146 = fma(temp_35, nuPerViewCBuffer.projectionMatrix[0].x, temp_128);
-            temp_192 = fma(temp_113, nuPerViewCBuffer.projectionMatrix[2].x, temp_146);
-        }
-    "};
-    Graph::parse_glsl(query).unwrap().simplify()
-});
-
-pub fn unk_projection_v<'a>(graph: &'a Graph, expr: &'a Expr) -> Option<Expr> {
-    query_nodes(expr, graph, &UNK_PROJECTION_V)
-        .or_else(|| query_nodes(expr, graph, &UNK_PROJECTION_V2))
-        .map(|_| Expr::Global {
-            name: "unk_projection_v".into(),
-            channel: None,
-        })
+    Some(Expr::Parameter {
+        name: "nuPerViewCBuffer".into(),
+        field: Some("viewMatrix".into()),
+        index: Some(index),
+        index2: Some(index2),
+        channel: Some(channel),
+    })
 }
 
 fn renormal_query(c: char) -> String {
