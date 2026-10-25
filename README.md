@@ -43,15 +43,22 @@ Replaces input and output attributes, textures, and uniforms in the decompiled s
 `cargo run --release -- annotate-decompiled-shaders <decompiled shaders> </render/shader/bin folder> <export folder>`
 
 ## Shader Database
-Generates the shader info JSON with rendering related information used by ssbh_wgpu. This includes the required material parameters and vertex attributes from the nufxlb as well as data mined from the decompiled source code like alpha testing and accessed color channels for parameters and attributes.
+Generates the decompiled shader database for use with ssbh_wgpu. Each shader program entry in the database includes an optimized representation of the full shader source and additional information like required shader inputs or accessed channels for textures and parameters.
 
-`cargo run --release -- shader-database <nuc2effectlibrary.nufxlb> <shader binary folder> <annotated decompiled source folder> <output JSON>`  
+`cargo run --release -- shader-database <nuc2effectlibrary.nufxlb> <shader binary folder> <annotated decompiled source folder> <output>`  
 
 ## GLSL Dependencies
 Finds all the lines of a decompiled GLSL shader that contribute to the final assignment of the given variable. This is helpful when trying to analyze the source code related to a particular variable since only the relevant lines are added to the output file. This command works with any decompiled GLSL shader, but the annotated source files will be easier to interpret.
  
-`cargo run --release -- glsl_dependencies <GLSL input file> <GLSL output file> <var>`  
-`cargo run --release -- glsl_dependencies "SunShaft1PS.glsl" "out.glsl" OUT_color.x`  
+`cargo run --release -- glsl-dependencies <GLSL input file> <GLSL output file> <var>`  
+`cargo run --release -- glsl-dependencies "SunShaft1PS.glsl" "out.glsl" OUT_color.x`  
+
+## GLSL Output Dependencies
+Output a text version of the decompiled source code as it will be stored in the shader database. This command is intended for debugging the shader database creation logic for a single shader program. The current implementation assumes that the vertex shader file is the fragment shader with `_PS` replaced with `_VS`, so some shaders may not load properly. The actual database creation uses the `nufxlb` file to find the appropriate files.
+ 
+`cargo run --release -- glsl-output-dependencies <GLSL frag shader file> <output text file>`  
+`cargo run --release -- glsl-output-dependencies "SFX_PBS_0000000003008241_PS.glsl" "out.txt"`  
+
 
 # Additional Tools
 [ssbh_lib](https://github.com/ultimate-research/ssbh_lib) - Contains the `ssbh_lib_json` and `ssbh_data_json` executables for editing various rendering related file types as JSON  

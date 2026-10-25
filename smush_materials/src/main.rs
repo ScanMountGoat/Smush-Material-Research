@@ -53,16 +53,16 @@ enum Commands {
         /// The output folder
         output: String,
     },
-    /// Export decompiled shader info database as JSON.
+    /// Export decompiled shaders as a binary database.
     ShaderDatabase {
         /// The input nufxlb file
         nufxlb: String,
-        ///The folder of shader binaries
+        /// The folder of shader binaries
         binary_folder: String,
-        ///The folder of decompiled GLSL shaders
+        /// The folder of decompiled GLSL shaders
         source_folder: String,
-        ///The output shader info JSON
-        output_json: String,
+        /// The output shader database binary
+        output: String,
     },
     /// Export shader binaries
     ShaderBinaries {
@@ -135,8 +135,8 @@ fn main() -> anyhow::Result<()> {
             nufxlb,
             binary_folder,
             source_folder,
-            output_json,
-        } => export_shader_database(nufxlb, binary_folder, source_folder, output_json),
+            output,
+        } => export_shader_database(nufxlb, binary_folder, source_folder, output),
         Commands::ShaderBinaries { input, output } => export_shader_binaries(input, output),
         Commands::DecompileShaders {
             input,
