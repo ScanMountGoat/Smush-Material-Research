@@ -1,29 +1,157 @@
-use std::{error::Error, path::Path};
-
-use indoc::indoc;
-use serde::Serialize;
+use anyhow::anyhow;
+use indexmap::IndexMap;
+use log::error;
+use query::*;
+use rayon::prelude::*;
+use smol_str::{SmolStr, format_smolstr};
+use smush_shader::{ShaderDatabase, ShaderExprs, ShaderProgram, Value};
 use ssbh_data::shdr_data::Metadata;
-use xc3_shader::graph::{Graph, glsl::shader_source_no_extensions, query::query_nodes_glsl};
+use std::{borrow::Cow, collections::BTreeSet, path::Path};
+use xc3_shader::{
+    expr::{ExprCache, OutputExpr, output_expr},
+    graph::{
+        Graph,
+        glsl::{GlslGraph, merge_vertex_fragment, shader_source_no_extensions},
+    },
+};
 
-use crate::annotation::{VEC4_SIZE, texture_handle_name};
+use smush_shader::Operation as Op;
 
-#[derive(Debug, Serialize)]
-struct ShaderDatabase {
-    shaders: Vec<ShaderProgram>,
+mod query;
+
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Default)]
+pub struct Operation(smush_shader::Operation);
+
+impl From<Operation> for smush_shader::Operation {
+    fn from(value: Operation) -> Self {
+        value.0
+    }
 }
 
-#[derive(Debug, Serialize)]
-struct ShaderProgram {
-    name: String,
-    discard: bool,
-    premultiplied: bool,
-    receives_shadow: bool,
-    sh: bool,
-    lighting: bool,
-    anisotropic_rotation: bool,
-    attrs: Vec<String>,
-    params: Vec<String>,
-    complexity: f64,
+impl From<smush_shader::Operation> for Operation {
+    fn from(value: smush_shader::Operation) -> Self {
+        Self(value)
+    }
+}
+
+impl std::fmt::Display for Operation {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl xc3_shader::expr::Operation for Operation {
+    fn query_operation_args<'a>(
+        graph: &'a Graph,
+        expr: &'a xc3_shader::graph::Expr,
+    ) -> Option<(Self, Vec<&'a xc3_shader::graph::Expr>)> {
+        // TODO: how to handle bitfieldExtract to be compatible with WGSL?
+        binary_ops(graph, expr)
+            .or_else(|| op_func(graph, expr, "fma", Op::Fma.into()))
+            .or_else(|| op_func(graph, expr, "min", Op::Min.into()))
+            .or_else(|| op_func(graph, expr, "max", Op::Max.into()))
+            .or_else(|| op_func(graph, expr, "exp2", Op::Exp2.into()))
+            .or_else(|| op_func(graph, expr, "clamp", Op::Clamp.into()))
+            .or_else(|| op_func(graph, expr, "inversesqrt", Op::InverseSqrt.into()))
+            .or_else(|| op_func(graph, expr, "log2", Op::Log2.into()))
+            .or_else(|| op_func(graph, expr, "abs", Op::Abs.into()))
+            .or_else(|| op_func(graph, expr, "sqrt", Op::Sqrt.into()))
+            .or_else(|| op_func(graph, expr, "floor", Op::Floor.into()))
+            .or_else(|| op_func(graph, expr, "trunc", Op::Trunc.into()))
+            .or_else(|| op_func(graph, expr, "sin", Op::Sin.into()))
+            .or_else(|| op_func(graph, expr, "cos", Op::Cos.into()))
+            .or_else(|| op_func(graph, expr, "intBitsToFloat", Op::IntBitsToFloat.into()))
+            .or_else(|| op_func(graph, expr, "uintBitsToFloat", Op::UintBitsToFloat.into()))
+            .or_else(|| op_func(graph, expr, "floatBitsToInt", Op::FloatBitsToInt.into()))
+            .or_else(|| op_func(graph, expr, "floatBitsToUint", Op::FloatBitsToUint.into()))
+            .or_else(|| op_func(graph, expr, "int", Op::Int.into()))
+            .or_else(|| op_func(graph, expr, "uint", Op::Uint.into()))
+            .or_else(|| op_func(graph, expr, "float", Op::Float.into()))
+            .or_else(|| op_func(graph, expr, "isnan", Op::IsNaN.into()))
+            .or_else(|| unpack_half(graph, expr))
+            .or_else(|| pack_half(graph, expr))
+            .or_else(|| unary_ops(graph, expr))
+            .or_else(|| ternary(graph, expr))
+            .or_else(|| {
+                error!("Unsupported expression {expr:?}");
+                None
+            })
+    }
+
+    fn preprocess_expr<'a>(
+        graph: &'a Graph,
+        expr: &'a xc3_shader::graph::Expr,
+    ) -> std::borrow::Cow<'a, xc3_shader::graph::Expr> {
+        if let Some(new_expr) = instance_view_matrix(graph, expr)
+            .or_else(|| renormal(graph, expr))
+            .or_else(|| unk_renormal(graph, expr))
+            .or_else(|| nl_x(graph, expr))
+        {
+            Cow::Owned(new_expr)
+        } else {
+            Cow::Borrowed(expr)
+        }
+    }
+
+    fn preprocess_value_expr<'a>(
+        _graph: &'a Graph,
+        expr: &'a xc3_shader::graph::Expr,
+    ) -> std::borrow::Cow<'a, xc3_shader::graph::Expr> {
+        Cow::Borrowed(expr)
+    }
+}
+
+pub fn shader_from_glsl(vertex: GlslGraph, fragment: GlslGraph) -> ShaderExprs {
+    // Create a combined graph that links vertex outputs to fragment inputs.
+    // This effectively moves all shader logic to the fragment shader.
+    // This simplifies generating shader code or material nodes in 3D applications.
+    let frag_attributes = fragment.attributes.clone();
+
+    let graph = merge_vertex_fragment(&vertex, &fragment).simplify();
+
+    let mut exprs = ExprCache::<Operation>::default();
+
+    let mut output_dependencies = IndexMap::default();
+
+    for output_name in frag_attributes.output_locations.left_values() {
+        for c in "xyzw".chars() {
+            // Find the most recent assignment for the output variable.
+            if let Some(node) = graph
+                .nodes
+                .iter()
+                .rfind(|n| &n.output.name == output_name && n.output.channel == Some(c))
+            {
+                let expr = &graph.exprs[node.input];
+
+                let value = output_expr(expr, &graph, &mut exprs);
+                output_dependencies.insert(format_smolstr!("{output_name}.{c}"), value);
+            }
+        }
+    }
+
+    let discard_condition = graph
+        .discard_condition
+        .map(|i| output_expr(&graph.exprs[i], &graph, &mut exprs));
+
+    let exprs = exprs
+        .into_exprs()
+        .into_iter()
+        .map(|e| match e {
+            OutputExpr::Value(value) => OutputExpr::Value(value),
+            OutputExpr::Func { op, args } => OutputExpr::Func {
+                op: op.into(),
+                args,
+            },
+        })
+        .collect();
+
+    // TODO: Create a type for this and add it to the parent ShaderProgram type?
+    // TODO: This function shouldn't use any game specific data?
+    ShaderExprs {
+        output_dependencies,
+        exprs,
+        discard_condition,
+    }
 }
 
 pub fn export_shader_database(
@@ -31,152 +159,149 @@ pub fn export_shader_database(
     binary_folder: String,
     source_folder: String,
     output_file: String,
-) -> usize {
-    // Generate the shader info JSON for ssbh_wgpu.
-    match ssbh_lib::formats::nufx::Nufx::from_file(&nufx_file) {
-        Ok(ssbh_lib::formats::nufx::Nufx::V1(nufx)) => {
-            // TODO: Make excluding duplicate render pass entries optional?
-            // All "SFX_PBS..." programs support all render passes.
-            // Only consider one render pass per program since the entries are identical.
-            let mut database = ShaderDatabase {
-                shaders: nufx
-                    .programs
-                    .elements
-                    .into_iter()
-                    .filter(|program| program.render_pass.to_str() == Some("nu::Final"))
-                    .map(|program| {
-                        // We can infer information from the shader source using some basic heurstics.
-                        let pixel_shader = program.shaders.pixel_shader.to_string_lossy();
-                        let pixel_source = shader_source(&source_folder, &pixel_shader);
+) -> anyhow::Result<usize> {
+    // Generate the shader database for ssbh_wgpu.
+    let nufx = ssbh_lib::formats::nufx::Nufx::from_file(&nufx_file)?;
+    let nufx = if let ssbh_lib::formats::nufx::Nufx::V1(nufx) = nufx {
+        Ok(nufx)
+    } else {
+        Err(anyhow!("Unsupported NUFX version"))
+    }?;
 
-                        let vertex_shader = program.shaders.vertex_shader.to_string_lossy();
-                        let vertex_source = shader_source(&source_folder, &vertex_shader);
+    // All "SFX_PBS..." programs support all render passes.
+    // Only consider one render pass per program since the entries are identical.
+    let mut database = ShaderDatabase {
+        programs: nufx
+            .programs
+            .elements
+            .par_iter()
+            .filter(|program| program.render_pass.to_str() == Some("nu::Final"))
+            .map(|program| {
+                // We can infer information from the shader source using some basic heurstics.
+                let pixel_shader = program.shaders.pixel_shader.to_string_lossy();
+                let pixel_source = shader_source(&source_folder, &pixel_shader);
 
-                        // Alpha testing in Smash Ultimate is done in shader, so check for discard.
-                        // There may be false positives if the discard code path is unused.
-                        let discard = pixel_source
-                            .as_ref()
-                            .map(|source| source.contains("discard;"))
-                            .unwrap_or_default();
+                let vertex_shader = program.shaders.vertex_shader.to_string_lossy();
+                let vertex_source = shader_source(&source_folder, &vertex_shader);
 
-                        let frag = pixel_source.as_ref().map(|source| {
-                            let glsl = shader_source_no_extensions(source);
-                            xc3_shader::graph::Graph::parse_glsl(glsl).unwrap()
-                        });
+                // Alpha testing in Smash Ultimate is done in shader, so check for discard.
+                // There may be false positives if the discard code path is unused.
+                let discard = pixel_source
+                    .as_ref()
+                    .map(|source| source.contains("discard;"))
+                    .unwrap_or_default();
 
-                        let premultiplied = frag
-                            .as_ref()
-                            .map(|frag| is_premultiplied_alpha(frag).unwrap_or_default())
-                            .unwrap_or_default();
+                let vert = vertex_source.as_ref().ok().map(|source| {
+                    let glsl = shader_source_no_extensions(source);
+                    GlslGraph::parse_glsl(glsl).unwrap()
+                });
 
-                        let anisotropic_rotation = frag
-                            .as_ref()
-                            .map(|frag| {
-                                frag.nodes.iter().any(|n| {
-                                    // TODO: does this require a more specific query?
-                                    let query = indoc! {"
-                                        prm = prm;
-                                        alpha = prm.w;
-                                        result = fma(alpha, 2.0, -1.0);
-                                    "};
+                let frag = pixel_source.as_ref().ok().map(|source| {
+                    let glsl = shader_source_no_extensions(source);
+                    GlslGraph::parse_glsl(glsl).unwrap()
+                });
 
-                                    query_nodes_glsl(&frag.exprs[n.input], &frag, query).is_some()
-                                })
-                            })
-                            .unwrap_or_default();
+                let premultiplied = frag
+                    .as_ref()
+                    .map(|frag| is_premultiplied_alpha(&frag.graph).unwrap_or_default())
+                    .unwrap_or_default();
 
-                        let pixel_binary_data = shader_binary_data(&binary_folder, pixel_shader);
-                        let vertex_binary_data = shader_binary_data(&binary_folder, vertex_shader);
+                let anisotropic_rotation = frag
+                    .as_ref()
+                    .map(|frag| has_anisotropic_rotation(&frag.graph))
+                    .unwrap_or_default();
 
-                        let params = material_parameters(
-                            &program,
-                            &vertex_binary_data,
-                            &pixel_binary_data,
-                            &vertex_source,
-                            &pixel_source,
-                        );
+                let pixel_metadata = shader_metadata(&binary_folder, pixel_shader);
 
-                        let attrs = vertex_attributes(&program, vertex_binary_data, &vertex_source);
+                let attributes = vert.as_ref().map(vertex_attributes).unwrap_or_default();
 
-                        // TODO: Don't count comment lines?
-                        // This assumes each line of code takes has the same cost.
-                        // Some lines will cost more in practice like texture loads.
-                        let lines_of_code =
-                            pixel_source.map(|s| s.lines().count()).unwrap_or_default()
-                                + vertex_source.map(|s| s.lines().count()).unwrap_or_default();
+                // TODO: Don't count comment lines?
+                // This assumes each line of code takes has the same cost.
+                // Some lines will cost more in practice like texture loads.
+                let lines_of_code = pixel_source
+                    .as_ref()
+                    .map(|s| s.lines().count())
+                    .unwrap_or_default()
+                    + vertex_source
+                        .as_ref()
+                        .map(|s| s.lines().count())
+                        .unwrap_or_default();
 
-                        // Texture15 is always the shadow map texture.
-                        // Shaders with Texture15 also have IN_ShadowMap.
-                        // Just check if the shadow map is present for now.
-                        // Checking shadow map usage requires mapping decompiled texture handles to uniforms.
-                        let receives_shadow = pixel_binary_data
-                            .as_ref()
-                            .map(|p| p.uniforms.iter().any(|u| u.name == "Texture15"))
-                            .unwrap_or_default();
+                // Texture15 is always the shadow map texture.
+                // Shaders with Texture15 also have IN_ShadowMap.
+                // Just check if the shadow map is present for now.
+                // Checking shadow map usage requires mapping decompiled texture handles to uniforms.
+                let receives_shadow = pixel_metadata
+                    .as_ref()
+                    .map(|p| p.uniforms.iter().any(|u| u.name == "Texture15"))
+                    .unwrap_or_default();
 
-                        // Spherical harmonic ambient lighting is passed from the vertex shader.
-                        let sh = pixel_binary_data
-                            .as_ref()
-                            .map(|p| p.inputs.iter().any(|i| i.name == "IN_shLighting"))
-                            .unwrap_or_default();
+                // Spherical harmonic ambient lighting is passed from the vertex shader.
+                let sh = pixel_metadata
+                    .as_ref()
+                    .map(|p| p.inputs.iter().any(|i| i.name == "IN_shLighting"))
+                    .unwrap_or_default();
 
-                        // Some models with baked lighting don't use the light set.
-                        // A negative offset means that the buffer doesn't contain the uniform.
-                        let lighting = pixel_binary_data
-                            .as_ref()
-                            .map(|p| {
-                                p.uniforms.iter().any(|u| {
-                                    u.name == "lightDirColor1" && u.uniform_buffer_offset != -1
-                                })
-                            })
-                            .unwrap_or_default();
-
-                        ShaderProgram {
-                            name: program.name.to_string_lossy(),
-                            discard,
-                            premultiplied,
-                            receives_shadow,
-                            sh,
-                            lighting,
-                            anisotropic_rotation,
-                            attrs,
-                            params,
-                            complexity: lines_of_code as f64,
-                        }
+                // Some models with baked lighting don't use the light set.
+                // A negative offset means that the buffer doesn't contain the uniform.
+                let lighting = pixel_metadata
+                    .as_ref()
+                    .map(|p| {
+                        p.uniforms
+                            .iter()
+                            .any(|u| u.name == "lightDirColor1" && u.uniform_buffer_offset != -1)
                     })
-                    .collect(),
-            };
+                    .unwrap_or_default();
 
-            // Normalize shader complexity so the highest complexity is 1.0.
-            // Prevent a potential division by zero.
-            let total_lines_of_code = database
-                .shaders
-                .iter()
-                .map(|s| s.complexity)
-                .reduce(f64::max)
-                .unwrap_or_default()
-                .max(1.0);
+                let exprs = if let (Some(vert), Some(frag)) = (vert, frag) {
+                    shader_from_glsl(vert, frag)
+                } else {
+                    ShaderExprs::default()
+                };
 
-            for s in &mut database.shaders {
-                s.complexity /= total_lines_of_code;
-            }
+                let parameters = material_parameters(program, &exprs.exprs);
 
-            // TODO: Make pretty printing optional.
-            let json = serde_json::to_string_pretty(&database).unwrap();
-            std::fs::write(output_file, json).unwrap();
-        }
-        Ok(_) => eprintln!("Only NUFX version 1.1 is supported"),
-        Err(e) => eprintln!("Error reading {:?}: {:?}", nufx_file, e),
+                (
+                    program.name.to_string_lossy().into(),
+                    ShaderProgram {
+                        discard,
+                        premultiplied,
+                        receives_shadow,
+                        sh,
+                        lighting,
+                        anisotropic_rotation,
+                        attributes,
+                        parameters,
+                        complexity: lines_of_code as f64,
+                        exprs,
+                    },
+                )
+            })
+            .collect(),
+    };
+
+    // Normalize shader complexity so the highest complexity is 1.0.
+    // Prevent a potential division by zero.
+    let total_lines_of_code = database
+        .programs
+        .values()
+        .map(|s| s.complexity)
+        .reduce(f64::max)
+        .unwrap_or_default()
+        .max(1.0);
+
+    for s in database.programs.values_mut() {
+        s.complexity /= total_lines_of_code;
     }
-    0
+
+    database.save(&output_file)?;
+
+    Ok(0)
 }
 
-fn shader_binary_data(
-    binary_folder: &str,
-    shader: String,
-) -> Result<Metadata, Box<dyn std::error::Error>> {
+fn shader_metadata(binary_folder: &str, shader: String) -> anyhow::Result<Metadata> {
     let file = Path::new(binary_folder).join(shader).with_extension("bin");
-    Metadata::from_file(file)
+    Metadata::from_file(file).map_err(Into::into)
 }
 
 fn shader_source(source_folder: &str, shader: &String) -> Result<String, std::io::Error> {
@@ -186,208 +311,104 @@ fn shader_source(source_folder: &str, shader: &String) -> Result<String, std::io
 
 fn material_parameters(
     program: &ssbh_lib::formats::nufx::ShaderProgramV1,
-    vertex_binary_data: &Result<Metadata, Box<dyn std::error::Error>>,
-    pixel_binary_data: &Result<Metadata, Box<dyn std::error::Error>>,
-    vertex_source: &Result<String, std::io::Error>,
-    pixel_source: &Result<String, std::io::Error>,
-) -> Vec<String> {
+    exprs: &[OutputExpr<Op>],
+) -> Vec<SmolStr> {
     program
         .material_parameters
         .elements
         .iter()
         .map(|p| {
-            let mut name = p.parameter_name.to_string_lossy();
+            let name = p.parameter_name.to_string_lossy();
 
-            // TODO: Clean this up.
             if name.contains("Texture") {
-                let pixel_channels = texture_color_channels(&name, pixel_binary_data, pixel_source)
-                    .unwrap_or_default();
-
-                let channels: String = "xyzw"
-                    .chars()
-                    .enumerate()
-                    .filter(|(i, _)| pixel_channels[*i])
-                    .map(|(_, c)| c)
-                    .collect();
-
-                if !channels.is_empty() {
-                    name = format!("{name}.{channels}")
-                }
+                // "Texture0.xyz"
+                let channels = texture_color_channels(&name, exprs);
+                format_channels(&name, &channels)
             } else if name.contains("CustomVector") {
-                // Check what Vector4 color channels are used.
-                let pixel_channels =
-                    vector4_color_channels(&name, "fp_c9_data", pixel_binary_data, pixel_source)
-                        .unwrap_or_default();
-                let vertex_channels =
-                    vector4_color_channels(&name, "vp_c9_data", vertex_binary_data, vertex_source)
-                        .unwrap_or_default();
-
-                // Channels may be accessed in either shader.
-                let channels: String = "xyzw"
-                    .chars()
-                    .enumerate()
-                    .filter(|(i, _)| pixel_channels[*i] || vertex_channels[*i])
-                    .map(|(_, c)| c)
-                    .collect();
-
-                if !channels.is_empty() {
-                    name = format!("{name}.{channels}")
-                }
+                // "CustomVector8.xyzw"
+                let channels = parameter_color_channels(&name, "nuPerMaterial", exprs);
+                format_channels(&name, &channels)
+            } else {
+                // BlendState0
+                name.into()
             }
-
-            name
         })
         .collect()
 }
 
-fn texture_color_channels(
-    name: &str,
-    binary_data: &Result<Metadata, Box<dyn Error>>,
-    source: &Result<String, std::io::Error>,
-) -> Option<[bool; 4]> {
-    let uniform = binary_data
-        .as_ref()
-        .ok()?
-        .uniforms
+fn texture_color_channels(name: &str, exprs: &[OutputExpr<Op>]) -> BTreeSet<char> {
+    exprs
         .iter()
-        .find(|u| u.name == name)?;
-
-    // Assume just fragment textures for now.
-    let handle_name = texture_handle_name("fp_tex_tcb", uniform.unk11);
-
-    // Check what color channels are used.
-    Some(texture_color_channels_from_source(
-        &handle_name,
-        source.as_ref().ok()?,
-    ))
+        .filter_map(|e| {
+            if let OutputExpr::Value(Value::Texture(t)) = e {
+                if t.name == name { t.channel } else { None }
+            } else {
+                None
+            }
+        })
+        .collect()
 }
 
-fn texture_color_channels_from_source(handle_name: &str, source: &str) -> [bool; 4] {
-    // Assume accesses will be combined like xyzw or xw.
-    // TODO: regex?
-    let access = format!("({handle_name}");
-    let access_line = source.lines().find(|l| l.contains(&access)).unwrap();
-    let start = access_line.chars().position(|c| c == '.').unwrap();
-    let end = access_line.chars().position(|c| c == ';').unwrap();
-    let components = &access_line[start..end];
-
-    let mut channels = [false; 4];
-    for (channel, component) in channels.iter_mut().zip("xyzw".chars()) {
-        if components.contains(component) {
-            *channel = true;
-        }
-    }
-
-    channels
-}
-
-fn vector4_color_channels(
+fn parameter_color_channels(
     name: &str,
     buffer_name: &str,
-    binary_data: &Result<Metadata, Box<dyn Error>>,
-    source: &Result<String, std::io::Error>,
-) -> Option<[bool; 4]> {
-    let uniform = binary_data
-        .as_ref()
-        .ok()?
-        .uniforms
+    exprs: &[OutputExpr<Op>],
+) -> BTreeSet<char> {
+    exprs
         .iter()
-        .find(|u| u.name == name)?;
-
-    // Check what Vector4 color channels are used.
-    Some(vector4_color_channels_from_source(
-        uniform,
-        source.as_ref().ok()?,
-        buffer_name,
-    ))
+        .filter_map(|e| {
+            if let OutputExpr::Value(Value::Parameter(p)) = e
+                && p.name == buffer_name
+                && p.field == name
+            {
+                p.channel
+            } else {
+                None
+            }
+        })
+        .collect()
 }
 
-fn vector4_color_channels_from_source(
-    uniform: &ssbh_data::shdr_data::Uniform,
-    source: &str,
-    buffer_name: &str,
-) -> [bool; 4] {
-    let mut channels = [false; 4];
-    let vec4_index = uniform.uniform_buffer_offset / VEC4_SIZE as i32;
-    for (channel, component) in channels.iter_mut().zip("xyzw".chars()) {
-        let access = format!("{buffer_name}[{vec4_index}].{component}");
-        if source.contains(&access) {
-            *channel = true;
-        }
-    }
-
-    channels
-}
-
-fn vertex_attributes(
-    program: &ssbh_lib::formats::nufx::ShaderProgramV1,
-    vertex_binary_data: Result<Metadata, Box<dyn std::error::Error>>,
-    vertex_source: &Result<String, std::io::Error>,
-) -> Vec<String> {
-    program
-        .vertex_attributes
-        .elements
-        .iter()
-        .map(|a| {
-            let mut name = a.attribute_name.to_string_lossy();
-
-            // Check the vertex shader since it uses the same naming conventions.
-            // Some attributes are combined before passing to the pixel shader.
-            // This may overestimate used channels since we don't include the pixel shader.
-            let input_name = format!("IN_{name}");
-            if let Some(location) = vertex_binary_data.as_ref().ok().and_then(|data| {
-                data.inputs
-                    .iter()
-                    .find(|i| i.name == input_name)
-                    .map(|i| i.location)
-            }) {
-                if let Ok(vertex) = &vertex_source {
-                    let channels = input_attribute_color_channels(location, vertex);
-                    if !channels.is_empty() {
-                        name = format!("{name}.{channels}")
+fn vertex_attributes(vertex: &GlslGraph) -> Vec<SmolStr> {
+    vertex
+        .attributes
+        .input_locations
+        .left_values()
+        .map(|attribute_name| {
+            let channels: BTreeSet<_> = vertex
+                .graph
+                .exprs
+                .iter()
+                .filter_map(|e| {
+                    if let xc3_shader::graph::Expr::Global { name, channel } = e
+                        && name == attribute_name
+                    {
+                        Some((*channel)?)
+                    } else {
+                        None
                     }
-                }
-            }
-            name
+                })
+                .collect();
+
+            // Use the format expected by numshb attribute names.
+            let attribute_name = match attribute_name.trim_start_matches("IN_") {
+                "Normal" => "Normal0",
+                "Position" => "Position0",
+                "Tangent" => "Tangent0",
+                name => name,
+            };
+            format_channels(attribute_name, &channels)
         })
         .collect()
 }
 
-fn input_attribute_color_channels(location: i32, source: &str) -> String {
-    // Assume the name is the location like "layout (location = 1) in vec4 in_attr1;"
-    let mut channels = String::new();
-    for component in "xyzw".chars() {
-        let access = format!("in_attr{location}.{component}");
-        if source.contains(&access) {
-            channels.push(component);
-        }
+fn format_channels(name: &str, channels: &BTreeSet<char>) -> SmolStr {
+    if !channels.is_empty() {
+        let channels: String = "xyzw".chars().filter(|c| channels.contains(c)).collect();
+        format_smolstr!("{name}.{channels}")
+    } else {
+        name.into()
     }
-
-    channels
-}
-
-fn is_premultiplied_alpha(graph: &Graph) -> Option<bool> {
-    let node = graph
-        .nodes
-        .iter()
-        .rfind(|n| n.output.name == "out_attr0" && n.output.channel == Some('w'))?;
-
-    // Check if the RGB outputs are multiplied by alpha.
-    let query = indoc! {"
-        alpha_final = fma(alpha2, temp, alpha);
-        red = temp * alpha;
-        green = temp * alpha;
-        blue = temp * alpha;
-        result.x = red;
-        result.y = green;
-        result.z = blue;
-        result.w = alpha_final;
-    "};
-
-    // This handles changes in variable names and algebraic identities like a*b == b*a.
-    let result = query_nodes_glsl(&graph.exprs[node.input], &graph, query)?;
-
-    Some(!result.is_empty())
 }
 
 #[cfg(test)]
@@ -473,23 +494,5 @@ mod tests {
     #[test]
     fn pixel_source_not_premultiplied_empty() {
         assert!(!is_premultiplied_alpha(&Graph::default()).unwrap_or_default());
-    }
-
-    #[test]
-    fn texture_color_channels_source_2d() {
-        let channels = texture_color_channels_from_source(
-            "fp_tex_tcb_10",
-            "temp_10 = texture(fp_tex_tcb_10, vec2(temp_2, temp_4)).zw;",
-        );
-        assert_eq!([false, false, true, true], channels);
-    }
-
-    #[test]
-    fn texture_color_channels_source_cube() {
-        let channels = texture_color_channels_from_source(
-            "fp_tex_tcb_10",
-            "temp_10 = textureLod(fp_tex_tcb_10, vec2(temp_2, temp_4)).xzw;",
-        );
-        assert_eq!([true, false, true, true], channels);
     }
 }

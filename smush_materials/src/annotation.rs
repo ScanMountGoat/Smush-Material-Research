@@ -6,8 +6,8 @@ use ssbh_lib::formats::shdr::ShaderStage;
 use glsl_lang::{
     ast::{
         ArraySpecifier, ArraySpecifierData, ArraySpecifierDimensionData, ArrayedIdentifierData,
-        Block, Expr, ExprData, Identifier, Node, StructFieldSpecifierData, TranslationUnit,
-        TypeSpecifierData, TypeSpecifierNonArrayData,
+        Block, Expr, ExprData, Identifier, Node, StructFieldSpecifier, StructFieldSpecifierData,
+        TranslationUnit, TypeSpecifierData, TypeSpecifierNonArrayData,
     },
     parse::DefaultParse,
     transpiler::glsl::{FormattingState, show_translation_unit},
@@ -28,8 +28,14 @@ pub fn annotate_glsl(
     let mut struct_fields = BTreeMap::new();
     let mut constant_values = BTreeMap::new();
 
-    annotate_input_outputs(&mut replacements, shader_type, metadata);
-    annotate_uniforms(&mut replacements, &mut struct_fields, metadata, shader_type)?;
+    let modified_source = shader_source_no_extensions(&glsl);
+    let mut translation_unit = TranslationUnit::parse(modified_source).unwrap();
+
+    let attributes = xc3_shader::graph::glsl::find_attribute_locations(&translation_unit);
+    annotate_input_outputs(&mut replacements, shader_type, metadata, &attributes);
+
+    annotate_uniform_buffers(&mut replacements, &mut struct_fields, metadata, shader_type)?;
+    annotate_storage_buffers(&mut replacements, metadata, shader_type)?;
     annotate_constants(&mut constant_values, metadata)?;
 
     let mut visitor = Annotator {
@@ -38,8 +44,6 @@ pub fn annotate_glsl(
         constant_values,
     };
 
-    let modified_source = shader_source_no_extensions(&glsl);
-    let mut translation_unit = TranslationUnit::parse(modified_source).unwrap();
     translation_unit.visit_mut(&mut visitor);
 
     let mut new_glsl = String::new();
@@ -57,32 +61,33 @@ fn annotate_input_outputs(
     replacements: &mut BTreeMap<String, String>,
     shader_type: &ShaderStage,
     metadata: &Metadata,
+    attributes: &xc3_shader::graph::glsl::Attributes,
 ) {
-    // It's possible to have overlapping identifiers like in_attr1 and in_attr10.
-    // Replace names in reverse order to hopefully fix this.
-    // TODO: Investigate a more robust solution.
     match shader_type {
         ShaderStage::Vertex => {
             // Vertex inputs have explicit locations.
-            for input in metadata.inputs.iter().rev() {
+            for input in metadata.inputs.iter() {
                 let glsl_name = format!("in_attr{}", input.location);
                 replacements.insert(glsl_name, input.name.clone());
             }
             // Vertex outputs appear in order.
             // TODO: Skip builtins like gl_Position?
-            for (i, output) in metadata.outputs.iter().enumerate().rev() {
+            for (i, output) in metadata.outputs.iter().enumerate() {
                 let glsl_name = format!("out_attr{i}");
                 replacements.insert(glsl_name, output.name.clone());
             }
         }
         ShaderStage::Fragment => {
             // Fragment inputs appear in order.
-            for (i, input) in metadata.inputs.iter().enumerate().rev() {
-                let glsl_name = format!("in_attr{i}");
-                replacements.insert(glsl_name, input.name.clone());
+            // Not all locations may be used, so get the names from the GLSL code.
+            let mut names: Vec<_> = attributes.input_locations.iter().collect();
+            names.sort_by_key(|(_, location)| *location);
+
+            for ((name, _), input) in attributes.input_locations.iter().zip(&metadata.inputs) {
+                replacements.insert(name.to_string(), input.name.clone());
             }
             // Fragment outputs have explicit locations.
-            for output in metadata.outputs.iter().rev() {
+            for output in metadata.outputs.iter() {
                 let glsl_name = format!("out_attr{}", output.location);
                 replacements.insert(glsl_name, output.name.clone());
             }
@@ -91,7 +96,7 @@ fn annotate_input_outputs(
     }
 }
 
-fn annotate_uniforms(
+fn annotate_uniform_buffers(
     replacements: &mut BTreeMap<String, String>,
     struct_fields: &mut BTreeMap<String, Vec<Field>>,
     metadata: &Metadata,
@@ -112,12 +117,16 @@ fn annotate_uniforms(
         ShaderStage::Compute => None,
     }?;
 
-    for (buffer_index, buffer) in metadata.buffers.iter().enumerate() {
+    for (buffer_index, buffer) in metadata.uniform_buffers.iter().enumerate() {
         // TODO: Handle the case where unk5 and unk6 are -1?
         // Buffers are selected using an index in the shader code.
         // This is also the binding in the decompiled code.
+
+        // TODO: This should not annotate the constant buffers vp_c1 and fp_c1.
+        // TODO: what is vp_c0?
+        // The constant buffer at binding 0 is handled separately
         let binding = match buffer.unk4 {
-            0 => 1, // The constant buffer is handled separately
+            0 => continue,
             1 => buffer.unk5 + 3,
             2 => buffer.unk6 + 3,
             _ => todo!(),
@@ -188,6 +197,51 @@ fn annotate_uniforms(
     Some(())
 }
 
+// TODO: Share code with uniform buffers.
+fn annotate_storage_buffers(
+    replacements: &mut BTreeMap<String, String>,
+    metadata: &Metadata,
+    shader_type: &ShaderStage,
+) -> Option<()> {
+    let buffer_prefix = match shader_type {
+        ShaderStage::Vertex => Some("vp"),
+        ShaderStage::Geometry => None,
+        ShaderStage::Fragment => Some("fp"),
+        ShaderStage::Compute => None,
+    }?;
+
+    // TODO: Is this the right way to annotate storage buffers?
+    let mut binding = 0;
+    for (buffer_index, buffer) in metadata.storage_buffers.iter().enumerate() {
+        if buffer.unk4 < 0 {
+            continue;
+        }
+
+        let buffer_name = format!("{buffer_prefix}_s{binding}");
+        let buffer_name_prefixed = format!("_{buffer_prefix}_s{binding}");
+
+        replacements.insert(buffer_name.clone(), buffer.name.clone());
+        replacements.insert(buffer_name_prefixed, format!("_{}", buffer.name));
+
+        // Sort to make it easier to convert offsets to sizes.
+        // TODO: Why are some offsets negative?
+        let mut uniforms: Vec<_> = metadata
+            .storage_buffer_uniforms
+            .iter()
+            .filter(|u| u.buffer_index == buffer_index as u32)
+            .collect();
+        uniforms.sort_by_key(|u| u.buffer_offset);
+
+        // Assume storage buffers are always arrays of a single type.
+        // TODO: Create a new struct type
+        // TODO: replace "uint data[]" with "StructType elements[]"
+
+        binding += 1;
+    }
+
+    Some(())
+}
+
 fn glsl_type(ty: ssbh_data::shdr_data::DataType) -> TypeSpecifierNonArrayData {
     match ty {
         ssbh_data::shdr_data::DataType::Boolean => TypeSpecifierNonArrayData::Bool,
@@ -195,6 +249,8 @@ fn glsl_type(ty: ssbh_data::shdr_data::DataType) -> TypeSpecifierNonArrayData {
         ssbh_data::shdr_data::DataType::Unk7 => TypeSpecifierNonArrayData::Void, // TODO: What is this data type?
         ssbh_data::shdr_data::DataType::UnsignedInt => TypeSpecifierNonArrayData::UInt,
         ssbh_data::shdr_data::DataType::UVec3 => TypeSpecifierNonArrayData::UVec3,
+        ssbh_data::shdr_data::DataType::Unk24 => TypeSpecifierNonArrayData::Void, // TODO: What is this data type?
+        ssbh_data::shdr_data::DataType::Unk28 => TypeSpecifierNonArrayData::Void, // TODO: What is this data type?
         ssbh_data::shdr_data::DataType::Float => TypeSpecifierNonArrayData::Float,
         ssbh_data::shdr_data::DataType::Vector2 => TypeSpecifierNonArrayData::Vec2,
         ssbh_data::shdr_data::DataType::Vector3 => TypeSpecifierNonArrayData::Vec3,
@@ -215,6 +271,8 @@ fn uniform_size(ty: ssbh_data::shdr_data::DataType) -> u32 {
         ssbh_data::shdr_data::DataType::Unk7 => 1, // TODO: What is this data type?
         ssbh_data::shdr_data::DataType::UnsignedInt => 4,
         ssbh_data::shdr_data::DataType::UVec3 => 4 * 3,
+        ssbh_data::shdr_data::DataType::Unk24 => 1, // TODO: What is this data type?
+        ssbh_data::shdr_data::DataType::Unk28 => 1, // TODO: What is this data type?
         ssbh_data::shdr_data::DataType::Float => 4,
         ssbh_data::shdr_data::DataType::Vector2 => 4 * 2,
         ssbh_data::shdr_data::DataType::Vector3 => 4 * 3,
@@ -228,43 +286,49 @@ fn uniform_size(ty: ssbh_data::shdr_data::DataType) -> u32 {
     }
 }
 
-fn uniform_item_size(ty: ssbh_data::shdr_data::DataType) -> u32 {
-    // The size of an indexed element like "var[3]".
+fn uniform_col_size(ty: ssbh_data::shdr_data::DataType) -> Option<u32> {
+    // The size of an indexed element like "transform[3]".
+    if ty == ssbh_data::shdr_data::DataType::Matrix4x4 {
+        Some(4 * 4)
+    } else {
+        None
+    }
+}
+
+fn uniform_channel_size(ty: ssbh_data::shdr_data::DataType) -> Option<u32> {
+    // The size of an single component like "var[3].x".
     match ty {
-        ssbh_data::shdr_data::DataType::Boolean => 4,
-        ssbh_data::shdr_data::DataType::Int => 4,
-        ssbh_data::shdr_data::DataType::Unk7 => 1, // TODO: What is this data type?
-        ssbh_data::shdr_data::DataType::UnsignedInt => 4,
-        ssbh_data::shdr_data::DataType::UVec3 => 4,
-        ssbh_data::shdr_data::DataType::Float => 4,
-        ssbh_data::shdr_data::DataType::Vector2 => 4,
-        ssbh_data::shdr_data::DataType::Vector3 => 4,
-        ssbh_data::shdr_data::DataType::Vector4 => 4,
-        ssbh_data::shdr_data::DataType::Matrix4x4 => 4 * 4,
-        ssbh_data::shdr_data::DataType::Sampler2d => 1,
-        ssbh_data::shdr_data::DataType::Sampler3d => 1,
-        ssbh_data::shdr_data::DataType::SamplerCube => 1,
-        ssbh_data::shdr_data::DataType::Sampler2dArray => 1,
-        ssbh_data::shdr_data::DataType::Image2d => 1,
+        ssbh_data::shdr_data::DataType::UVec3 => Some(4),
+        ssbh_data::shdr_data::DataType::Float => None,
+        ssbh_data::shdr_data::DataType::Vector2 => Some(4),
+        ssbh_data::shdr_data::DataType::Vector3 => Some(4),
+        ssbh_data::shdr_data::DataType::Vector4 => Some(4),
+        ssbh_data::shdr_data::DataType::Matrix4x4 => Some(4),
+        _ => None,
     }
 }
 
 fn annotate_texture(
     replacements: &mut BTreeMap<String, String>,
     u: &ssbh_data::shdr_data::Uniform,
-    texture: &str,
+    base: &str,
 ) {
     // Textures are accessed using integer handles.
     // TODO: Figure out the proper name for unk11.
     // TODO: Why do handles in Ryujinx.ShaderTools not match Ryujinx itself?
-    let texture_name = texture_handle_name(texture, u.unk11);
-    replacements.insert(texture_name, u.name.clone());
+    if u.unk11 >= 0 {
+        let texture_name = texture_handle_name(base, u.unk11);
+        replacements.insert(texture_name, u.name.clone());
+    } else if u.unk10 >= 0 {
+        // TODO: is this value always used for vertex textures?
+        let texture_name = texture_handle_name(base, u.unk10);
+        replacements.insert(texture_name, u.name.clone());
+    }
 }
 
 pub fn texture_handle_name(base: &str, unk11: i32) -> String {
     let handle = unk11 * 2 + 8;
-    let texture_name = format!("{base}_{handle:X}");
-    texture_name
+    format!("{base}_{handle:X}")
 }
 
 fn annotate_constants(
@@ -333,62 +397,75 @@ impl VisitorMut for Annotator {
                 // TODO: Don't hard code the constant buffer name and field?
                 *expr = Expr::new(ExprData::FloatConst(*constant), None);
             } else {
-                if let ExprData::Bracket(var, specifier) = &mut e1.content {
-                    if let ExprData::IntConst(index) = &mut specifier.content {
-                        match &mut var.content {
-                            ExprData::Variable(_id) => {
-                                // buffer[index].x
-                                // TODO: How to handle this case?
-                            }
-                            ExprData::Dot(e, _c) => {
-                                // buffer.field[index].x
-                                if let ExprData::Variable(id) = &e.content
-                                    && let Some(buffer_name) = self.replacements.get(id.as_str())
-                                    && let Some(fields) = self.struct_fields.get(id.as_str())
-                                    && let Some(parameter) =
-                                        find_glsl_parameter(fields, *index as u32, c.as_str())
-                                {
-                                    // Assume the field is always "data" for now to match Ryujinx.
-                                    let variable = ExprData::Variable(Identifier::new(
-                                        buffer_name.as_str().into(),
-                                        None,
-                                    ));
+                if let ExprData::Bracket(var, specifier) = &mut e1.content
+                    && let ExprData::IntConst(index) = &mut specifier.content
+                {
+                    match &mut var.content {
+                        ExprData::Variable(_id) => {
+                            // buffer[index].x
+                            // TODO: How to handle this case?
+                        }
+                        ExprData::Dot(e, _c) => {
+                            // buffer.field[index].x
+                            if let ExprData::Variable(id) = &e.content
+                                && let Some(buffer_name) = self.replacements.get(id.as_str())
+                                && let Some(fields) = self.struct_fields.get(id.as_str())
+                                && let Some(parameter) =
+                                    find_glsl_parameter(fields, *index as u32, c.as_str())
+                            {
+                                // Assume the field is always "data" for now to match Ryujinx.
+                                let variable = ExprData::Variable(Identifier::new(
+                                    buffer_name.as_str().into(),
+                                    None,
+                                ));
 
-                                    // buffer.uniform
-                                    let new_expr = Expr::new(
-                                        ExprData::Dot(
-                                            Box::new(Expr::new(variable, None)),
-                                            Identifier::new(parameter.name.as_str().into(), None),
+                                // buffer.uniform
+                                let mut new_expr = Expr::new(
+                                    ExprData::Dot(
+                                        Box::new(Expr::new(variable, None)),
+                                        Identifier::new(parameter.name.as_str().into(), None),
+                                    ),
+                                    None,
+                                );
+
+                                if let Some(array_index) = parameter.array_index {
+                                    // buffer.uniform[array_index]
+                                    new_expr = Expr::new(
+                                        ExprData::Bracket(
+                                            Box::new(new_expr),
+                                            Box::new(Node::new(
+                                                ExprData::IntConst(array_index as i32),
+                                                None,
+                                            )),
                                         ),
                                         None,
                                     );
+                                };
 
-                                    let new_expr = match parameter.array_index {
-                                        // buffer.uniform[array_index].x
-                                        Some(array_index) => Expr::new(
-                                            ExprData::Bracket(
-                                                Box::new(new_expr),
-                                                Box::new(Node::new(
-                                                    ExprData::IntConst(array_index as i32),
-                                                    None,
-                                                )),
-                                            ),
-                                            None,
+                                if let Some(col_index) = parameter.col_index {
+                                    // buffer.uniform[col_index] or buffer.uniform[array_index][col_index]
+                                    new_expr = Expr::new(
+                                        ExprData::Bracket(
+                                            Box::new(new_expr),
+                                            Box::new(Node::new(
+                                                ExprData::IntConst(col_index as i32),
+                                                None,
+                                            )),
                                         ),
-                                        // buffer.uniform.x
-                                        None => new_expr,
-                                    };
+                                        None,
+                                    );
+                                };
 
-                                    *expr = match parameter.channel {
-                                        Some(c) => {
-                                            Expr::new(ExprData::Dot(Box::new(new_expr), c), None)
-                                        }
-                                        None => new_expr,
-                                    };
-                                }
+                                // Add the channel like buffer.uniform.x
+                                *expr = match parameter.channel {
+                                    Some(c) => {
+                                        Expr::new(ExprData::Dot(Box::new(new_expr), c), None)
+                                    }
+                                    None => new_expr,
+                                };
                             }
-                            _ => (),
                         }
+                        _ => (),
                     }
                 }
             }
@@ -401,91 +478,87 @@ impl VisitorMut for Annotator {
 struct GlslParameter {
     name: String,
     array_index: Option<u32>,
+    col_index: Option<u32>,
     channel: Option<Identifier>,
 }
 
 fn find_glsl_parameter(fields: &[Field], vec4_index: u32, channel: &str) -> Option<GlslParameter> {
     // Uniforms in the original shader are always vec4 arrays.
     // Convert accesses like "buffer.data[3].y" to a uniform struct field access.
+    let component_offset = match channel {
+        "x" => 0,
+        "y" => 4,
+        "z" => 8,
+        "w" => 12,
+        _ => todo!(),
+    };
+    let offset_in_bytes = vec4_index * VEC4_SIZE + component_offset;
+
     fields.iter().find_map(|f| {
-        let field_vec4_index = f.offset / VEC4_SIZE;
-        // Figure out the index like 1 for y.
-        let field_component_offset = match channel {
-            "x" => 0,
-            "y" => 4,
-            "z" => 8,
-            "w" => 12,
-            _ => todo!(),
-        };
+        // Check if the accessed byte address is within this field.
+        let field_size = uniform_size(f.ty) * f.array_length.unwrap_or(1);
+        if (f.offset..f.offset + field_size).contains(&offset_in_bytes) {
+            // The field offset is for the start of the field.
+            let offset_in_field = offset_in_bytes - f.offset;
 
-        // TODO: Fix array handling for vectors and matrices.
-        match f.array_length {
-            Some(length) => {
-                // Check if the vec4 index falls within this array field.
-                if vec4_index >= field_vec4_index {
-                    let item_size = uniform_item_size(f.ty);
-                    let new_index = (vec4_index - field_vec4_index) * VEC4_SIZE / item_size;
+            let array_index = if f.array_length.is_some() {
+                Some(offset_in_field / uniform_size(f.ty))
+            } else {
+                None
+            };
 
-                    if new_index < length {
-                        Some(GlslParameter {
-                            name: f.name.clone(),
-                            array_index: Some(new_index),
-                            channel: Some(Identifier::new(channel.into(), None)),
-                        })
-                    } else {
-                        None
-                    }
-                } else {
-                    None
+            let offset_in_array_item = offset_in_field % uniform_size(f.ty);
+
+            // Matrix arrays need an additional index like transforms[3][col_index].y.
+            let col_index = uniform_col_size(f.ty).map(|col_size| offset_in_array_item / col_size);
+
+            let channel = if let Some(channel_size) = uniform_channel_size(f.ty) {
+                // Find the offset for just the channel after removing both bracket indices.
+                let channel_offset = match uniform_col_size(f.ty) {
+                    Some(col_size) => offset_in_array_item % col_size,
+                    None => offset_in_array_item,
+                };
+                let channel_index = channel_offset / channel_size;
+                match channel_index {
+                    0 => Some(Identifier::new("x".into(), None)),
+                    1 => Some(Identifier::new("y".into(), None)),
+                    2 => Some(Identifier::new("z".into(), None)),
+                    3 => Some(Identifier::new("w".into(), None)),
+                    _ => todo!(),
                 }
-            }
-            None => {
-                match f.ty {
-                    ssbh_data::shdr_data::DataType::Matrix4x4 => {
-                        // Treat mat4x4 as a vec4 array.
-                        if vec4_index >= field_vec4_index && vec4_index < field_vec4_index + 4 {
-                            Some(GlslParameter {
-                                name: f.name.clone(),
-                                array_index: Some(vec4_index - field_vec4_index),
-                                channel: Some(Identifier::new(channel.into(), None)),
-                            })
-                        } else {
-                            None
-                        }
-                    }
+            } else {
+                None
+            };
 
-                    ssbh_data::shdr_data::DataType::Vector4 => {
-                        if vec4_index == field_vec4_index {
-                            Some(GlslParameter {
-                                name: f.name.clone(),
-                                array_index: None,
-                                channel: Some(Identifier::new(channel.into(), None)),
-                            })
-                        } else {
-                            None
-                        }
-                    }
-                    // TODO: handle channels for other vector types.
-                    _ => {
-                        if vec4_index * VEC4_SIZE + field_component_offset == f.offset {
-                            // Scalar values like floats only use one of the vec4 channels.
-                            Some(GlslParameter {
-                                name: f.name.clone(),
-                                array_index: None,
-                                channel: None,
-                            })
-                        } else {
-                            None
-                        }
-                    }
-                }
-            }
+            Some(GlslParameter {
+                name: f.name.clone(),
+                array_index,
+                col_index,
+                channel,
+            })
+        } else {
+            None
         }
     })
 }
 
-fn field(field: &Field) -> Node<StructFieldSpecifierData> {
-    Node::new(
+fn field(field: &Field) -> StructFieldSpecifier {
+    let array_spec = field.array_length.map(|i| {
+        let expr = Expr::new(ExprData::IntConst(i as i32), None);
+        let dimensions = vec![Node::new(
+            ArraySpecifierDimensionData::ExplicitlySized(Box::new(expr)),
+            None,
+        )];
+        ArraySpecifier::new(ArraySpecifierData { dimensions }, None)
+    });
+    let identifier = Node::new(
+        ArrayedIdentifierData {
+            ident: Identifier::new(field.name.as_str().into(), None),
+            array_spec,
+        },
+        None,
+    );
+    StructFieldSpecifier::new(
         StructFieldSpecifierData {
             qualifier: None,
             ty: Node::new(
@@ -495,25 +568,7 @@ fn field(field: &Field) -> Node<StructFieldSpecifierData> {
                 },
                 None,
             ),
-            identifiers: vec![Node::new(
-                ArrayedIdentifierData {
-                    ident: Identifier::new(field.name.as_str().into(), None),
-                    array_spec: field.array_length.map(|i| {
-                        ArraySpecifier::new(
-                            ArraySpecifierData {
-                                dimensions: vec![Node::new(
-                                    ArraySpecifierDimensionData::ExplicitlySized(Box::new(
-                                        Node::new(ExprData::IntConst(i as i32), None),
-                                    )),
-                                    None,
-                                )],
-                            },
-                            None,
-                        )
-                    }),
-                },
-                None,
-            )],
+            identifiers: vec![identifier],
         },
         None,
     )
