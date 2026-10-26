@@ -1,7 +1,10 @@
 use std::sync::LazyLock;
 
 use indoc::{formatdoc, indoc};
-use xc3_shader::graph::{BinaryOp, Expr, Graph, UnaryOp, query::query_nodes};
+use xc3_shader::graph::{
+    BinaryOp, Expr, Graph, UnaryOp,
+    query::{assign_x_recursive, query_nodes},
+};
 
 use crate::database::Operation;
 use smush_shader::Operation as Op;
@@ -767,31 +770,60 @@ pub fn has_anisotropic_rotation(graph: &Graph) -> bool {
         .any(|n| query_nodes(&graph.exprs[n.input], graph, &ANISOTROPIC_ROTATION).is_some())
 }
 
-static PREMULTIPLIED_ALPHA: LazyLock<Graph> = LazyLock::new(|| {
-    let query = indoc! {"
-        void main() {
-            temp_743 = fma(temp_736, temp_742, temp_736);
-            temp_744 = temp_739 * temp_736;
-            temp_745 = temp_740 * temp_736;
-            temp_746 = temp_741 * temp_736;
-            out_attr0.x = temp_745;
-            out_attr0.y = temp_744;
-            out_attr0.z = temp_746;
-            out_attr0.w = temp_743;
+static PREMULTIPLIED_ALPHA_RGB: LazyLock<Graph> = LazyLock::new(|| {
+    let query = indoc! {
+        "void main() {
+            result = a * b; 
         }
     "};
     Graph::parse_glsl(query).unwrap().simplify()
 });
 
+static PREMULTIPLIED_ALPHA_A: LazyLock<Graph> = LazyLock::new(|| {
+    let query = indoc! {
+        "void main() {
+            result = fma(alpha, result, alpha);
+        }
+    "};
+    Graph::parse_glsl(query).unwrap()
+});
+
+static PREMULTIPLIED_ALPHA_A2: LazyLock<Graph> = LazyLock::new(|| {
+    let query = indoc! {
+        "void main() {
+            neg_alpha = 0.0 - alpha;
+            result = fma(result, neg_alpha, alpha);
+        }
+    "};
+    Graph::parse_glsl(query).unwrap()
+});
+
 pub fn is_premultiplied_alpha(graph: &Graph) -> Option<bool> {
-    // TODO: This doesn't have the correct output name for annotated graphs?
-    let node = graph
+    let alpha_node = graph
         .nodes
         .iter()
-        .rfind(|n| n.output.name == "out_attr0" && n.output.channel == Some('w'))?;
+        .rfind(|n| n.output.name == "OUT_Color" && n.output.channel == Some('w'))?;
+    // The graph isn't simplified yet, so reduce any assignment chains.
+    let alpha_expr = assign_x_recursive(graph, &graph.exprs[alpha_node.input]);
+    let result = query_nodes(alpha_expr, graph, &PREMULTIPLIED_ALPHA_A)
+        .or_else(|| query_nodes(alpha_expr, graph, &PREMULTIPLIED_ALPHA_A2))?;
+    let alpha_expr = assign_x_recursive(graph, result.get("alpha")?);
 
-    // Check if the RGB outputs are multiplied by alpha.
-    let result = query_nodes(&graph.exprs[node.input], graph, &PREMULTIPLIED_ALPHA)?;
+    // Check if the RGB outputs are all multiplied by alpha.
+    let mut is_premultiplied = true;
+    for c in "xyz".chars() {
+        let node = graph
+            .nodes
+            .iter()
+            .rfind(|n| n.output.name == "OUT_Color" && n.output.channel == Some(c))?;
 
-    Some(!result.is_empty())
+        let expr = assign_x_recursive(graph, &graph.exprs[node.input]);
+        let result = query_nodes(expr, graph, &PREMULTIPLIED_ALPHA_RGB)?;
+        let a = assign_x_recursive(graph, result.get("a")?);
+        let b = assign_x_recursive(graph, result.get("b")?);
+        if a != alpha_expr && b != alpha_expr {
+            is_premultiplied = false;
+        }
+    }
+    Some(is_premultiplied)
 }

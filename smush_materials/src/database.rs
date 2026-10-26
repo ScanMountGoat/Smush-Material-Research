@@ -425,10 +425,10 @@ mod tests {
                 temp_744 = temp_739 * temp_736;
                 temp_745 = temp_740 * temp_736;
                 temp_746 = temp_741 * temp_736;
-                out_attr0.x = temp_745;
-                out_attr0.y = temp_744;
-                out_attr0.z = temp_746;
-                out_attr0.w = temp_743;
+                OUT_Color.x = temp_745;
+                OUT_Color.y = temp_744;
+                OUT_Color.z = temp_746;
+                OUT_Color.w = temp_743;
             }
         "};
         let graph = Graph::parse_glsl(source).unwrap();
@@ -443,10 +443,10 @@ mod tests {
                 temp_744 = temp_736 * temp_739;
                 temp_745 = temp_736 * temp_740;
                 temp_746 = temp_736 * temp_741;
-                out_attr0.x = temp_745;
-                out_attr0.y = temp_744;
-                out_attr0.z = temp_746;
-                out_attr0.w = temp_743;
+                OUT_Color.x = temp_745;
+                OUT_Color.y = temp_744;
+                OUT_Color.z = temp_746;
+                OUT_Color.w = temp_743;
             }
         "};
         let graph = Graph::parse_glsl(source).unwrap();
@@ -458,15 +458,15 @@ mod tests {
         // SFX_PBS_0d00000000090000
         let source = indoc! {"
             void main() {
-                temp_92 = 0.0 - temp_76;
-                temp_93 = fma(temp_86, temp_92, temp_76);
-                temp_94 = temp_89 * temp_76;
-                temp_95 = temp_90 * temp_76;
-                temp_96 = temp_91 * temp_76;
-                out_attr0.x = temp_94;
-                out_attr0.y = temp_95;
-                out_attr0.z = temp_96;
-                out_attr0.w = temp_93;
+                temp_80 = 0. - temp_64;
+                temp_81 = fma(temp_74, temp_80, temp_64);
+                temp_82 = temp_77 * temp_64;
+                temp_83 = temp_78 * temp_64;
+                temp_84 = temp_79 * temp_64;
+                OUT_Color.x = temp_82;
+                OUT_Color.y = temp_83;
+                OUT_Color.z = temp_84;
+                OUT_Color.w = temp_81;
             }
         "};
         let graph = Graph::parse_glsl(source).unwrap();
@@ -481,10 +481,10 @@ mod tests {
                 temp_734 = fma(temp_722, fp_c11_data[26].x, temp_732);
                 temp_735 = fma(temp_724, fp_c11_data[26].x, temp_732);
                 temp_736 = fma(temp_726, fp_c11_data[26].x, temp_732);
-                out_attr0.x = temp_734;
-                out_attr0.y = temp_735;
-                out_attr0.z = temp_736;
-                out_attr0.w = temp_733;
+                OUT_Color.x = temp_734;
+                OUT_Color.y = temp_735;
+                OUT_Color.z = temp_736;
+                OUT_Color.w = temp_733;
             }
         "};
         let graph = Graph::parse_glsl(source).unwrap();
