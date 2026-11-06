@@ -151,7 +151,7 @@ static INSTANCE_VIEW_COL0_Y: LazyLock<Graph> = LazyLock::new(|| {
             temp_11 = nuPerViewCBuffer.data[int(temp_9)][temp_10];
         }
     "};
-    Graph::parse_glsl(&query).unwrap().simplify()
+    Graph::parse_glsl(query).unwrap().simplify()
 });
 
 fn instance_view_query_xz(offset: u32) -> String {

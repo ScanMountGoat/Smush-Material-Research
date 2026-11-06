@@ -112,12 +112,16 @@ struct ShaderProgramIndexed {
     complexity: f64,
 
     // There are very few unique dependencies across all shaders in a game dump.
-    // Normalize the data to greatly reduce the size file size.
+    // Index the exprs across all programs to greatly reduce the file size.
     #[br(parse_with = parse_vec)]
     #[bw(write_with = write_vec)]
-    output_dependencies: Vec<(VarInt, VarInt)>,
+    vertex_output_exprs: Vec<(VarInt, VarInt)>,
 
-    discard_condition: OptVarInt,
+    #[br(parse_with = parse_vec)]
+    #[bw(write_with = write_vec)]
+    fragment_output_exprs: Vec<(VarInt, VarInt)>,
+
+    fragment_discard_condition: OptVarInt,
 }
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, BinRead, BinWrite)]
@@ -264,8 +268,11 @@ impl ShaderDatabaseIndexed {
     fn program_indexed(&mut self, p: &ShaderProgram) -> ShaderProgramIndexed {
         // Remap exprs indexed for this program to exprs indexed for all programs.
         let mut expr_indices = IndexMap::default();
-        for i in 0..p.exprs.exprs.len() {
-            self.add_output_expr(i, &p.exprs.exprs, &mut expr_indices);
+        for i in 0..p.exprs.vertex_exprs.len() {
+            self.add_output_expr(i, &p.exprs.vertex_exprs, &mut expr_indices);
+        }
+        for i in 0..p.exprs.fragment_exprs.len() {
+            self.add_output_expr(i, &p.exprs.fragment_exprs, &mut expr_indices);
         }
 
         ShaderProgramIndexed {
@@ -286,16 +293,29 @@ impl ShaderDatabaseIndexed {
                 .map(|s| add_string(&mut self.parameter_channels, s.clone()))
                 .collect(),
             complexity: p.complexity,
-            output_dependencies: p
+            vertex_output_exprs: p
                 .exprs
-                .output_dependencies
+                .vertex_output_exprs
                 .iter()
                 .map(|(output, value)| {
                     let output_index = add_string(&mut self.outputs, output.clone());
                     (output_index, expr_indices[value])
                 })
                 .collect(),
-            discard_condition: OptVarInt(p.exprs.discard_condition.map(|i| expr_indices[i].0)),
+            fragment_output_exprs: p
+                .exprs
+                .fragment_output_exprs
+                .iter()
+                .map(|(output, value)| {
+                    let output_index = add_string(&mut self.outputs, output.clone());
+                    (output_index, expr_indices[value])
+                })
+                .collect(),
+            fragment_discard_condition: OptVarInt(
+                p.exprs
+                    .fragment_discard_condition
+                    .map(|i| expr_indices[i].0),
+            ),
         }
     }
 
@@ -343,25 +363,47 @@ impl ShaderDatabaseIndexed {
     }
 
     fn program_from_indexed(&self, p: &ShaderProgramIndexed) -> ShaderProgram {
-        // Remap exprs indexed for all programs to exprs indexed for this program.
-        let mut exprs = IndexSet::default();
-        let mut expr_to_index = IndexMap::default();
+        // Remap exprs indexed for all programs to vertex exprs indexed for this program.
+        let mut vertex_exprs = IndexSet::default();
+        let mut vertex_expr_to_index = IndexMap::default();
 
-        let output_dependencies = p
-            .output_dependencies
+        let vertex_output_exprs = p
+            .vertex_output_exprs
             .iter()
             .map(|(output, value)| {
                 (
                     self.outputs[output.0].clone(),
-                    self.output_expr_from_indexed(value.0, &mut exprs, &mut expr_to_index),
+                    self.output_expr_from_indexed(
+                        value.0,
+                        &mut vertex_exprs,
+                        &mut vertex_expr_to_index,
+                    ),
                 )
             })
             .collect();
 
-        let discard_condition = p
-            .discard_condition
-            .0
-            .map(|i| self.output_expr_from_indexed(i, &mut exprs, &mut expr_to_index));
+        // Remap exprs indexed for all programs to fragment exprs indexed for this program.
+        let mut fragment_exprs = IndexSet::default();
+        let mut fragment_expr_to_index = IndexMap::default();
+
+        let fragment_output_exprs = p
+            .fragment_output_exprs
+            .iter()
+            .map(|(output, value)| {
+                (
+                    self.outputs[output.0].clone(),
+                    self.output_expr_from_indexed(
+                        value.0,
+                        &mut fragment_exprs,
+                        &mut fragment_expr_to_index,
+                    ),
+                )
+            })
+            .collect();
+
+        let fragment_discard_condition = p.fragment_discard_condition.0.map(|i| {
+            self.output_expr_from_indexed(i, &mut fragment_exprs, &mut fragment_expr_to_index)
+        });
 
         ShaderProgram {
             discard: p.discard,
@@ -382,9 +424,11 @@ impl ShaderDatabaseIndexed {
                 .collect(),
             complexity: p.complexity,
             exprs: ShaderExprs {
-                output_dependencies,
-                exprs: exprs.into_iter().collect(),
-                discard_condition,
+                vertex_exprs: vertex_exprs.into_iter().collect(),
+                vertex_output_exprs,
+                fragment_output_exprs,
+                fragment_exprs: fragment_exprs.into_iter().collect(),
+                fragment_discard_condition,
             },
         }
     }

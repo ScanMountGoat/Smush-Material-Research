@@ -11,7 +11,7 @@ use xc3_shader::{
     expr::{ExprCache, OutputExpr, output_expr},
     graph::{
         Graph,
-        glsl::{GlslGraph, merge_vertex_fragment, shader_source_no_extensions},
+        glsl::{GlslGraph, shader_source_no_extensions},
     },
 };
 
@@ -104,38 +104,54 @@ impl xc3_shader::expr::Operation for Operation {
 }
 
 pub fn shader_from_glsl(vertex: GlslGraph, fragment: GlslGraph) -> ShaderExprs {
-    // Create a combined graph that links vertex outputs to fragment inputs.
-    // This effectively moves all shader logic to the fragment shader.
-    // This simplifies generating shader code or material nodes in 3D applications.
-    let frag_attributes = fragment.attributes.clone();
+    let mut vertex_exprs = ExprCache::<Operation>::default();
+    let mut vertex_output_exprs = IndexMap::default();
 
-    let graph = merge_vertex_fragment(&vertex, &fragment).simplify();
-
-    let mut exprs = ExprCache::<Operation>::default();
-
-    let mut output_dependencies = IndexMap::default();
-
-    for output_name in frag_attributes.output_locations.left_values() {
+    let vert_graph = vertex.graph.simplify();
+    let out_position = SmolStr::from("gl_Position");
+    for output_name in
+        std::iter::once(&out_position).chain(vertex.attributes.output_locations.left_values())
+    {
         for c in "xyzw".chars() {
             // Find the most recent assignment for the output variable.
-            if let Some(node) = graph
+            if let Some(node) = vert_graph
                 .nodes
                 .iter()
                 .rfind(|n| &n.output.name == output_name && n.output.channel == Some(c))
             {
-                let expr = &graph.exprs[node.input];
+                let expr = &vert_graph.exprs[node.input];
 
-                let value = output_expr(expr, &graph, &mut exprs);
-                output_dependencies.insert(format_smolstr!("{output_name}.{c}"), value);
+                let value = output_expr(expr, &vert_graph, &mut vertex_exprs);
+                vertex_output_exprs.insert(format_smolstr!("{output_name}.{c}"), value);
             }
         }
     }
 
-    let discard_condition = graph
-        .discard_condition
-        .map(|i| output_expr(&graph.exprs[i], &graph, &mut exprs));
+    let mut fragment_exprs = ExprCache::<Operation>::default();
+    let mut fragment_output_exprs = IndexMap::default();
 
-    let exprs = exprs
+    let frag_graph = fragment.graph.simplify();
+    for output_name in fragment.attributes.output_locations.left_values() {
+        for c in "xyzw".chars() {
+            // Find the most recent assignment for the output variable.
+            if let Some(node) = frag_graph
+                .nodes
+                .iter()
+                .rfind(|n| &n.output.name == output_name && n.output.channel == Some(c))
+            {
+                let expr = &frag_graph.exprs[node.input];
+
+                let value = output_expr(expr, &frag_graph, &mut fragment_exprs);
+                fragment_output_exprs.insert(format_smolstr!("{output_name}.{c}"), value);
+            }
+        }
+    }
+
+    let fragment_discard_condition = frag_graph
+        .discard_condition
+        .map(|i| output_expr(&frag_graph.exprs[i], &frag_graph, &mut fragment_exprs));
+
+    let vertex_exprs = vertex_exprs
         .into_exprs()
         .into_iter()
         .map(|e| match e {
@@ -147,12 +163,24 @@ pub fn shader_from_glsl(vertex: GlslGraph, fragment: GlslGraph) -> ShaderExprs {
         })
         .collect();
 
-    // TODO: Create a type for this and add it to the parent ShaderProgram type?
-    // TODO: This function shouldn't use any game specific data?
+    let fragment_exprs = fragment_exprs
+        .into_exprs()
+        .into_iter()
+        .map(|e| match e {
+            OutputExpr::Value(value) => OutputExpr::Value(value),
+            OutputExpr::Func { op, args } => OutputExpr::Func {
+                op: op.into(),
+                args,
+            },
+        })
+        .collect();
+
     ShaderExprs {
-        output_dependencies,
-        exprs,
-        discard_condition,
+        vertex_exprs,
+        vertex_output_exprs,
+        fragment_exprs,
+        fragment_output_exprs,
+        fragment_discard_condition,
     }
 }
 
@@ -261,7 +289,7 @@ pub fn export_shader_database(
                     ShaderExprs::default()
                 };
 
-                let parameters = material_parameters(program, &exprs.exprs);
+                let parameters = material_parameters(program, &exprs);
 
                 (
                     program.name.to_string_lossy().into(),
@@ -313,7 +341,7 @@ fn shader_source(source_folder: &str, shader: &String) -> Result<String, std::io
 
 fn material_parameters(
     program: &ssbh_lib::formats::nufx::ShaderProgramV1,
-    exprs: &[OutputExpr<Op>],
+    exprs: &ShaderExprs,
 ) -> Vec<SmolStr> {
     program
         .material_parameters
@@ -324,12 +352,18 @@ fn material_parameters(
 
             if name.contains("Texture") {
                 // "Texture0.xyz"
-                let channels = texture_color_channels(&name, exprs);
-                format_channels(&name, &channels)
+                let vert_channels = texture_color_channels(&name, &exprs.vertex_exprs);
+                let frag_channels = texture_color_channels(&name, &exprs.fragment_exprs);
+                let combined: BTreeSet<_> = vert_channels.union(&frag_channels).copied().collect();
+                format_channels(&name, &combined)
             } else if name.contains("CustomVector") {
                 // "CustomVector8.xyzw"
-                let channels = parameter_color_channels(&name, "nuPerMaterial", exprs);
-                format_channels(&name, &channels)
+                let vert_channels =
+                    parameter_color_channels(&name, "nuPerMaterial", &exprs.vertex_exprs);
+                let frag_channels =
+                    parameter_color_channels(&name, "nuPerMaterial", &exprs.fragment_exprs);
+                let combined: BTreeSet<_> = vert_channels.union(&frag_channels).copied().collect();
+                format_channels(&name, &combined)
             } else {
                 // BlendState0
                 name.into()

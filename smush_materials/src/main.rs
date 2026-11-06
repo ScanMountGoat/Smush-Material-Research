@@ -12,7 +12,7 @@ use clap::{Parser, Subcommand};
 use database::export_shader_database;
 use dependencies::source_dependencies;
 use rayon::prelude::*;
-use smush_shader::ShaderExprs;
+use smush_shader::{Operation, OutputExpr, ShaderExprs};
 use ssbh_data::{prelude::*, shdr_data::Metadata};
 use ssbh_lib::formats::shdr::ShaderStage;
 use xc3_shader::graph::glsl::GlslGraph;
@@ -447,16 +447,22 @@ fn shader_str(s: &ShaderExprs) -> anyhow::Result<String> {
 
     // Use a condensed representation similar to GLSL for nicer diffs.
     let mut output = String::new();
-    for (k, v) in &s.output_dependencies {
+    for (k, v) in &s.vertex_output_exprs {
         let mut visited = IndexSet::default();
-        write_expr_dependencies_recursive(&mut output, s, *v, &mut visited);
-        write_assignment(&mut output, s, k, *v, &mut visited);
+        write_expr_dependencies_recursive(&mut output, &s.vertex_exprs, *v, &mut visited);
+        write_assignment(&mut output, &s.vertex_exprs, k, *v, &mut visited);
         writeln!(&mut output)?;
     }
-    if let Some(i) = s.discard_condition {
+    for (k, v) in &s.fragment_output_exprs {
         let mut visited = IndexSet::default();
-        write_expr_dependencies_recursive(&mut output, s, i, &mut visited);
-        write_assignment(&mut output, s, "discard", i, &mut visited);
+        write_expr_dependencies_recursive(&mut output, &s.fragment_exprs, *v, &mut visited);
+        write_assignment(&mut output, &s.fragment_exprs, k, *v, &mut visited);
+        writeln!(&mut output)?;
+    }
+    if let Some(i) = s.fragment_discard_condition {
+        let mut visited = IndexSet::default();
+        write_expr_dependencies_recursive(&mut output, &s.fragment_exprs, i, &mut visited);
+        write_assignment(&mut output, &s.fragment_exprs, "discard", i, &mut visited);
         writeln!(&mut output).unwrap();
     }
 
@@ -466,7 +472,7 @@ fn shader_str(s: &ShaderExprs) -> anyhow::Result<String> {
 // TODO: assume the index is used exactly once because of SSA and never write var{i}?
 fn write_assignment(
     output: &mut String,
-    s: &ShaderExprs,
+    exprs: &[OutputExpr<Operation>],
     var: &str,
     i: usize,
     old_to_new_index: &mut IndexSet<usize>,
@@ -474,44 +480,44 @@ fn write_assignment(
     writeln!(
         output,
         "{var} = {};",
-        arg_inlined_value(s, i, old_to_new_index)
+        arg_inlined_value(exprs, i, old_to_new_index)
     )
     .unwrap();
 }
 
 fn write_expr_dependencies_recursive(
     output: &mut String,
-    s: &ShaderExprs,
+    exprs: &[OutputExpr<Operation>],
     i: usize,
     old_to_new_index: &mut IndexSet<usize>,
 ) {
     // Write all values that this value depends on first.
     if !old_to_new_index.contains(&i) {
-        let expr = &s.exprs[i];
+        let expr = &exprs[i];
         match expr {
             smush_shader::OutputExpr::Value(v) => match v {
                 smush_shader::Value::Parameter(p) => {
                     if let Some(i) = p.index {
-                        write_expr_dependencies_recursive(output, s, i, old_to_new_index);
+                        write_expr_dependencies_recursive(output, exprs, i, old_to_new_index);
                     }
                     if let Some(i) = p.index2 {
-                        write_expr_dependencies_recursive(output, s, i, old_to_new_index);
+                        write_expr_dependencies_recursive(output, exprs, i, old_to_new_index);
                     }
                 }
                 smush_shader::Value::Texture(t) => {
                     for arg in &t.texcoords {
-                        write_expr_dependencies_recursive(output, s, *arg, old_to_new_index);
+                        write_expr_dependencies_recursive(output, exprs, *arg, old_to_new_index);
                     }
                 }
                 _ => (),
             },
             smush_shader::OutputExpr::Func { op, args } => {
                 for arg in args {
-                    write_expr_dependencies_recursive(output, s, *arg, old_to_new_index);
+                    write_expr_dependencies_recursive(output, exprs, *arg, old_to_new_index);
                 }
 
                 // Write values inline to make the output easier to read.
-                let args = args_inlined_values(s, args, old_to_new_index);
+                let args = args_inlined_values(exprs, args, old_to_new_index);
                 let new_index = old_to_new_index.insert_full(i).0;
                 writeln!(output, "var{new_index} = {op}({});", args.join(", ")).unwrap();
             }
@@ -520,20 +526,24 @@ fn write_expr_dependencies_recursive(
 }
 
 fn args_inlined_values(
-    s: &ShaderExprs,
+    exprs: &[OutputExpr<Operation>],
     args: &[usize],
     old_to_new_index: &mut IndexSet<usize>,
 ) -> Vec<String> {
     args.iter()
-        .map(|a| arg_inlined_value(s, *a, old_to_new_index))
+        .map(|a| arg_inlined_value(exprs, *a, old_to_new_index))
         .collect()
 }
 
-fn arg_inlined_value(s: &ShaderExprs, i: usize, old_to_new_index: &mut IndexSet<usize>) -> String {
-    match &s.exprs[i] {
+fn arg_inlined_value(
+    exprs: &[OutputExpr<Operation>],
+    i: usize,
+    old_to_new_index: &mut IndexSet<usize>,
+) -> String {
+    match &exprs[i] {
         smush_shader::OutputExpr::Value(v) => match v {
             smush_shader::Value::Texture(t) => {
-                let coords: Vec<_> = args_inlined_values(s, &t.texcoords, old_to_new_index);
+                let coords: Vec<_> = args_inlined_values(exprs, &t.texcoords, old_to_new_index);
                 format!(
                     "Texture({}, {}){}",
                     t.name,
@@ -551,10 +561,10 @@ fn arg_inlined_value(s: &ShaderExprs, i: usize, old_to_new_index: &mut IndexSet<
                         String::new()
                     },
                     p.index
-                        .map(|i| format!("[{}]", arg_inlined_value(s, i, old_to_new_index)))
+                        .map(|i| format!("[{}]", arg_inlined_value(exprs, i, old_to_new_index)))
                         .unwrap_or_default(),
                     p.index2
-                        .map(|i| format!("[{}]", arg_inlined_value(s, i, old_to_new_index)))
+                        .map(|i| format!("[{}]", arg_inlined_value(exprs, i, old_to_new_index)))
                         .unwrap_or_default(),
                     p.channel.map(|c| format!(".{c}")).unwrap_or_default()
                 )

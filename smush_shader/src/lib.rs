@@ -34,14 +34,23 @@ pub struct ShaderProgram {
     pub parameters: Vec<SmolStr>,
     /// A heuristic for shader complexity in the range `0.0` to `1.0`.
     pub complexity: f64,
+    /// An optimized representation of the shader program code.
     pub exprs: ShaderExprs,
 }
 
+/// The shader code for a vertex and fragment shader represented in optimized graph form.
 #[derive(Debug, PartialEq, Default)]
 pub struct ShaderExprs {
-    pub output_dependencies: IndexMap<SmolStr, usize>,
-    pub discard_condition: Option<usize>,
-    pub exprs: Vec<OutputExpr<Operation>>,
+    /// Unique shader exprs for the vertex shader.
+    pub vertex_exprs: Vec<OutputExpr<Operation>>,
+    /// Index into [vertex_exprs](#structfield.vertex_exprs) for outputs like `"gl_Position.x"` or `"OUT_Normal.x"`.
+    pub vertex_output_exprs: IndexMap<SmolStr, usize>,
+    /// Unique shader exprs for the fragment shader.
+    pub fragment_exprs: Vec<OutputExpr<Operation>>,
+    /// Index into [fragment_exprs](#structfield.fragment_exprs) for outputs like `"OUT_Color.x"`.
+    pub fragment_output_exprs: IndexMap<SmolStr, usize>,
+    /// Index into [fragment_exprs](#structfield.fragment_exprs) for the alpha testing discard condition if present.
+    pub fragment_discard_condition: Option<usize>,
 }
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Default, FromRepr)]
