@@ -90,6 +90,7 @@ pub enum Operation {
     Unpack2Float16X,
     Unpack2Float16Y,
     IsNaN,
+    VarianceShadow,
 }
 
 impl ShaderDatabase {

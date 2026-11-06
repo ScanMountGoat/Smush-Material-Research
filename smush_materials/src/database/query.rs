@@ -751,6 +751,44 @@ pub fn nl_x<'a>(graph: &'a Graph, expr: &'a Expr) -> Option<Expr> {
     })
 }
 
+static VARIANCE_SHADOW: LazyLock<Graph> = LazyLock::new(|| {
+    // SFX_PBS_0100000008000269_PS.glsl
+    let query = indoc! {"
+        void main() {
+            temp_103 = IN_ShadowMap_y;
+            temp_105 = IN_ShadowMap_x;
+            temp_121 = texture(Texture15, vec2(temp_105, temp_103)).x;
+            temp_122 = texture(Texture15, vec2(temp_105, temp_103)).y;
+            temp_186 = IN_ShadowMap_z;
+            temp_222 = min(temp_186, 1.0);
+            temp_246 = 0.0 - temp_121;
+            temp_247 = fma(temp_121, temp_246, temp_122);
+            temp_248 = 0.0 - temp_121;
+            temp_249 = temp_248 + temp_222;
+            temp_250 = temp_247 + shadow_param;
+            temp_251 = clamp(temp_250, 0.0, 1.0);
+            temp_254 = max(0.0, temp_249);
+            temp_255 = fma(temp_254, temp_254, temp_251);
+            temp_259 = 1.0 / temp_255;
+            temp_274 = temp_251 * temp_259;
+            temp_276 = abs(temp_274);
+            temp_277 = log2(temp_276);
+            temp_297 = temp_277 * 4.0;
+            temp_309 = exp2(temp_297);
+        }
+    "};
+    Graph::parse_glsl(query).unwrap().simplify()
+});
+
+pub fn op_variance_shadow<'a>(
+    graph: &'a Graph,
+    expr: &'a Expr,
+) -> Option<(Operation, Vec<&'a Expr>)> {
+    let result = query_nodes(expr, graph, &VARIANCE_SHADOW)?;
+    let param = result.get("shadow_param")?; // PerObject.ShadowMapParam.x
+    Some((Op::VarianceShadow.into(), vec![param]))
+}
+
 static ANISOTROPIC_ROTATION: LazyLock<Graph> = LazyLock::new(|| {
     // TODO: does this require a more specific query?
     let query = indoc! {"

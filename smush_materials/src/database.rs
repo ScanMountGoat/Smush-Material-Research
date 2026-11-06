@@ -45,8 +45,10 @@ impl xc3_shader::expr::Operation for Operation {
         graph: &'a Graph,
         expr: &'a xc3_shader::graph::Expr,
     ) -> Option<(Self, Vec<&'a xc3_shader::graph::Expr>)> {
+        // Order operations from most to least specific.
         // TODO: how to handle bitfieldExtract to be compatible with WGSL?
-        binary_ops(graph, expr)
+        op_variance_shadow(graph, expr)
+            .or_else(|| binary_ops(graph, expr))
             .or_else(|| op_func(graph, expr, "fma", Op::Fma.into()))
             .or_else(|| op_func(graph, expr, "min", Op::Min.into()))
             .or_else(|| op_func(graph, expr, "max", Op::Max.into()))
