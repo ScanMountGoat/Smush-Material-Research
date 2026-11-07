@@ -38,7 +38,7 @@ The shaders can be decompiled using Ryujinx's ShaderTools.
 `cargo run --release -- shader-binaries <binary export folder> <export folder> <ShaderTools.exe> `  
 
 ## Annotated Decompiled Shaders
-Replaces input and output attributes, textures, and uniforms in the decompiled shaders using variable names from the nushdb metadata. See [shaders](https://github.com/ScanMountGoat/Smush-Material-Research/blob/master/Shaders.md) for details. The start of the main function contains declarations for uniform parameters. Not all parameters are used in the actual code.  
+Replaces input and output attributes, textures, and uniforms in the decompiled shaders using variable names from the nushdb metadata. See [shaders](https://github.com/ScanMountGoat/Smush-Material-Research/blob/master/Shaders.md) for details. 
  
 `cargo run --release -- annotate-decompiled-shaders <decompiled shaders> </render/shader/bin folder> <export folder>`
 
