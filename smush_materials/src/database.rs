@@ -288,6 +288,16 @@ pub fn export_shader_database(
                     ShaderExprs::default()
                 };
 
+                let renormal = exprs.vertex_exprs.iter().any(|e| {
+                    if let OutputExpr::Value(Value::Attribute(a)) = e
+                        && a.name.contains("renormal")
+                    {
+                        true
+                    } else {
+                        false
+                    }
+                });
+
                 let parameters = material_parameters(program, &exprs);
 
                 (
@@ -299,6 +309,7 @@ pub fn export_shader_database(
                         sh,
                         lighting,
                         anisotropic_rotation,
+                        renormal,
                         attributes,
                         parameters,
                         complexity: lines_of_code as f64,

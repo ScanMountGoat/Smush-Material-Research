@@ -101,6 +101,10 @@ struct ShaderProgramIndexed {
     #[bw(map(|x: &bool| *x as u8))]
     anisotropic_rotation: bool,
 
+    #[br(map(|x: u8| x != 0))]
+    #[bw(map(|x: &bool| *x as u8))]
+    renormal: bool,
+
     #[br(parse_with = parse_vec)]
     #[bw(write_with = write_vec)]
     attributes: Vec<VarInt>,
@@ -283,6 +287,7 @@ impl ShaderDatabaseIndexed {
             sh: p.sh,
             lighting: p.lighting,
             anisotropic_rotation: p.anisotropic_rotation,
+            renormal: p.renormal,
             attributes: p
                 .attributes
                 .iter()
@@ -413,6 +418,7 @@ impl ShaderDatabaseIndexed {
             sh: p.sh,
             lighting: p.lighting,
             anisotropic_rotation: p.anisotropic_rotation,
+            renormal: p.renormal,
             attributes: p
                 .attributes
                 .iter()

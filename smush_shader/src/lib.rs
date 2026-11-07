@@ -28,6 +28,8 @@ pub struct ShaderProgram {
     pub lighting: bool,
     /// `true` if the fragment shader rotates the tangent and bitangent vectors for anisotropic shading.
     pub anisotropic_rotation: bool,
+    /// `true` if the vertex shader recalculates the normals to fix shading artifacts while animating.
+    pub renormal: bool,
     /// The collection of required mesh vertex attributes and their accessed channels.
     pub attributes: Vec<SmolStr>,
     /// The collection of required material parameters and their accessed channels.
@@ -231,6 +233,7 @@ mod tests {
             sh: false,
             lighting: false,
             anisotropic_rotation: false,
+            renormal: false,
             attributes: Vec::new(),
             parameters: Vec::new(),
             complexity: 0.0,
