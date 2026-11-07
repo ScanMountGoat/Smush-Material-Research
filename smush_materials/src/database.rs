@@ -87,7 +87,6 @@ impl xc3_shader::expr::Operation for Operation {
         if let Some(new_expr) = instance_view_matrix(graph, expr)
             .or_else(|| renormal(graph, expr))
             .or_else(|| unk_renormal(graph, expr))
-            .or_else(|| nl_x(graph, expr))
         {
             Cow::Owned(new_expr)
         } else {

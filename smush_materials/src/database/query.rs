@@ -325,8 +325,9 @@ pub fn instance_view_matrix<'a>(graph: &'a Graph, expr: &'a Expr) -> Option<Expr
     })
 }
 
-fn renormal_query(c: char) -> String {
+fn renormal_query(var: &str) -> String {
     // SFX_PBS_011000000800826b_VS.glsl
+    // The final recalculated normal.
     formatdoc! {"
         void main() {{
             temp_0 = intBitsToFloat(gl_VertexID);
@@ -416,52 +417,46 @@ fn renormal_query(c: char) -> String {
             temp_41 = temp_38 ? temp_100 : temp_41;
             temp_42 = temp_38 ? temp_101 : temp_42;
             temp_102 = temp_39;
-            temp_103 = temp_40;
-            temp_104 = temp_41;
-            temp_105 = temp_42;
+            temp_103 = temp_40; // renormal.x
+            temp_104 = temp_41; // renormal.y
+            temp_105 = temp_42; // renormal.z
             temp_114 = float(temp_102);
             temp_118 = 1.0 / temp_114;
-            temp_142 = temp_104 * temp_118;
-            temp_144 = temp_103 * temp_118;
-            temp_161 = temp_105 * temp_118;
-            temp_159 = temp_144 * nuPerWorldCBuffer.worldMatrix[0].{c};
-            temp_167 = fma(temp_142, nuPerWorldCBuffer.worldMatrix[1].{c}, temp_159);
-            temp_175 = fma(temp_161, nuPerWorldCBuffer.worldMatrix[2].{c}, temp_167);
+            result = {var} * temp_118;
         }}
     "}
 }
 
 static RENORMAL_X: LazyLock<Graph> = LazyLock::new(|| {
-    let query = renormal_query('x');
+    let query = renormal_query("temp_103");
     Graph::parse_glsl(&query).unwrap().simplify()
 });
 
 static RENORMAL_Y: LazyLock<Graph> = LazyLock::new(|| {
-    let query = renormal_query('y');
+    let query = renormal_query("temp_104");
     Graph::parse_glsl(&query).unwrap().simplify()
 });
 
 static RENORMAL_Z: LazyLock<Graph> = LazyLock::new(|| {
-    let query = renormal_query('z');
+    let query = renormal_query("temp_105");
     Graph::parse_glsl(&query).unwrap().simplify()
 });
 
 pub fn renormal<'a>(graph: &'a Graph, expr: &'a Expr) -> Option<Expr> {
-    // TODO: make this an operation that takes the position as an argument.
     query_nodes(expr, graph, &RENORMAL_X)
         .map(|_| Expr::Global {
-            name: "IN_Normal".into(),
+            name: "renormal".into(),
             channel: Some('x'),
         })
         .or_else(|| {
             query_nodes(expr, graph, &RENORMAL_Y).map(|_| Expr::Global {
-                name: "IN_Normal".into(),
+                name: "renormal".into(),
                 channel: Some('y'),
             })
         })
         .or_else(|| {
             query_nodes(expr, graph, &RENORMAL_Z).map(|_| Expr::Global {
-                name: "IN_Normal".into(),
+                name: "renormal".into(),
                 channel: Some('z'),
             })
         })
@@ -534,7 +529,7 @@ static UNK_RENORMAL_Y: LazyLock<Graph> = LazyLock::new(|| {
             temp_55 = temp_38 ? temp_47 + 4 : temp_55;
             temp_59 = temp_38 ? temp_55 + floatBitsToInt(vp_c0.data[17].x) : temp_59;
             temp_60 = temp_38 ? uint(temp_59) < uint(temp_55) : temp_60;
-            temp_63 = temp_38 ? temp_60 ? -1 : 0 & 1 : temp_63;
+            temp_63 = temp_38 ? (temp_60 ? -1 : 0) & 1 : temp_63;
             temp_64 = temp_38 ? floatBitsToInt(vp_c0.data[17].y) + temp_63 : temp_64;
             temp_44 = temp_38 ? temp_64 : temp_44;
             temp_107 = temp_44;
@@ -586,13 +581,13 @@ static UNK_RENORMAL_Z: LazyLock<Graph> = LazyLock::new(|| {
 });
 
 pub fn unk_renormal<'a>(graph: &'a Graph, expr: &'a Expr) -> Option<Expr> {
+    // TODO: What is this computing?
     // TODO: figure out how effect area and RENORMAL code interacts
     query_nodes(expr, graph, &UNK_RENORMAL_X)
         .map(|_| Expr::Global {
             name: "unk_renormal".into(),
             channel: Some('x'),
         })
-        // TODO: why does this not work?
         .or_else(|| {
             query_nodes(expr, graph, &UNK_RENORMAL_Y).map(|_| Expr::Global {
                 name: "unk_renormal".into(),
@@ -605,150 +600,6 @@ pub fn unk_renormal<'a>(graph: &'a Graph, expr: &'a Expr) -> Option<Expr> {
                 channel: Some('z'),
             })
         })
-}
-
-static NL_X: LazyLock<Graph> = LazyLock::new(|| {
-    // SFX_PBS_011000000800826b_VS.glsl, OUT_NL.x
-    let query = indoc! {"
-        void main() {
-            temp_0 = intBitsToFloat(gl_VertexID);
-            temp_4 = floatBitsToInt(temp_0) & 65535;
-            temp_5 = temp_4 * 36;
-            temp_6 = floatBitsToUint(temp_0) >> 16;
-            temp_7 = int(temp_6) * 36;
-            temp_8 = temp_7 << 16;
-            temp_9 = temp_8 + temp_5;
-            temp_10 = 0;
-            temp_12 = 0;
-            temp_13 = 0.0;
-            temp_14 = 0.0;
-            temp_15 = 0.0;
-            temp_20 = temp_10;
-            temp_22 = temp_12;
-            temp_23 = temp_13;
-            temp_24 = temp_14;
-            temp_25 = temp_15;
-            temp_29 = temp_20 << 2;
-            temp_30 = temp_29 + temp_9;
-            temp_31 = uint(temp_30) >> 2;
-            temp_32 = uintBitsToFloat(adjacenciesStruct.data[int(temp_31)]);
-            temp_34 = floatBitsToUint(temp_32) >> 16;
-            temp_35 = int(temp_34) != 65535;
-            temp_36 = floatBitsToInt(temp_32) & 65535;
-            temp_37 = temp_36 != 65535;
-            temp_38 = temp_37 && temp_35;
-            temp_39 = uint(temp_22);
-            temp_40 = temp_23;
-            temp_41 = temp_24;
-            temp_42 = temp_25;
-            temp_46 = temp_38 ? temp_36 & 65535 : temp_46;
-            temp_47 = temp_38 ? temp_46 * 28 : temp_47;
-            temp_48 = temp_38 ? int(temp_34) & 65535 : temp_48;
-            temp_49 = temp_38 ? temp_48 * 28 : temp_49;
-            temp_50 = temp_38 ? temp_49 + 8 : temp_50;
-            temp_51 = temp_38 ? uint(temp_47) >> 2 : temp_51;
-            temp_52 = temp_38 ? uintBitsToFloat(verticesStruct.data[int(temp_51)]) : temp_52;
-            temp_53 = temp_38 ? temp_49 + 4 : temp_53;
-            temp_54 = temp_38 ? temp_47 + 8 : temp_54;
-            temp_55 = temp_38 ? temp_47 + 4 : temp_55;
-            temp_56 = temp_38 ? uint(temp_53) >> 2 : temp_56;
-            temp_57 = temp_38 ? uintBitsToFloat(verticesStruct.data[int(temp_56)]) : temp_57;
-            temp_58 = temp_38 ? IN_Position.y : temp_58;
-            temp_61 = temp_38 ? uint(temp_54) >> 2 : temp_61;
-            temp_62 = temp_38 ? uintBitsToFloat(verticesStruct.data[int(temp_61)]) : temp_62;
-            temp_65 = temp_38 ? uint(temp_50) >> 2 : temp_65;
-            temp_66 = temp_38 ? uintBitsToFloat(verticesStruct.data[int(temp_65)]) : temp_66;
-            temp_67 = temp_38 ? IN_Position.x : temp_67;
-            temp_68 = temp_38 ? uint(temp_55) >> 2 : temp_68;
-            temp_69 = temp_38 ? uintBitsToFloat(verticesStruct.data[int(temp_68)]) : temp_69;
-            temp_70 = temp_38 ? temp_22 + 1 : temp_70;
-            temp_71 = temp_38 ? IN_Position.z : temp_71;
-            temp_72 = temp_38 ? uint(temp_49) >> 2 : temp_72;
-            temp_73 = temp_38 ? uintBitsToFloat(verticesStruct.data[int(temp_72)]) : temp_73;
-            temp_74 = temp_38 ? 0.0 - temp_57 : temp_74;
-            temp_75 = temp_38 ? temp_74 + temp_58 : temp_75;
-            temp_76 = temp_38 ? 0.0 - temp_62 : temp_76;
-            temp_77 = temp_38 ? temp_76 + temp_71 : temp_77;
-            temp_78 = temp_38 ? temp_75 * temp_77 : temp_78;
-            temp_79 = temp_38 ? 0.0 - temp_69 : temp_79;
-            temp_80 = temp_38 ? temp_79 + temp_58 : temp_80;
-            temp_81 = temp_38 ? 0.0 - temp_66 : temp_81;
-            temp_82 = temp_38 ? temp_81 + temp_71 : temp_82;
-            temp_83 = temp_38 ? 0.0 - temp_52 : temp_83;
-            temp_84 = temp_38 ? temp_83 + temp_67 : temp_84;
-            temp_85 = temp_38 ? 0.0 - temp_73 : temp_85;
-            temp_86 = temp_38 ? temp_85 + temp_67 : temp_86;
-            temp_87 = temp_38 ? temp_82 * temp_84 : temp_87;
-            temp_88 = temp_38 ? 0.0 - temp_78 : temp_88;
-            temp_89 = temp_38 ? fma(temp_82, temp_80, temp_88) : temp_89;
-            temp_90 = temp_38 ? temp_86 * temp_80 : temp_90;
-            temp_91 = temp_38 ? 0.0 - temp_87 : temp_91;
-            temp_92 = temp_38 ? fma(temp_86, temp_77, temp_91) : temp_92;
-            temp_93 = temp_38 ? temp_89 * temp_89 : temp_93;
-            temp_94 = temp_38 ? 0.0 - temp_90 : temp_94;
-            temp_95 = temp_38 ? fma(temp_75, temp_84, temp_94) : temp_95;
-            temp_96 = temp_38 ? fma(temp_92, temp_92, temp_93) : temp_96;
-            temp_97 = temp_38 ? fma(temp_95, temp_95, temp_96) : temp_97;
-            temp_98 = temp_38 ? inversesqrt(temp_97) : temp_98;
-            temp_99 = temp_38 ? fma(temp_89, temp_98, temp_23) : temp_99;
-            temp_100 = temp_38 ? fma(temp_92, temp_98, temp_24) : temp_100;
-            temp_101 = temp_38 ? fma(temp_95, temp_98, temp_25) : temp_101;
-            temp_39 = temp_38 ? uint(temp_70) : temp_39;
-            temp_40 = temp_38 ? temp_99 : temp_40;
-            temp_41 = temp_38 ? temp_100 : temp_41;
-            temp_42 = temp_38 ? temp_101 : temp_42;
-            temp_102 = temp_39;
-            temp_103 = temp_40;
-            temp_104 = temp_41;
-            temp_105 = temp_42;
-            temp_114 = float(temp_102);
-            temp_118 = 1.0 / temp_114;
-            temp_142 = temp_104 * temp_118;
-            temp_144 = temp_103 * temp_118;
-            temp_159 = temp_144 * nuPerWorldCBuffer.worldMatrix[0].x;
-            temp_160 = temp_144 * nuPerWorldCBuffer.worldMatrix[0].y;
-            temp_161 = temp_105 * temp_118;
-            temp_162 = temp_144 * nuPerWorldCBuffer.worldMatrix[0].z;
-            temp_167 = fma(temp_142, nuPerWorldCBuffer.worldMatrix[1].x, temp_159);
-            temp_169 = fma(temp_142, nuPerWorldCBuffer.worldMatrix[1].y, temp_160);
-            temp_170 = fma(temp_142, nuPerWorldCBuffer.worldMatrix[1].z, temp_162);
-            temp_175 = fma(temp_161, nuPerWorldCBuffer.worldMatrix[2].x, temp_167);
-            temp_176 = fma(temp_161, nuPerWorldCBuffer.worldMatrix[2].y, temp_169);
-            temp_177 = fma(temp_161, nuPerWorldCBuffer.worldMatrix[2].z, temp_170);
-            temp_182 = temp_175 * temp_175;
-            temp_183 = fma(temp_176, temp_176, temp_182);
-            temp_186 = fma(temp_177, temp_177, temp_183);
-            temp_187 = inversesqrt(temp_186);
-            temp_200 = temp_175 * temp_187;
-            temp_208 = temp_176 * temp_187;
-            temp_209 = temp_200 * PerFrame.bgRotInv[0].x;
-            temp_215 = fma(temp_208, PerFrame.bgRotInv[1].x, temp_209);
-            temp_218 = temp_177 * temp_187;
-            temp_219 = temp_200 * PerFrame.bgRotInv[0].y;
-            temp_224 = temp_200 * PerFrame.bgRotInv[0].z;
-            temp_225 = fma(temp_208, PerFrame.bgRotInv[1].y, temp_219);
-            temp_226 = fma(temp_218, PerFrame.bgRotInv[2].x, temp_215);
-            temp_231 = fma(temp_208, PerFrame.bgRotInv[1].z, temp_224);
-            temp_232 = fma(temp_218, PerFrame.bgRotInv[2].y, temp_225);
-            temp_233 = 0.0 - PerObject.lightDir1.x;
-            temp_234 = temp_226 * temp_233;
-            temp_241 = fma(temp_218, PerFrame.bgRotInv[2].z, temp_231);
-            temp_242 = 0.0 - PerObject.lightDir1.y;
-            temp_243 = fma(temp_232, temp_242, temp_234);
-            temp_252 = 0.0 - PerObject.lightDir1.z;
-            temp_253 = fma(temp_241, temp_252, temp_243);
-            OUT_NL_x = temp_253;
-        }
-    "};
-    Graph::parse_glsl(query).unwrap().simplify()
-});
-
-pub fn nl_x<'a>(graph: &'a Graph, expr: &'a Expr) -> Option<Expr> {
-    // TODO: is this some sort of normal length for RENORMAL shaders?
-    query_nodes(expr, graph, &NL_X).map(|_| Expr::Global {
-        name: "nl".into(),
-        channel: Some('x'),
-    })
 }
 
 static VARIANCE_SHADOW: LazyLock<Graph> = LazyLock::new(|| {
