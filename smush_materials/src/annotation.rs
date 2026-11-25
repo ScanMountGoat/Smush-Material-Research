@@ -83,7 +83,7 @@ fn annotate_input_outputs(
             let mut names: Vec<_> = attributes.input_locations.iter().collect();
             names.sort_by_key(|(_, location)| *location);
 
-            for ((name, _), input) in attributes.input_locations.iter().zip(&metadata.inputs) {
+            for ((name, _), input) in names.iter().zip(&metadata.inputs) {
                 replacements.insert(name.to_string(), input.name.clone());
             }
             // Fragment outputs have explicit locations.
