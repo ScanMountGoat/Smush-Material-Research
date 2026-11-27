@@ -41,6 +41,15 @@ pub struct ShaderDatabaseIndexed {
     #[bw(write_with = write_set)]
     output_exprs: IndexSet<OutputExprIndexed>,
 
+    // Many of the vertex and fragment shaders are identical.
+    #[br(parse_with = parse_set)]
+    #[bw(write_with = write_set)]
+    vertex_output_exprs: IndexSet<OutputExprs>,
+
+    #[br(parse_with = parse_set)]
+    #[bw(write_with = write_set)]
+    fragment_output_exprs: IndexSet<OutputExprs>,
+
     // Storing multiple string lists enables 8-bit instead of 16-bit indices.
     #[br(parse_with = parse_strings)]
     #[bw(write_with = write_strings)]
@@ -74,35 +83,43 @@ pub struct ShaderDatabaseIndexed {
     parameter_channels: IndexSet<SmolStr>,
 }
 
-#[binrw]
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, BinRead, BinWrite, PartialEq, Eq, Hash, Clone)]
+struct OutputExprs {
+    // There are very few unique dependencies across all shaders in a game dump.
+    // Index the exprs across all programs to greatly reduce the file size.
+    #[br(parse_with = parse_vec)]
+    #[bw(write_with = write_vec)]
+    output_exprs: Vec<(VarInt, VarInt)>,
+}
+
+#[derive(Debug, BinRead, BinWrite, PartialEq, Clone)]
 struct ShaderProgramIndexed {
     #[br(map(|x: u8| x != 0))]
-    #[bw(map(|x: &bool| *x as u8))]
+    #[bw(map(|x| *x as u8))]
     discard: bool,
 
     #[br(map(|x: u8| x != 0))]
-    #[bw(map(|x: &bool| *x as u8))]
+    #[bw(map(|x| *x as u8))]
     premultiplied: bool,
 
     #[br(map(|x: u8| x != 0))]
-    #[bw(map(|x: &bool| *x as u8))]
+    #[bw(map(|x| *x as u8))]
     receives_shadow: bool,
 
     #[br(map(|x: u8| x != 0))]
-    #[bw(map(|x: &bool| *x as u8))]
+    #[bw(map(|x| *x as u8))]
     sh: bool,
 
     #[br(map(|x: u8| x != 0))]
-    #[bw(map(|x: &bool| *x as u8))]
+    #[bw(map(|x| *x as u8))]
     lighting: bool,
 
     #[br(map(|x: u8| x != 0))]
-    #[bw(map(|x: &bool| *x as u8))]
+    #[bw(map(|x| *x as u8))]
     anisotropic_rotation: bool,
 
     #[br(map(|x: u8| x != 0))]
-    #[bw(map(|x: &bool| *x as u8))]
+    #[bw(map(|x| *x as u8))]
     renormal: bool,
 
     #[br(parse_with = parse_vec)]
@@ -113,17 +130,13 @@ struct ShaderProgramIndexed {
     #[bw(write_with = write_vec)]
     parameters: Vec<VarInt>,
 
-    complexity: f64,
+    #[br(map(|x: f64| OrderedFloat(x)))]
+    #[bw(map(|x| x.0))]
+    complexity: OrderedFloat<f64>,
 
-    // There are very few unique dependencies across all shaders in a game dump.
-    // Index the exprs across all programs to greatly reduce the file size.
-    #[br(parse_with = parse_vec)]
-    #[bw(write_with = write_vec)]
-    vertex_output_exprs: Vec<(VarInt, VarInt)>,
-
-    #[br(parse_with = parse_vec)]
-    #[bw(write_with = write_vec)]
-    fragment_output_exprs: Vec<(VarInt, VarInt)>,
+    // Index into unique vertex or fragment output exprs.
+    vertex_output_exprs: VarInt,
+    fragment_output_exprs: VarInt,
 
     fragment_discard_condition: OptVarInt,
 }
@@ -221,8 +234,7 @@ struct ParameterIndexed {
     channel: Channel,
 }
 
-#[binrw]
-#[derive(Debug, PartialEq, Eq, Hash, Clone)]
+#[derive(Debug, BinRead, BinWrite, PartialEq, Eq, Hash, Clone)]
 struct TextureIndexed {
     name: VarInt,
     channel: Channel,
@@ -280,6 +292,37 @@ impl ShaderDatabaseIndexed {
             self.add_output_expr(i, &p.exprs.fragment_exprs, &mut frag_expr_indices);
         }
 
+        let vertex_output_exprs = OutputExprs {
+            output_exprs: p
+                .exprs
+                .vertex_output_exprs
+                .iter()
+                .map(|(output, value)| {
+                    let output_index = add_string(&mut self.outputs, output.clone());
+                    (output_index, vert_expr_indices[value])
+                })
+                .collect(),
+        };
+        let vertex_output_exprs =
+            VarInt(self.vertex_output_exprs.insert_full(vertex_output_exprs).0);
+
+        let fragment_output_exprs = OutputExprs {
+            output_exprs: p
+                .exprs
+                .fragment_output_exprs
+                .iter()
+                .map(|(output, value)| {
+                    let output_index = add_string(&mut self.outputs, output.clone());
+                    (output_index, frag_expr_indices[value])
+                })
+                .collect(),
+        };
+        let fragment_output_exprs = VarInt(
+            self.fragment_output_exprs
+                .insert_full(fragment_output_exprs)
+                .0,
+        );
+
         ShaderProgramIndexed {
             discard: p.discard,
             premultiplied: p.premultiplied,
@@ -298,25 +341,9 @@ impl ShaderDatabaseIndexed {
                 .iter()
                 .map(|s| add_string(&mut self.parameter_channels, s.clone()))
                 .collect(),
-            complexity: p.complexity,
-            vertex_output_exprs: p
-                .exprs
-                .vertex_output_exprs
-                .iter()
-                .map(|(output, value)| {
-                    let output_index = add_string(&mut self.outputs, output.clone());
-                    (output_index, vert_expr_indices[value])
-                })
-                .collect(),
-            fragment_output_exprs: p
-                .exprs
-                .fragment_output_exprs
-                .iter()
-                .map(|(output, value)| {
-                    let output_index = add_string(&mut self.outputs, output.clone());
-                    (output_index, frag_expr_indices[value])
-                })
-                .collect(),
+            complexity: p.complexity.into(),
+            vertex_output_exprs,
+            fragment_output_exprs,
             fragment_discard_condition: OptVarInt(
                 p.exprs
                     .fragment_discard_condition
@@ -373,8 +400,8 @@ impl ShaderDatabaseIndexed {
         let mut vertex_exprs = IndexSet::default();
         let mut vertex_expr_to_index = IndexMap::default();
 
-        let vertex_output_exprs = p
-            .vertex_output_exprs
+        let vertex_output_exprs = self.vertex_output_exprs[p.vertex_output_exprs.0]
+            .output_exprs
             .iter()
             .map(|(output, value)| {
                 (
@@ -392,8 +419,8 @@ impl ShaderDatabaseIndexed {
         let mut fragment_exprs = IndexSet::default();
         let mut fragment_expr_to_index = IndexMap::default();
 
-        let fragment_output_exprs = p
-            .fragment_output_exprs
+        let fragment_output_exprs = self.fragment_output_exprs[p.fragment_output_exprs.0]
+            .output_exprs
             .iter()
             .map(|(output, value)| {
                 (
@@ -429,7 +456,7 @@ impl ShaderDatabaseIndexed {
                 .iter()
                 .map(|s| self.parameter_channels[s.0].clone())
                 .collect(),
-            complexity: p.complexity,
+            complexity: p.complexity.0,
             exprs: ShaderExprs {
                 vertex_exprs: vertex_exprs.into_iter().collect(),
                 vertex_output_exprs,
